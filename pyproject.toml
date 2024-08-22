@@ -37,7 +37,11 @@ dependencies = [
 include = ["src/causal_validation"]
 packages = ["src/causal_validation"]
 
-[tool.hatch.envs.tests]
+[tool.hatch.envs.default]
+installer = "uv"
+python = "3.10"
+
+[tool.hatch.envs.dev]
 dependencies = [
   "mypy",
   "black",
@@ -52,16 +56,12 @@ dependencies = [
   "hypothesis",
   "pre-commit",
   "absolufy-imports",
-  ]
-
-[tool.hatch.envs.dev]
-dependencies = [
   "ipykernel",
   "ipython",
   "jupytext",
   ]
 
-[tool.hatch.envs.tests.scripts]
+[tool.hatch.envs.dev.scripts]
 test = "pytest --hypothesis-profile causal_validation"
 ptest = "pytest -n auto . --hypothesis-profile causal_validation"
 format = [
@@ -69,8 +69,6 @@ format = [
   "black src tests",
   "ruff format src tests"
 ]
-
-[tool.hatch.envs.dev.scripts]
 build_nbs = [
   "jupytext --to notebook examples/*.pct.py",
   "mv examples/*.ipynb nbs"
