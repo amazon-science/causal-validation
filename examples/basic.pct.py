@@ -2,6 +2,7 @@
 from itertools import product
 
 import matplotlib.pyplot as plt
+import numpy as np
 from scipy.stats import (
     norm,
     poisson,
@@ -22,7 +23,7 @@ from causal_validation.transforms.parameter import UnitVaryingParameter
 # %% [markdown]
 # ## Simulating a Dataset
 
-# %% [markdown] Simulating a dataset is as simple as specifying a `Config` object and
+# %% Simulating a dataset is as simple as specifying a `Config` object and [markdown]
 # then invoking the `simulate` function. Once simulated, we may visualise the data
 # through the `plot` function.
 
@@ -90,7 +91,6 @@ for ax in axes:
 # Or manually specifying and passing your own pseudorandom number generator key
 
 # %%
-import numpy as np
 
 rng = np.random.RandomState(42)
 

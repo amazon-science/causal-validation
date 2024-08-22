@@ -35,7 +35,7 @@ linear_trend = Trend(degree=1, coefficient=0.05)
 data = linear_trend(simulate(cfg))
 plot(data)
 
-# %% [markdown] We'll now simulate a 5% lift in the treatment group's observations. This
+# %% We'll now simulate a 5% lift in the treatment group's observations. This [markdown]
 # will inflate the treated group's observations in the post-intervention window.
 
 # %%
@@ -62,27 +62,23 @@ result = model.fit(panel)
 print(f"Delta: {TRUE_EFFECT - result.effect.percentage().value / 100}")
 print(result.summary(title="Synthetic Data Experiment"))
 
-# %% [markdown]
-# We see that SDID has done an excellent job of estimating the treatment effect.
-# However, given the simplicity of the data, this is not surprising. With the
+# %% We see that SDID has done an excellent job of estimating the treatment [markdown]
+# effect.  However, given the simplicity of the data, this is not surprising. With the
 # functionality within this package though we can easily construct more complex datasets
 # in effort to fully stress-test any new model and identify its limitations.
 #
 # To achieve this, we'll simulate 10 control units, 60 pre-intervention time points, and
-# 30 post-intervention time points according to the following process:
-# $$
-# \begin{align}
+# 30 post-intervention time points according to the following process: $$ \begin{align}
 # \mu_{n, t} & \sim\mathcal{N}(20, 0.5^2)\\
 # \alpha_{n} & \sim \mathcal{N}(0, 1^2)\\
 # \beta_{n} & \sim \mathcal{N}(0.05, 0.01^2)\\
 # \nu_n & \sim \mathcal{N}(1, 1^2)\\
 # \gamma_n & \sim \operatorname{Student-t}_{10}(1, 1^2)\\
-# \mathbf{Y}_{n, t} & = \mu_{n, t} + \alpha_{n} + \beta_{n}t + \nu_n\sin\left(3\times 2\pi t + \gamma\right) + \delta_{t, n}
-# \end{align}
-# $$
-# where the true treatment effect $\delta_{t, n}$ is 5% when $n=1$ and $t\geq 60$ and 0
-# otherwise. Meanwhile, $\mathbf{Y}$ is the matrix of observations, long in the number
-# of time points and wide in the number of units.
+# \mathbf{Y}_{n, t} & = \mu_{n, t} + \alpha_{n} + \beta_{n}t + \nu_n\sin\left(3\times
+# 2\pi t + \gamma\right) + \delta_{t, n} \end{align} $$ where the true treatment effect
+# $\delta_{t, n}$ is 5% when $n=1$ and $t\geq 60$ and 0 otherwise. Meanwhile,
+# $\mathbf{Y}$ is the matrix of observations, long in the number of time points and wide
+# in the number of units.
 
 # %%
 cfg = Config(
@@ -105,7 +101,7 @@ periodic = Periodic(amplitude=amplitude, shift=shift, frequency=3)
 data = effect(periodic(linear_trend(simulate(cfg))))
 plot(data)
 
-# %% [markdown] As before, we may now go about estimating the treatment. However, this
+# %% As before, we may now go about estimating the treatment. However, this [markdown]
 # time we see that the delta between the estaimted and true effect is much larger than
 # before.
 

@@ -64,11 +64,13 @@ dependencies = [
 [tool.hatch.envs.dev.scripts]
 test = "pytest --hypothesis-profile causal_validation"
 ptest = "pytest -n auto . --hypothesis-profile causal_validation"
-format = [
+black-format = ["black src tests", "jupytext --pipe black examples/*.py"]
+imports-format = [
   "isort src tests",
-  "black src tests",
-  "ruff format src tests"
+  "isort examples/*.py --treat-comment-as-code '# %%' --float-to-top",
 ]
+lint-format = ['ruff format src tests examples']
+format = ["black-format", "imports-format", "lint-format"]
 build_nbs = [
   "jupytext --to notebook examples/*.pct.py",
   "mv examples/*.ipynb nbs"
