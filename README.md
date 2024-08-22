@@ -1,4 +1,4 @@
-# SyntheticCausalDataGen
+# Causal Validation
 
 This package provides functionality to define your own causal data generation process and then simulate data from the process. Within the package, there is functionality to include complex components to your process, such as periodic and temporal trends, and all of these operations are fully composable with one another. 
 
