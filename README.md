@@ -33,6 +33,8 @@ inflated_data = effect(trended_data)
 plot(inflated_data)
 ```
 
+![](https://raw.githubusercontent.com/amazon-science/causal-validation/main/static/readme_fig.png?token=GHSAT0AAAAAACTFBAFOPO3QHKOVJ26W4DU4ZWHSWFA)
+
 
 ## Examples
 
@@ -47,7 +49,7 @@ In this section we guide the user through the installation of this package. We d
 ### Prerequisites
 
 - Python 3.10 or higher
-- [Poetry](https://python-poetry.org/) (optional, but recommended)
+- [Hatch](https://hatch.pypa.io/latest/) (optional, but recommended)
 
 ### For Users
 
