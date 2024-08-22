@@ -166,4 +166,4 @@ plot(p(data))
 # variation. In a follow-up notebook, we show how these datasets may be integrated with
 # Amazon's own AZCausal library to compare the effect estimated by a model with the true
 # effect of the underlying data generating process. A link to this notebook is
-# [here](PLACEHOLDER).
+# [here](https://github.com/amazon-science/causal-validation/blob/main/examples/azcausal.pct.py).
