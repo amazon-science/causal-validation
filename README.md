@@ -44,12 +44,19 @@ To supplement the above example, we have two more detailed notebooks which exhau
 
 ## Installation
 
-In this section we guide the user through the installation of this package. We distinguish here between _users_ of the package who seek to define their own data generating processes, and _developers_ who wish to extend the existing functionality of the package.
+In this section we guide the user through the installation of this package. We
+distinguish here between _users_ of the package who seek to define their own data
+generating processes, and _developers_ who wish to extend the existing functionality of
+the package.
 
 ### Prerequisites
 
 - Python 3.10 or higher
-- [Hatch](https://hatch.pypa.io/latest/) (optional, but recommended)
+- [Hatch](https://hatch.pypa.io/latest/) (optional, but recommended for developers)
+
+To install the latest stable version, run
+`pip install causal-validation`
+in your terminal.
 
 ### For Users
 
