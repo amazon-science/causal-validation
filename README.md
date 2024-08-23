@@ -62,7 +62,7 @@ in your terminal.
 
 1. It's strongly recommended to use a virtual environment. Create and activate one using your preferred method before proceeding with the installation.
 2. Clone the package `git clone git@github.com:amazon-science/causal-validation.git`
-3. Enter the package's root directory `cd SyntheticCausalDataGen`
+3. Enter the package's root directory `cd causal-validation`
 4. Install the package `pip install -e .`
 
 ### For Developers
