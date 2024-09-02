@@ -6,14 +6,16 @@ from hypothesis import (
 )
 import numpy as np
 import pandas as pd
+import pytest
 from pandas.core.indexes.datetimes import DatetimeIndex
 
-from causal_validation.data import Dataset
+from causal_validation.data import Dataset, reassign_treatment
 from causal_validation.testing import (
     TestConstants,
     simulate_data,
 )
 from causal_validation.types import InterventionTypes
+from copy import deepcopy
 
 DEFAULT_SEED = 123
 NUM_NON_CONTROL_COLS = 2
@@ -166,3 +168,90 @@ def test_get_index(n_post_treatment: int, n_pre_treatment: int, idx: Interventio
         assert len(idx_vals) == n_post_treatment
     elif idx == "pre-intervention":
         assert len(idx_vals) == n_pre_treatment
+
+
+@pytest.mark.parametrize("n_pre, n_post, n_control", [(60, 30, 10), (60, 30, 20)])
+def test_drop_unit(n_pre: int, n_post: int, n_control: int):
+    constants = TestConstants(
+        N_POST_TREATMENT=n_post,
+        N_PRE_TREATMENT=n_pre,
+        N_CONTROL=n_control,
+    )
+    data = simulate_data(0.0, DEFAULT_SEED, constants=constants)
+    desired_shape_Xtr = (n_pre, n_control - 1)
+    desired_shape_Xte = (n_post, n_control - 1)
+    desired_shape_ytr = (n_pre, 1)
+    desired_shape_yte = (n_post, 1)
+
+    for i in range(n_control):
+        reduced_data = data.drop_unit(i)
+        assert reduced_data.Xtr.shape == desired_shape_Xtr
+        assert reduced_data.Xte.shape == desired_shape_Xte
+        assert reduced_data.ytr.shape == desired_shape_ytr
+        assert reduced_data.yte.shape == desired_shape_yte
+
+
+@pytest.mark.parametrize("n_pre, n_post, n_control", [(60, 30, 10), (60, 30, 20)])
+def test_to_placebo(n_pre: int, n_post: int, n_control: int):
+    constants = TestConstants(
+        N_POST_TREATMENT=n_post,
+        N_PRE_TREATMENT=n_pre,
+        N_CONTROL=n_control,
+    )
+    data = simulate_data(0.0, DEFAULT_SEED, constants=constants)
+    desired_shape_Xtr = (n_pre, n_control - 1)
+    desired_shape_Xte = (n_post, n_control - 1)
+    desired_shape_ytr = (n_pre, 1)
+    desired_shape_yte = (n_post, 1)
+
+    for i in range(n_control):
+        placebo_data = data.to_placebo_data(i)
+        assert placebo_data.Xtr.shape == desired_shape_Xtr
+        assert placebo_data.Xte.shape == desired_shape_Xte
+        assert placebo_data.ytr.shape == desired_shape_ytr
+        assert placebo_data.yte.shape == desired_shape_yte
+        assert not data == placebo_data
+
+
+@given(
+    n_control=st.integers(min_value=2, max_value=50),
+    n_pre_treatment=st.integers(min_value=10, max_value=50),
+    n_post_treatment=st.integers(min_value=10, max_value=50),
+    global_mean=st.floats(
+        min_value=-5.0, max_value=5.0, allow_infinity=False, allow_nan=False
+    ),
+)
+@settings(max_examples=10)
+def test_eq(
+    n_control: int, n_pre_treatment: int, n_post_treatment: int, global_mean: float
+):
+    constants = TestConstants(
+        N_POST_TREATMENT=n_post_treatment,
+        N_PRE_TREATMENT=n_pre_treatment,
+        N_CONTROL=n_control,
+    )
+    data = simulate_data(global_mean, DEFAULT_SEED, constants=constants)
+    copied_data = deepcopy(data)
+    assert data == copied_data
+
+    # Shape mismatch
+    for i in range(n_control):
+        reduced_data = data.drop_unit(i)
+        assert not data == reduced_data
+
+
+@pytest.mark.parametrize("n_pre, n_post, n_control", [(60, 30, 10), (60, 30, 20)])
+def test_reassign_treatment(n_pre: int, n_post: int, n_control: int):
+    constants = TestConstants(
+        N_POST_TREATMENT=n_post,
+        N_PRE_TREATMENT=n_pre,
+        N_CONTROL=n_control,
+    )
+    data = simulate_data(0.0, DEFAULT_SEED, constants=constants)
+    to_assign_ytr = np.ones(shape=(n_pre, 1))
+    to_assign_yte = np.ones(shape=(n_post, 1))
+
+    reassigned_data = reassign_treatment(data, to_assign_ytr, to_assign_yte)
+    assert not data == reassigned_data
+    np.testing.assert_equal(reassigned_data.ytr, to_assign_ytr)
+    np.testing.assert_equal(reassigned_data.yte, to_assign_yte)
