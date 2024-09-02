@@ -16,10 +16,10 @@ if tp.TYPE_CHECKING:
 class AbstractWeights(BaseObject):
     name: str = "Abstract Weights"
 
-    def _get_weights(self, obs: Float[np.ndarray, "N D"]) -> Float[np.ndarray, " D"]:
+    def _get_weights(self, obs: Float[np.ndarray, "N D"]) -> Float[np.ndarray, "D 1"]:
         raise NotImplementedError("Please implement `_get_weights` in all subclasses.")
 
-    def get_weights(self, obs: Float[np.ndarray, "N D"]) -> Float[np.ndarray, " D"]:
+    def get_weights(self, obs: Float[np.ndarray, "N D"]) -> Float[np.ndarray, "D 1"]:
         weights = self._get_weights(obs)
 
         np.testing.assert_almost_equal(
@@ -42,7 +42,7 @@ class AbstractWeights(BaseObject):
 class UniformWeights(AbstractWeights):
     name: str = "Uniform Weights"
 
-    def _get_weights(self, obs: Float[np.ndarray, "N D"]) -> Float[np.ndarray, " D"]:
+    def _get_weights(self, obs: Float[np.ndarray, "N D"]) -> Float[np.ndarray, "D 1"]:
         n_units = obs.shape[1]
         return np.repeat(1.0 / n_units, repeats=n_units).reshape(-1, 1)
 
