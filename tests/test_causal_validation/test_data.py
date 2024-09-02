@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from azcausal.estimators.panel.did import DID
 from hypothesis import (
     given,
@@ -6,16 +8,18 @@ from hypothesis import (
 )
 import numpy as np
 import pandas as pd
-import pytest
 from pandas.core.indexes.datetimes import DatetimeIndex
+import pytest
 
-from causal_validation.data import Dataset, reassign_treatment
+from causal_validation.data import (
+    Dataset,
+    reassign_treatment,
+)
 from causal_validation.testing import (
     TestConstants,
     simulate_data,
 )
 from causal_validation.types import InterventionTypes
-from copy import deepcopy
 
 DEFAULT_SEED = 123
 NUM_NON_CONTROL_COLS = 2

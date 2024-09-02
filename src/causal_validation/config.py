@@ -7,8 +7,11 @@ import typing as tp
 
 import numpy as np
 
+from causal_validation.types import (
+    Number,
+    WeightTypes,
+)
 from causal_validation.weights import UniformWeights
-from causal_validation.types import WeightTypes, Number
 
 
 @dataclass(kw_only=True, frozen=True)

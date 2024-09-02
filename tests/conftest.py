@@ -1,7 +1,6 @@
 from hypothesis import settings
 from jaxtyping import install_import_hook
 
-
 settings.register_profile(
     "causal_validation", database=None, max_examples=10, deadline=None
 )
