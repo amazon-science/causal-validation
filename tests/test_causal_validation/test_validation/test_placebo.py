@@ -1,19 +1,27 @@
-import pytest
-import numpy as np
+import typing as tp
 
-from causal_validation.validation.placebo import (
-    PlaceboTestResult,
-    PlaceboTest,
-    PlaceboSchema,
-)
-from causal_validation.models import AZCausalWrapper
-from causal_validation.transforms import Trend
-from hypothesis import given, settings, strategies as st
-from causal_validation.testing import simulate_data, TestConstants
 from azcausal.estimators.panel.did import DID
 from azcausal.estimators.panel.sdid import SDID
+from hypothesis import (
+    given,
+    settings,
+    strategies as st,
+)
+import numpy as np
 import pandas as pd
-import typing as tp
+import pytest
+
+from causal_validation.models import AZCausalWrapper
+from causal_validation.testing import (
+    TestConstants,
+    simulate_data,
+)
+from causal_validation.transforms import Trend
+from causal_validation.validation.placebo import (
+    PlaceboSchema,
+    PlaceboTest,
+    PlaceboTestResult,
+)
 
 
 def test_schema_coerce():

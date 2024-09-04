@@ -2,14 +2,17 @@ from dataclasses import dataclass
 import typing as tp
 
 from azcausal.core.effect import Effect
+import numpy as np
+import pandas as pd
+from pandera import (
+    Check,
+    Column,
+    DataFrameSchema,
+)
+from tqdm import trange
 
 from causal_validation.data import Dataset
 from causal_validation.models import AZCausalWrapper
-import pandas as pd
-import numpy as np
-from pandera import Check, Column, DataFrameSchema
-from tqdm import trange
-
 
 PlaceboSchema = DataFrameSchema(
     {

@@ -7,7 +7,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.11.2
+#       jupytext_version: 1.16.4
 #   kernelspec:
 #     display_name: causal-validation
 #     language: python
@@ -15,21 +15,22 @@
 # ---
 
 # %%
+from azcausal.core.error import JackKnife
+from azcausal.estimators.panel.did import DID
+from azcausal.estimators.panel.sdid import SDID
+
 from causal_validation import (
     Config,
     simulate,
 )
 from causal_validation.effects import StaticEffect
+from causal_validation.models import AZCausalWrapper
 from causal_validation.plotters import plot
 from causal_validation.transforms import (
     Periodic,
     Trend,
 )
 from causal_validation.validation.placebo import PlaceboTest
-from causal_validation.models import AZCausalWrapper
-from azcausal.estimators.panel.did import DID
-from azcausal.estimators.panel.sdid import SDID
-from azcausal.core.error import JackKnife
 
 # %%
 cfg = Config(
