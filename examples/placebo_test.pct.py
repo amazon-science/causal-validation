@@ -28,10 +28,11 @@ from causal_validation.transforms import (
 from causal_validation.validation.placebo import PlaceboTest
 from causal_validation.models import AZCausalWrapper
 from azcausal.estimators.panel.did import DID
+from azcausal.estimators.panel.sdid import SDID
 from azcausal.core.error import JackKnife
 
 # %%
-cfg = cv.Config(
+cfg = Config(
     n_control_units=10,
     n_pre_intervention_timepoints=60,
     n_post_intervention_timepoints=30,
@@ -44,8 +45,13 @@ data = effect(simulate(cfg))
 plot(data)
 
 # %%
-model = AZCausalWrapper(model=VTLab(), error_estimator=JackKnife())
+model = AZCausalWrapper(model=SDID(), error_estimator=JackKnife())
 result = PlaceboTest(model, data).execute()
 result.summary()
+
+# %% [markdown]
+# - Can you answer Qs around the data
+
+# %%
 
 # %%
