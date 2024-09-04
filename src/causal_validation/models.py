@@ -18,5 +18,4 @@ class AZCausalWrapper:
         result = self.model.fit(panel, **kwargs)
         if self.error_estimator:
             self.model.error(result, self.error_estimator)
-        breakpoint()
         return result
