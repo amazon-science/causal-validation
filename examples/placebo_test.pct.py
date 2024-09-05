@@ -44,10 +44,6 @@ from causal_validation import (
 from causal_validation.effects import StaticEffect
 from causal_validation.models import AZCausalWrapper
 from causal_validation.plotters import plot
-from causal_validation.transforms import (
-    Periodic,
-    Trend,
-)
 from causal_validation.validation.placebo import PlaceboTest
 
 # %% [markdown]
@@ -99,3 +95,19 @@ model = AZCausalWrapper(model=SDID(), error_estimator=JackKnife())
 # %%
 result = PlaceboTest(model, data).execute()
 result.summary()
+
+# %% [markdown]
+# ## Model Comparison
+#
+# We can also use the results of a placebo test to compare two or more models. Using
+# `causal-validation`, this is as simple as supplying a series of models to the placebo
+# test and comparing their outputs. To demonstrate this, we will compare the previously
+# used synthetic difference-in-differences model with regular difference-in-differences.
+
+# %%
+did_model = AZCausalWrapper(model=DID())
+PlaceboTest([model, did_model], data).execute().summary()
+
+# %%
+
+# %%

@@ -51,7 +51,7 @@ means = [10, 50]
 scales = [0.1, 0.5]
 
 fig, axes = plt.subplots(ncols=2, nrows=2, figsize=(10, 6), tight_layout=True)
-for (m, s), ax in zip(product(means, scales), axes.ravel()):
+for (m, s), ax in zip(product(means, scales), axes.ravel(), strict=False):
     cfg = Config(
         n_control_units=10,
         n_pre_intervention_timepoints=60,

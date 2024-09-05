@@ -31,7 +31,8 @@ dependencies = [
   "matplotlib",
   "numpy",
   "pandas",
-  "pandera"
+  "pandera",
+  "rich"
 ]
 
 [tool.hatch.build]
