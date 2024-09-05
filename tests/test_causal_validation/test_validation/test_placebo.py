@@ -60,5 +60,5 @@ def test_placebo_test(
     summary = result.summary()
     PlaceboSchema.validate(summary)
     assert isinstance(summary, pd.DataFrame)
-    assert summary.shape == (1, 3)
+    assert summary.shape == (1, 4)
     assert summary["Effect"].iloc[0] == pytest.approx(0.0, abs=0.1)
