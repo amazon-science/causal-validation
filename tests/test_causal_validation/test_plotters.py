@@ -30,12 +30,12 @@ title_strategy = st.text(
 
 
 @given(
-    n_control=st.integers(min_value=1, max_value=50),
+    n_control=st.integers(min_value=1, max_value=10),
     n_pre_treatment=st.integers(min_value=1, max_value=50),
     n_post_treatment=st.integers(min_value=1, max_value=50),
     ax_bool=st.booleans(),
 )
-@settings(max_examples=5)
+@settings(max_examples=10)
 def test_plot(
     n_control: int, n_pre_treatment: int, n_post_treatment: int, ax_bool: bool
 ):
@@ -47,7 +47,9 @@ def test_plot(
     data = simulate_data(0.0, DEFAULT_SEED, constants=constants)
     if ax_bool:
         _, ax = plt.subplots()
-    ax = plot(data)
+    else:
+        ax = None
+    ax = plot(data, ax=ax)
     assert isinstance(ax, Axes)
     assert len(ax.lines) == n_control + 2
     assert ax.get_legend() is not None
