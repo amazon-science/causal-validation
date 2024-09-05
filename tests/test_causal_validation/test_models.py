@@ -1,14 +1,29 @@
-import numpy as np
 import typing as tp
-from causal_validation.models import AZCausalWrapper
-from azcausal.estimators.panel import did, sdid
-from azcausal.core.error import JackKnife, Bootstrap, Placebo
-from hypothesis import given, settings, strategies as st
-from azcausal.core.error import Error
-from azcausal.core.estimator import Estimator
-from causal_validation.testing import simulate_data, TestConstants
-from azcausal.core.result import Result
+
 from azcausal.core.effect import Effect
+from azcausal.core.error import (
+    Bootstrap,
+    Error,
+    JackKnife,
+)
+from azcausal.core.estimator import Estimator
+from azcausal.core.result import Result
+from azcausal.estimators.panel import (
+    did,
+    sdid,
+)
+from hypothesis import (
+    given,
+    settings,
+    strategies as st,
+)
+import numpy as np
+
+from causal_validation.models import AZCausalWrapper
+from causal_validation.testing import (
+    TestConstants,
+    simulate_data,
+)
 
 MODELS = [did.DID(), sdid.SDID()]
 MODEL_ERROR = [

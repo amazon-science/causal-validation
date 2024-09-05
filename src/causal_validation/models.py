@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 import typing as tp
 
-from azcausal.core.effect import Effect
 from azcausal.core.error import Error
 from azcausal.core.estimator import Estimator
 from azcausal.core.result import Result
+
 from causal_validation.data import Dataset
 
 
