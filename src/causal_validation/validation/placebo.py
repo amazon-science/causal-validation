@@ -9,6 +9,7 @@ from pandera import (
     Column,
     DataFrameSchema,
 )
+from scipy.stats import ttest_1samp
 from tqdm import trange
 
 from causal_validation.data import Dataset
@@ -21,6 +22,7 @@ PlaceboSchema = DataFrameSchema(
             float, checks=[Check.greater_than(0.0)], coerce=True
         ),
         "Standard Error": Column(float, checks=[Check.greater_than(0.0)], coerce=True),
+        "p-value": Column(float, coerce=True),
     }
 )
 
@@ -35,10 +37,12 @@ class PlaceboTestResult:
         expected_effect = np.mean(_effects)
         stddev_effect = np.std(_effects)
         std_error = stddev_effect / np.sqrt(_n_effects)
+        p_value = ttest_1samp(_effects, 0, alternative="two-sided").pvalue
         result = {
             "Effect": expected_effect,
             "Standard Deviation": stddev_effect,
             "Standard Error": std_error,
+            "p-value": p_value,
         }
         result_df = pd.DataFrame([result])
         PlaceboSchema.validate(result_df)
