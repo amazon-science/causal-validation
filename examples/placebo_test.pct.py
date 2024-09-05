@@ -7,7 +7,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.11.2
+#       jupytext_version: 1.16.4
 #   kernelspec:
 #     display_name: causal-validation
 #     language: python
@@ -15,7 +15,7 @@
 # ---
 
 # %% [markdown]
-# # Placebo Testing 
+# # Placebo Testing
 #
 # A placebo test is an approach to assess the validity of a causal model by checking if the effect can truly be attributed to the treatment, or to other spurious factors. A placebo test is conducted by iterating through the set of control units and at each iteration, replacing the treated unit by one of the control units and measuring the effect. If the model detects a significant effect, then it suggests potential bias or omitted variables in the analysis, indicating that the causal inference is flawed.
 #

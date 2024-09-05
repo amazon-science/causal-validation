@@ -9,10 +9,10 @@ from pandera import (
     Column,
     DataFrameSchema,
 )
-from scipy.stats import ttest_1samp
-from tqdm import trange
 from rich import box
 from rich.table import Table
+from scipy.stats import ttest_1samp
+from tqdm import trange
 
 from causal_validation.data import Dataset
 from causal_validation.models import AZCausalWrapper
