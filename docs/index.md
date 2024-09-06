@@ -40,6 +40,8 @@ effect = StaticEffect(0.05)
 inflated_data = effect(trended_data)
 ```
 
+![Gaussian process posterior.](static/imgs/readme_fig.png)
+
 ## Model Validation
 
 Once a dataset has been synthesised, we may wish to validate our model using a placebo
