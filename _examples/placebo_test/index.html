@@ -8,23 +8,25 @@
       
       
       
-        <link rel="canonical" href="https://amazon-science.github.io/causal-validation/">
+        <link rel="canonical" href="https://amazon-science.github.io/causal-validation/_examples/placebo_test/">
       
       
+        <link rel="prev" href="../basic/">
       
-        <link rel="next" href="_examples/basic/">
+      
+        <link rel="next" href="../azcausal/">
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.34">
     
     
       
-        <title>Causal Validation</title>
+        <title>Placebo Testing - Causal Validation</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.35f28582.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.35f28582.min.css">
       
       
 
@@ -43,7 +45,7 @@
       
     
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -62,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#welcome-to-causal-validation" class="md-skip">
+        <a href="#placebo-testing" class="md-skip">
           Skip to content
         </a>
       
@@ -82,7 +84,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="Causal Validation" class="md-header__button md-logo" aria-label="Causal Validation" data-md-component="logo">
+    <a href="../.." title="Causal Validation" class="md-header__button md-logo" aria-label="Causal Validation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -102,7 +104,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              Placebo Testing
             
           </span>
         </div>
@@ -191,7 +193,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="Causal Validation" class="md-nav__button md-logo" aria-label="Causal Validation" data-md-component="logo">
+    <a href="../.." title="Causal Validation" class="md-nav__button md-logo" aria-label="Causal Validation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -218,6 +220,89 @@
       
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Examples
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../basic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Data Synthesis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -234,18 +319,18 @@
           
   
   <span class="md-ellipsis">
-    Home
+    Placebo Testing
   </span>
   
 
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="." class="md-nav__link md-nav__link--active">
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
-    Home
+    Placebo Testing
   </span>
   
 
@@ -267,18 +352,36 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#data-synthesis" class="md-nav__link">
+  <a href="#data-simulation" class="md-nav__link">
     <span class="md-ellipsis">
-      Data Synthesis
+      Data simulation
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#model-validation" class="md-nav__link">
+  <a href="#model" class="md-nav__link">
     <span class="md-ellipsis">
-      Model Validation
+      Model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#placebo-test-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Placebo Test Results
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      Model Comparison
     </span>
   </a>
   
@@ -291,66 +394,6 @@
     </li>
   
 
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-      
-        
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
-            
-  
-  <span class="md-ellipsis">
-    Examples
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2">
-            <span class="md-nav__icon md-icon"></span>
-            Examples
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="_examples/basic/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Data Synthesis
-  </span>
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -360,28 +403,7 @@
   
   
     <li class="md-nav__item">
-      <a href="_examples/placebo_test/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Placebo Testing
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="_examples/azcausal/" class="md-nav__link">
+      <a href="../azcausal/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -429,18 +451,36 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#data-synthesis" class="md-nav__link">
+  <a href="#data-simulation" class="md-nav__link">
     <span class="md-ellipsis">
-      Data Synthesis
+      Data simulation
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#model-validation" class="md-nav__link">
+  <a href="#model" class="md-nav__link">
     <span class="md-ellipsis">
-      Model Validation
+      Model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#placebo-test-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Placebo Test Results
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      Model Comparison
     </span>
   </a>
   
@@ -464,54 +504,106 @@
   
 
 
-<h1 id="welcome-to-causal-validation">Welcome to Causal Validation</h1>
-<p>Causal Validation is a library designed to validate and test your causal models. To
-achieve this, we provide functionality to simulate causal data, and vaildate your model
-through a placebo test. </p>
-<h2 id="data-synthesis">Data Synthesis</h2>
-<p>Data Synthesis in Causal Validation is a fully composable process whereby a set of
-functions are sequentially applied to a dataset. At some point in this process we also
-induce a treatment effect. Any of these functions can be parameterised to either have
-constant parameter values across all control units, or a value that varies across
-parameters. To see this, consider the below example where we simulate a dataset whose
-trend varies across each of the 10 control units.</p>
-<pre><code class="language-python">from causal_validation import Config, simulate
-from causal_validation.effects import StaticEffect
-from causal_validation.plotters import plot
-from causal_validation.transforms import Trend, Periodic
-from causal_validation.transforms.parameter import UnitVaryingParameter
-from scipy.stats import norm
+<h1 id="placebo-testing">Placebo Testing</h1>
+<p>A placebo test is an approach to assess the validity of a causal model by checking if
+the effect can truly be attributed to the treatment, or to other spurious factors. A
+placebo test is conducted by iterating through the set of control units and at each
+iteration, replacing the treated unit by one of the control units and measuring the
+effect. If the model detects a significant effect, then it suggests potential bias or
+omitted variables in the analysis, indicating that the causal inference is flawed.</p>
+<p>A successful placebo test will show no statistically significant results and we may
+then conclude that the estimated effect can be attributed to the treatment and not
+driven by confounding factors. Conversely, a failed placebo test, which shows
+significant results, suggests that the identified treatment effect may not be
+reliable. Placebo testing is thus a critical step to ensure the robustness of findings
+in RCTs. In this notebook, we demonstrate how a placebo test can be conducted in
+<code>causal-validation</code>.</p>
+<pre><code class="language-python">from azcausal.core.error import JackKnife
+from azcausal.estimators.panel.did import DID
+from azcausal.estimators.panel.sdid import SDID
 
-cfg = Config(
+from causal_validation import (
+    Config,
+    simulate,
+)
+from causal_validation.effects import StaticEffect
+from causal_validation.models import AZCausalWrapper
+from causal_validation.plotters import plot
+from causal_validation.validation.placebo import PlaceboTest
+</code></pre>
+<pre><code>/home/runner/.local/share/hatch/env/virtual/causal-validation/CYBYs5D-/docs/lib/python3.10/site-packages/pandera/engines/pandas_engine.py:67: UserWarning: Using typeguard &lt; 3. Generic types like List[TYPE], Dict[TYPE, TYPE] will only validate the first element in the collection.
+  warnings.warn(
+</code></pre>
+<h2 id="data-simulation">Data simulation</h2>
+<p>To demonstrate a placebo test, we must first simulate some data. For the purposes of
+illustration, we'll simulate a very simple dataset containing 10 control units where
+each unit has 60 pre-intervention observations, and 30 post-intervention observations.</p>
+<pre><code class="language-python">cfg = Config(
     n_control_units=10,
     n_pre_intervention_timepoints=60,
     n_post_intervention_timepoints=30,
+    seed=123,
 )
 
-# Simulate the base observation
-base_data = simulate(cfg)
-
-# Apply a linear trend with unit-varying intercept
-intercept = UnitVaryingParameter(sampling_dist = norm(0, 1))
-trend_component = Trend(degree=1, coefficient=0.1, intercept=intercept)
-trended_data = trend_component(base_data)
-
-# Simulate a 5% lift in the treated unit's post-intervention data
-effect = StaticEffect(0.05)
-inflated_data = effect(trended_data)
+TRUE_EFFECT = 0.05
+effect = StaticEffect(effect=TRUE_EFFECT)
+data = effect(simulate(cfg))
+plot(data)
 </code></pre>
-<p><img alt="Gaussian process posterior." src="static/imgs/readme_fig.png" /></p>
-<h2 id="model-validation">Model Validation</h2>
-<p>Once a dataset has been synthesised, we may wish to validate our model using a placebo
-test. In Causal Validation this is straightforward and can be accomplished in
-combination with AZCausal by the following.</p>
-<pre><code class="language-python">from azcausal.estimators.panel.sdid import SDID
-from causal_validation.validation.placebo import PlaceboTest
-
-model = AZCausalWrapper(model=SDID())
-result = PlaceboTest(model, inflated_data).execute()
+<pre><code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;
+</code></pre>
+<p><img alt="png" src="../placebo_test_files/placebo_test_3_1.png" /></p>
+<h2 id="model">Model</h2>
+<p>We'll now define our model. To do this, we'll use the synthetic
+difference-in-differences implementation of AZCausal. This implementation, along with
+any other model from AZCausal, can be neatly wrapped up in our <code>AZCausalWrapper</code> to
+make fitting and effect estimation simpler.</p>
+<pre><code class="language-python">model = AZCausalWrapper(model=SDID(), error_estimator=JackKnife())
+</code></pre>
+<h2 id="placebo-test-results">Placebo Test Results</h2>
+<p>Now that we have a dataset and model defined, we may conduct our placebo test. With 10
+control units, the test will estimate 10 individual effects; 1 per control unit when
+it is mocked as the treated group. With those 10 effects, the routine will then
+produce the mean estimated effect, along with the standard deviation across the
+estimated effect, the effect's standard error, and the p-value that corresponds to the
+null-hypothesis test that the effect is 0.</p>
+<p>In the below, we see that expected estimated effect is small at just 0.08.
+Accordingly, the p-value attains a value of 0.5, indicating that we have insufficient
+evidence to reject the null hypothesis and we, therefore, have no evidence to suggest
+that there is bias within this particular setup.</p>
+<pre><code class="language-python">result = PlaceboTest(model, data).execute()
 result.summary()
 </code></pre>
+<pre><code>Output()
+</code></pre>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">                                                                  
+|<span style="font-weight: bold"> Model </span>|<span style="font-weight: bold"> Effect </span>|<span style="font-weight: bold"> Standard Deviation </span>|<span style="font-weight: bold"> Standard Error </span>|<span style="font-weight: bold"> p-value </span>|
+|-------|--------|--------------------|----------------|---------|
+|<span style="color: #800080; text-decoration-color: #800080"> SDID  </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.0851 </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.4079             </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.129          </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.5472  </span>|
+
+</pre>
+
+<h2 id="model-comparison">Model Comparison</h2>
+<p>We can also use the results of a placebo test to compare two or more models. Using
+<code>causal-validation</code>, this is as simple as supplying a series of models to the placebo
+test and comparing their outputs. To demonstrate this, we will compare the previously
+used synthetic difference-in-differences model with regular difference-in-differences.</p>
+<pre><code class="language-python">did_model = AZCausalWrapper(model=DID())
+PlaceboTest([model, did_model], data).execute().summary()
+</code></pre>
+<pre><code>Output()
+</code></pre>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">                                                                  
+|<span style="font-weight: bold"> Model </span>|<span style="font-weight: bold"> Effect </span>|<span style="font-weight: bold"> Standard Deviation </span>|<span style="font-weight: bold"> Standard Error </span>|<span style="font-weight: bold"> p-value </span>|
+|-------|--------|--------------------|----------------|---------|
+|<span style="color: #800080; text-decoration-color: #800080"> SDID  </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.0851 </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.4079             </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.129          </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.5472  </span>|
+|<span style="color: #800080; text-decoration-color: #800080"> DID   </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.0002 </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.2818             </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.0891         </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.9982  </span>|
+
+</pre>
 
 
 
@@ -558,10 +650,10 @@ result.summary()
     </div>
     
     
-    <script id="__config" type="application/json">{"base": ".", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "search.suggest", "content.code.copy"], "search": "assets/javascripts/workers/search.07f07601.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "search.suggest", "content.code.copy"], "search": "../../assets/javascripts/workers/search.07f07601.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="assets/javascripts/bundle.56dfad97.min.js"></script>
+      <script src="../../assets/javascripts/bundle.56dfad97.min.js"></script>
       
     
   </body>
