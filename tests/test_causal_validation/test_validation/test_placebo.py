@@ -29,8 +29,9 @@ def test_schema_coerce():
     df = PlaceboSchema.example()
     cols = df.columns
     for col in cols:
-        df[col] = np.ceil((df[col]))
-        PlaceboSchema.validate(df)
+        if col != "Model":
+            df[col] = np.ceil((df[col]))
+            PlaceboSchema.validate(df)
 
 
 @given(
