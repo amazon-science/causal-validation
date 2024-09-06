@@ -1,6 +1,6 @@
 # %% [markdown]
 # # Data Synthesis
-
+#
 # In this notebook we'll demonstrate how `causal-validation` can be used to simulate
 # synthetic datasets. We'll start with very simple data to which a static treatment
 # effect may be applied. From there, we'll build up to complex datasets. Along the way,

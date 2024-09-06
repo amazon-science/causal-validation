@@ -23,7 +23,6 @@ from causal_validation.transforms import (
 )
 from causal_validation.transforms.parameter import UnitVaryingParameter
 
-
 # %%
 cfg = Config(
     n_control_units=10,

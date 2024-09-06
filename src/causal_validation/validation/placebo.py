@@ -10,12 +10,16 @@ from pandera import (
     DataFrameSchema,
 )
 from rich import box
+from rich.progress import (
+    Progress,
+    ProgressBar,
+    track,
+)
 from rich.table import Table
 from scipy.stats import ttest_1samp
 
 from causal_validation.data import Dataset
 from causal_validation.models import AZCausalWrapper
-from rich.progress import track, ProgressBar, Progress
 
 PlaceboSchema = DataFrameSchema(
     {
