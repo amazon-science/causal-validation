@@ -6,9 +6,9 @@ repo_name: causal-validation
 nav:
   - Home: index.md
   - Examples:
-    - Data Synthesis: _examples/basic.md
-    - Placebo Testing: _examples/placebo_test.md
-    - AZCausal Integration: _examples/azcausal.md
+    - Data Synthesis: examples/basic.ipynb
+    - Placebo Testing: examples/placebo_test.ipynb
+    - AZCausal Integration: examples/azcausal.ipynb
 
 theme:
   name: material
@@ -26,9 +26,9 @@ markdown_extensions:
 
 plugins:
   - search
-  - gen-files:
-      scripts:
-        - docs/scripts/gen_examples.py
+  - mknotebooks
+      execute: true
+      allow_errors: false
 
 extra:
   version:
