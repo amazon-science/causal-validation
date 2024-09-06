@@ -78,6 +78,20 @@ build_nbs = [
   "mv examples/*.ipynb nbs"
 ]
 
+[tool.hatch.envs.docs]
+dependencies = [
+  "mkdocs",
+  "mkdocs-material",
+  "mkdocs-gen-files",
+  "jupyter",
+  "jupytext",
+  "ipywidgets"
+  ]
+
+[tool.hatch.envs.docs.scripts]
+serve = "mkdocs serve --dev-addr localhost:8000"
+deploy = "mkdocs gh-deploy --force"
+
 [tool.hatch.version]
 path = "src/causal_validation/__about__.py"
 

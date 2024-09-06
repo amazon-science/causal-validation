@@ -1,3 +1,12 @@
+# %% [markdown]
+# # AZCausal Integration
+#
+# Amazon's [AZCausal](https://github.com/amazon-science/azcausal) library provides the
+# functionality to fit synthetic control and difference-in-difference models to your
+# data. Integrating the synthetic data generating process of `causal_validation` with
+# AZCausal is trivial, as we show in this notebook. To start, we'll simulate a toy
+# dataset.
+
 # %%
 from azcausal.estimators.panel.sdid import SDID
 import scipy.stats as st
@@ -14,14 +23,6 @@ from causal_validation.transforms import (
 )
 from causal_validation.transforms.parameter import UnitVaryingParameter
 
-# %% [markdown]
-# ## AZCausal Integration
-#
-# Amazon's [AZCausal](https://github.com/amazon-science/azcausal) library provides the
-# functionality to fit synthetic control and difference-in-difference models to your
-# data. Integrating the synthetic data generating process of `causal_validation` with
-# AZCausal is trivial, as we show in this notebook. To start, we'll simulate a toy
-# dataset.
 
 # %%
 cfg = Config(
@@ -45,7 +46,7 @@ inflated_data = effect(data)
 plot(inflated_data)
 
 # %% [markdown]
-# ### Fitting a model
+# ## Fitting a model
 #
 # We now have some very toy data on which we may apply a model. For this demonstration
 # we shall use the Synthetic Difference-in-Differences model implemented in AZCausal;
