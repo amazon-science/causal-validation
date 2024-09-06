@@ -1,4 +1,4 @@
-name: Build Documentation
+name: Test Documentation
 
 on:
   pull_request:
@@ -8,9 +8,9 @@ permissions:
   contents: write
 
 jobs:
-  build-docs:
+  test-docs:
     concurrency: ci-${{ github.ref }}
-    name: Build docs
+    name: Test docs
     runs-on: "ubuntu-latest"
     defaults:
       run:
@@ -31,5 +31,5 @@ jobs:
       - name: Install Hatch
         uses: pypa/hatch@install
 
-      - name: Build and deploy the documentation
+      - name: Build the documentation
         run: hatch run docs:build
