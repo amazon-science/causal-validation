@@ -9,7 +9,7 @@
 #       format_version: '1.3'
 #       jupytext_version: 1.16.4
 #   kernelspec:
-#     display_name: causal-validation
+#     display_name: dev
 #     language: python
 #     name: python3
 # ---
@@ -107,7 +107,3 @@ result.summary()
 # %%
 did_model = AZCausalWrapper(model=DID())
 PlaceboTest([model, did_model], data).execute().summary()
-
-# %%
-
-# %%

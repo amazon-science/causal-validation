@@ -1,0 +1,38 @@
+site_name: Causal Validation
+repo_url: https://github.com/amazon-science/causal-validation
+site_url: https://amazon-science.github.io/causal-validation/
+repo_name: causal-validation
+
+nav:
+  - Home: index.md
+  - Examples:
+    - Data Synthesis: _examples/basic.md
+    - Placebo Testing: _examples/placebo_test.md
+    - AZCausal Integration: _examples/azcausal.md
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - search.suggest
+    - content.code.copy
+
+markdown_extensions:
+  - abbr
+  - admonition
+
+plugins:
+  - search
+  - gen-files:
+      scripts:
+        - docs/scripts/gen_examples.py
+
+extra:
+  version:
+    provider: mike
+
+watch:
+  - src
