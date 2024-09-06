@@ -36,4 +36,10 @@ jobs:
         uses: pypa/hatch@install
 
       - name: Build and deploy the documentation
-        run: hatch run docs:deploy
+        run: hatch run docs:build
+
+      - name: Deploy Page 🚀
+        uses: JamesIves/github-pages-deploy-action@v4.4.1
+        with:
+          branch: gh-pages
+          folder: site
