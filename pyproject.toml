@@ -91,7 +91,7 @@ dependencies = [
 
 [tool.hatch.envs.docs.scripts]
 serve = "mkdocs serve --dev-addr localhost:8000"
-deploy = ["python docs/scripts/gen_examples.py", "mkdocs build"]
+deploy = "mkdocs build"
 build = "mkdocs build"
 
 [tool.hatch.version]
