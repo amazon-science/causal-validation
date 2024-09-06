@@ -91,6 +91,7 @@ dependencies = [
 [tool.hatch.envs.docs.scripts]
 serve = "mkdocs serve --dev-addr localhost:8000"
 deploy = "mkdocs gh-deploy --force"
+build = "mkdocs build"
 
 [tool.hatch.version]
 path = "src/causal_validation/__about__.py"
