@@ -8,7 +8,7 @@
       
       
       
-        <link rel="canonical" href="https://amazon-science.github.io/causal-validation/_examples/basic/">
+        <link rel="canonical" href="https://amazon-science.github.io/causal-validation/examples/basic/">
       
       
         <link rel="prev" href="../..">
@@ -44,6 +44,12 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
+    
+      <link rel="stylesheet" href="../../css/ansi-colours.css">
+    
+      <link rel="stylesheet" href="../../css/jupyter-cells.css">
+    
+      <link rel="stylesheet" href="../../css/pandas-dataframe.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -570,12 +576,52 @@
   
 
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script>
+(function() {
+  function addWidgetsRenderer() {
+    var requireJsScript = document.createElement('script');
+    requireJsScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js';
+
+    var mimeElement = document.querySelector('script[type="application/vnd.jupyter.widget-view+json"]');
+    var jupyterWidgetsScript = document.createElement('script');
+    var widgetRendererSrc = 'https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js';
+    var widgetState;
+
+    // Fallback for older version:
+    try {
+      widgetState = mimeElement && JSON.parse(mimeElement.innerHTML);
+
+      if (widgetState && (widgetState.version_major < 2 || !widgetState.version_major)) {
+        widgetRendererSrc = 'jupyter-js-widgets@*/dist/embed.js';
+      }
+    } catch(e) {}
+
+    jupyterWidgetsScript.src = widgetRendererSrc;
+
+    document.body.appendChild(requireJsScript);
+    document.body.appendChild(jupyterWidgetsScript);
+  }
+
+  document.addEventListener('DOMContentLoaded', addWidgetsRenderer);
+}());
+</script>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="data-synthesis">Data Synthesis</h1>
 <p>In this notebook we'll demonstrate how <code>causal-validation</code> can be used to simulate
 synthetic datasets. We'll start with very simple data to which a static treatment
 effect may be applied. From there, we'll build up to complex datasets. Along the way,
 we'll show how reproducibility can be ensured, plots can be generated, and unit-level
 parameters may be specified.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">from itertools import product
 
 import matplotlib.pyplot as plt
@@ -597,9 +643,29 @@ from causal_validation.transforms import (
 )
 from causal_validation.transforms.parameter import UnitVaryingParameter
 </code></pre>
+
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="simulating-a-dataset">Simulating a Dataset</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <p>then invoking the <code>simulate</code> function. Once simulated, we may visualise the data
 through the <code>plot</code> function.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">cfg = Config(
     n_control_units=10,
     n_pre_intervention_timepoints=60,
@@ -610,14 +676,41 @@ through the <code>plot</code> function.</p>
 data = simulate(cfg)
 plot(data)
 </code></pre>
-<pre><code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;
-</code></pre>
-<p><img alt="png" src="../basic_files/basic_4_1.png" /></p>
+
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_png output_subarea">
+<img alt="No description has been provided for this image" src="output_4_1.png"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="controlling-baseline-behaviour">Controlling baseline behaviour</h3>
 <p>We observe that we have 10 control units, each of which were sampled from a Gaussian
 distribution with mean 20 and scale 0.2. Had we wished for our underlying observations
 to have more or less noise, or to have a different global mean, then we can simply
 specify that through the config file.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">means = [10, 50]
 scales = [0.1, 0.5]
 
@@ -633,12 +726,34 @@ for (m, s), ax in zip(product(means, scales), axes.ravel(), strict=False):
     data = simulate(cfg)
     plot(data, ax=ax, title=f&quot;Mean: {m}, Scale: {s}&quot;)
 </code></pre>
-<p><img alt="png" src="../basic_files/basic_6_0.png" /></p>
+
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_png output_subarea">
+<img alt="No description has been provided for this image" src="output_6_0.png"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="reproducibility">Reproducibility</h3>
 <p>In the above four panels, we can see that whilst the mean and scale of the underlying
 data generating process is varying, the functional form of the data is the same. This
 is by design to ensure that data sampling is reproducible. To sample a new dataset,
 you may either change the underlying seed in the config file.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">cfg = Config(
     n_control_units=10,
     n_pre_intervention_timepoints=60,
@@ -646,14 +761,50 @@ you may either change the underlying seed in the config file.</p>
     seed=42,
 )
 </code></pre>
+
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <p>Reusing the same config file across simulations</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">fig, axes = plt.subplots(ncols=2, figsize=(10, 3))
 for ax in axes:
     data = simulate(cfg)
     plot(data, ax=ax)
 </code></pre>
-<p><img alt="png" src="../basic_files/basic_10_0.png" /></p>
+
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_png output_subarea">
+<img alt="No description has been provided for this image" src="output_10_0.png"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <p>Or manually specifying and passing your own pseudorandom number generator key</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">
 rng = np.random.RandomState(42)
 
@@ -662,67 +813,232 @@ for ax in axes:
     data = simulate(cfg, key=rng)
     plot(data, ax=ax)
 </code></pre>
-<p><img alt="png" src="../basic_files/basic_12_0.png" /></p>
+
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_png output_subarea">
+<img alt="No description has been provided for this image" src="output_12_0.png"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="simulating-an-effect">Simulating an effect</h3>
 <p>In the data we have seen up until now, the treated unit has been drawn from the same
 data generating process as the control units. However, it can be helpful to also
 inflate the treated unit to observe how well our model can recover the the true
 treatment effect. To do this, we simply compose our dataset with an <code>Effect</code> object.
 In the below, we shall inflate our data by 2%.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">effect = StaticEffect(effect=0.02)
 inflated_data = effect(data)
 fig, (ax0, ax1) = plt.subplots(ncols=2, figsize=(10, 3))
 plot(data, ax=ax0, title=&quot;Original data&quot;)
 plot(inflated_data, ax=ax1, title=&quot;Inflated data&quot;)
 </code></pre>
-<pre><code>&lt;Axes: title={'center': 'Inflated data'}, xlabel='Time', ylabel='Observed'&gt;
-</code></pre>
-<p><img alt="png" src="../basic_files/basic_14_1.png" /></p>
+
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>&lt;Axes: title={'center': 'Inflated data'}, xlabel='Time', ylabel='Observed'&gt;</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_png output_subarea">
+<img alt="No description has been provided for this image" src="output_14_1.png"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="more-complex-generation-processes">More complex generation processes</h3>
 <p>The example presented above shows a very simple stationary data generation process.
 However, we may make our example more complex by including a non-stationary trend to
 the data.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">trend_term = Trend(degree=1, coefficient=0.1)
 data_with_trend = effect(trend_term(data))
 plot(data_with_trend)
 </code></pre>
-<pre><code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;
-</code></pre>
-<p><img alt="png" src="../basic_files/basic_16_1.png" /></p>
+
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_png output_subarea">
+<img alt="No description has been provided for this image" src="output_16_1.png"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">trend_term = Trend(degree=2, coefficient=0.0025)
 data_with_trend = effect(trend_term(data))
 plot(data_with_trend)
 </code></pre>
-<pre><code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;
-</code></pre>
-<p><img alt="png" src="../basic_files/basic_17_1.png" /></p>
+
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_png output_subarea">
+<img alt="No description has been provided for this image" src="output_17_1.png"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <p>We may also include periodic components in our data</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">periodicity = Periodic(amplitude=2, frequency=6)
 perioidic_data = effect(periodicity(trend_term(data)))
 plot(perioidic_data)
 </code></pre>
-<pre><code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;
-</code></pre>
-<p><img alt="png" src="../basic_files/basic_19_1.png" /></p>
+
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_png output_subarea">
+<img alt="No description has been provided for this image" src="output_19_1.png"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="unit-level-parameterisation">Unit-level parameterisation</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">sampling_dist = norm(0.0, 1.0)
 intercept = UnitVaryingParameter(sampling_dist=sampling_dist)
 trend_term = Trend(degree=1, intercept=intercept, coefficient=0.1)
 data_with_trend = effect(trend_term(data))
 plot(data_with_trend)
 </code></pre>
-<pre><code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;
-</code></pre>
-<p><img alt="png" src="../basic_files/basic_21_1.png" /></p>
+
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_png output_subarea">
+<img alt="No description has been provided for this image" src="output_21_1.png"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">sampling_dist = poisson(2)
 frequency = UnitVaryingParameter(sampling_dist=sampling_dist)
 
 p = Periodic(frequency=frequency)
 plot(p(data))
 </code></pre>
-<pre><code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;
-</code></pre>
-<p><img alt="png" src="../basic_files/basic_22_1.png" /></p>
+
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_png output_subarea">
+<img alt="No description has been provided for this image" src="output_22_1.png"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="conclusions">Conclusions</h2>
 <p>In this notebook we have shown how one can define their model's true underlying data
 generating process, starting from simple white-noise samples through to more complex
@@ -731,6 +1047,9 @@ variation. In a follow-up notebook, we show how these datasets may be integrated
 Amazon's own AZCausal library to compare the effect estimated by a model with the true
 effect of the underlying data generating process. A link to this notebook is
 <a href="https://github.com/amazon-science/causal-validation/blob/main/examples/azcausal.pct.py">here</a>.</p>
+</div>
+</div>
+</div>
 
 
 

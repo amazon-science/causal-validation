@@ -8,7 +8,7 @@
       
       
       
-        <link rel="canonical" href="https://amazon-science.github.io/causal-validation/_examples/azcausal/">
+        <link rel="canonical" href="https://amazon-science.github.io/causal-validation/examples/azcausal/">
       
       
         <link rel="prev" href="../placebo_test/">
@@ -42,6 +42,12 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
+    
+      <link rel="stylesheet" href="../../css/ansi-colours.css">
+    
+      <link rel="stylesheet" href="../../css/jupyter-cells.css">
+    
+      <link rel="stylesheet" href="../../css/pandas-dataframe.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -448,12 +454,52 @@
   
 
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script>
+(function() {
+  function addWidgetsRenderer() {
+    var requireJsScript = document.createElement('script');
+    requireJsScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js';
+
+    var mimeElement = document.querySelector('script[type="application/vnd.jupyter.widget-view+json"]');
+    var jupyterWidgetsScript = document.createElement('script');
+    var widgetRendererSrc = 'https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js';
+    var widgetState;
+
+    // Fallback for older version:
+    try {
+      widgetState = mimeElement && JSON.parse(mimeElement.innerHTML);
+
+      if (widgetState && (widgetState.version_major < 2 || !widgetState.version_major)) {
+        widgetRendererSrc = 'jupyter-js-widgets@*/dist/embed.js';
+      }
+    } catch(e) {}
+
+    jupyterWidgetsScript.src = widgetRendererSrc;
+
+    document.body.appendChild(requireJsScript);
+    document.body.appendChild(jupyterWidgetsScript);
+  }
+
+  document.addEventListener('DOMContentLoaded', addWidgetsRenderer);
+}());
+</script>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="azcausal-integration">AZCausal Integration</h1>
 <p>Amazon's <a href="https://github.com/amazon-science/azcausal">AZCausal</a> library provides the
 functionality to fit synthetic control and difference-in-difference models to your
 data. Integrating the synthetic data generating process of <code>causal_validation</code> with
 AZCausal is trivial, as we show in this notebook. To start, we'll simulate a toy
 dataset.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">from azcausal.estimators.panel.sdid import SDID
 import scipy.stats as st
 
@@ -469,6 +515,14 @@ from causal_validation.transforms import (
 )
 from causal_validation.transforms.parameter import UnitVaryingParameter
 </code></pre>
+
+
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">cfg = Config(
     n_control_units=10,
     n_pre_intervention_timepoints=60,
@@ -480,18 +534,65 @@ linear_trend = Trend(degree=1, coefficient=0.05)
 data = linear_trend(simulate(cfg))
 plot(data)
 </code></pre>
-<pre><code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;
-</code></pre>
-<p><img alt="png" src="../azcausal_files/azcausal_2_1.png" /></p>
+
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_png output_subarea">
+<img alt="No description has been provided for this image" src="output_2_1.png"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <p>will inflate the treated group's observations in the post-intervention window.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">TRUE_EFFECT = 0.05
 effect = StaticEffect(effect=TRUE_EFFECT)
 inflated_data = effect(data)
 plot(inflated_data)
 </code></pre>
-<pre><code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;
-</code></pre>
-<p><img alt="png" src="../azcausal_files/azcausal_4_1.png" /></p>
+
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_png output_subarea">
+<img alt="No description has been provided for this image" src="output_4_1.png"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="fitting-a-model">Fitting a model</h2>
 <p>We now have some very toy data on which we may apply a model. For this demonstration
 we shall use the Synthetic Difference-in-Differences model implemented in AZCausal;
@@ -500,13 +601,28 @@ achieve this, we must first coerce the data into a format that is digestible for
 AZCausal. Through the <code>.to_azcausal()</code> method implemented here, this is
 straightforward to achieve. Once we have a AZCausal compatible dataset, the modelling
 is very simple by virtue of the clean design of AZCausal.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">panel = inflated_data.to_azcausal()
 model = SDID()
 result = model.fit(panel)
 print(f&quot;Delta: {TRUE_EFFECT - result.effect.percentage().value / 100}&quot;)
 print(result.summary(title=&quot;Synthetic Data Experiment&quot;))
 </code></pre>
-<pre><code>Delta: -2.3592239273284576e-16
+
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+<code>Delta: -2.3592239273284576e-16
 ╭──────────────────────────────────────────────────────────────────────────────╮
 |                          Synthetic Data Experiment                           |
 ├──────────────────────────────────────────────────────────────────────────────┤
@@ -529,7 +645,16 @@ print(result.summary(title=&quot;Synthetic Data Experiment&quot;))
 |  Observed: 747.03                                                            |
 |  Counter Factual: 711.46                                                     |
 ╰──────────────────────────────────────────────────────────────────────────────╯
-</code></pre>
+</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <p>effect.  However, given the simplicity of the data, this is not surprising. With the
 functionality within this package though we can easily construct more complex datasets
 in effort to fully stress-test any new model and identify its limitations.</p>
@@ -545,6 +670,13 @@ in effort to fully stress-test any new model and identify its limitations.</p>
 $\delta_{t, n}$ is 5% when $n=1$ and $t\geq 60$ and 0 otherwise. Meanwhile,
 $\mathbf{Y}$ is the matrix of observations, long in the number of time points and wide
 in the number of units.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">cfg = Config(
     n_control_units=10,
     n_pre_intervention_timepoints=60,
@@ -565,18 +697,53 @@ periodic = Periodic(amplitude=amplitude, shift=shift, frequency=3)
 data = effect(periodic(linear_trend(simulate(cfg))))
 plot(data)
 </code></pre>
-<pre><code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;
-</code></pre>
-<p><img alt="png" src="../azcausal_files/azcausal_8_1.png" /></p>
+
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_png output_subarea">
+<img alt="No description has been provided for this image" src="output_8_1.png"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <p>time we see that the delta between the estaimted and true effect is much larger than
 before.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">panel = data.to_azcausal()
 model = SDID()
 result = model.fit(panel)
 print(f&quot;Delta: {100*(TRUE_EFFECT - result.effect.percentage().value / 100): .2f}%&quot;)
 print(result.summary(title=&quot;Synthetic Data Experiment&quot;))
 </code></pre>
-<pre><code>Delta:  1.71%
+
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+<code>Delta:  1.71%
 ╭──────────────────────────────────────────────────────────────────────────────╮
 |                          Synthetic Data Experiment                           |
 ├──────────────────────────────────────────────────────────────────────────────┤
@@ -599,7 +766,13 @@ print(result.summary(title=&quot;Synthetic Data Experiment&quot;))
 |  Observed: 686.44                                                            |
 |  Counter Factual: 664.59                                                     |
 ╰──────────────────────────────────────────────────────────────────────────────╯
-</code></pre>
+</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
 
 
 

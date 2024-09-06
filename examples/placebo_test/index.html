@@ -8,7 +8,7 @@
       
       
       
-        <link rel="canonical" href="https://amazon-science.github.io/causal-validation/_examples/placebo_test/">
+        <link rel="canonical" href="https://amazon-science.github.io/causal-validation/examples/placebo_test/">
       
       
         <link rel="prev" href="../basic/">
@@ -44,6 +44,12 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
+    
+      <link rel="stylesheet" href="../../css/ansi-colours.css">
+    
+      <link rel="stylesheet" href="../../css/jupyter-cells.css">
+    
+      <link rel="stylesheet" href="../../css/pandas-dataframe.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -504,6 +510,39 @@
   
 
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script>
+(function() {
+  function addWidgetsRenderer() {
+    var requireJsScript = document.createElement('script');
+    requireJsScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js';
+
+    var mimeElement = document.querySelector('script[type="application/vnd.jupyter.widget-view+json"]');
+    var jupyterWidgetsScript = document.createElement('script');
+    var widgetRendererSrc = 'https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js';
+    var widgetState;
+
+    // Fallback for older version:
+    try {
+      widgetState = mimeElement && JSON.parse(mimeElement.innerHTML);
+
+      if (widgetState && (widgetState.version_major < 2 || !widgetState.version_major)) {
+        widgetRendererSrc = 'jupyter-js-widgets@*/dist/embed.js';
+      }
+    } catch(e) {}
+
+    jupyterWidgetsScript.src = widgetRendererSrc;
+
+    document.body.appendChild(requireJsScript);
+    document.body.appendChild(jupyterWidgetsScript);
+  }
+
+  document.addEventListener('DOMContentLoaded', addWidgetsRenderer);
+}());
+</script>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="placebo-testing">Placebo Testing</h1>
 <p>A placebo test is an approach to assess the validity of a causal model by checking if
 the effect can truly be attributed to the treatment, or to other spurious factors. A
@@ -518,6 +557,13 @@ significant results, suggests that the identified treatment effect may not be
 reliable. Placebo testing is thus a critical step to ensure the robustness of findings
 in RCTs. In this notebook, we demonstrate how a placebo test can be conducted in
 <code>causal-validation</code>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">from azcausal.core.error import JackKnife
 from azcausal.estimators.panel.did import DID
 from azcausal.estimators.panel.sdid import SDID
@@ -531,13 +577,37 @@ from causal_validation.models import AZCausalWrapper
 from causal_validation.plotters import plot
 from causal_validation.validation.placebo import PlaceboTest
 </code></pre>
-<pre><code>/home/runner/.local/share/hatch/env/virtual/causal-validation/CYBYs5D-/docs/lib/python3.10/site-packages/pandera/engines/pandas_engine.py:67: UserWarning: Using typeguard &lt; 3. Generic types like List[TYPE], Dict[TYPE, TYPE] will only validate the first element in the collection.
+
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>
+<code>/home/runner/.local/share/hatch/env/virtual/causal-validation/CYBYs5D-/docs/lib/python3.10/site-packages/pandera/engines/pandas_engine.py:67: UserWarning: Using typeguard &lt; 3. Generic types like List[TYPE], Dict[TYPE, TYPE] will only validate the first element in the collection.
   warnings.warn(
-</code></pre>
+</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="data-simulation">Data simulation</h2>
 <p>To demonstrate a placebo test, we must first simulate some data. For the purposes of
 illustration, we'll simulate a very simple dataset containing 10 control units where
 each unit has 60 pre-intervention observations, and 30 post-intervention observations.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">cfg = Config(
     n_control_units=10,
     n_pre_intervention_timepoints=60,
@@ -550,16 +620,50 @@ effect = StaticEffect(effect=TRUE_EFFECT)
 data = effect(simulate(cfg))
 plot(data)
 </code></pre>
-<pre><code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;
-</code></pre>
-<p><img alt="png" src="../placebo_test_files/placebo_test_3_1.png" /></p>
+
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_png output_subarea">
+<img alt="No description has been provided for this image" src="output_3_1.png"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="model">Model</h2>
 <p>We'll now define our model. To do this, we'll use the synthetic
 difference-in-differences implementation of AZCausal. This implementation, along with
 any other model from AZCausal, can be neatly wrapped up in our <code>AZCausalWrapper</code> to
 make fitting and effect estimation simpler.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">model = AZCausalWrapper(model=SDID(), error_estimator=JackKnife())
 </code></pre>
+
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="placebo-test-results">Placebo Test Results</h2>
 <p>Now that we have a dataset and model defined, we may conduct our placebo test. With 10
 control units, the test will estimate 10 individual effects; 1 per control unit when
@@ -571,32 +675,91 @@ null-hypothesis test that the effect is 0.</p>
 Accordingly, the p-value attains a value of 0.5, indicating that we have insufficient
 evidence to reject the null hypothesis and we, therefore, have no evidence to suggest
 that there is bias within this particular setup.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">result = PlaceboTest(model, data).execute()
 result.summary()
 </code></pre>
-<pre><code>Output()
-</code></pre>
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div id="6211cec0-055f-44ec-8b34-d3fa883ac48b"></div>
+<div class="output_subarea output_widget_view">
+<script type="text/javascript">
+var element = $('#6211cec0-055f-44ec-8b34-d3fa883ac48b');
+</script>
+<script type="application/vnd.jupyter.widget-view+json">
+{"version_major": 2, "version_minor": 0, "model_id": "96eb1518a64a4f779c0ad85ad74370ee"}
+</script>
+</div>
+</div>
+<div class="output_area">
+<div class="output_html rendered_html output_subarea">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_html rendered_html output_subarea output_execute_result">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">                                                                  
 |<span style="font-weight: bold"> Model </span>|<span style="font-weight: bold"> Effect </span>|<span style="font-weight: bold"> Standard Deviation </span>|<span style="font-weight: bold"> Standard Error </span>|<span style="font-weight: bold"> p-value </span>|
 |-------|--------|--------------------|----------------|---------|
 |<span style="color: #800080; text-decoration-color: #800080"> SDID  </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.0851 </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.4079             </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.129          </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.5472  </span>|
 
 </pre>
-
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="model-comparison">Model Comparison</h2>
 <p>We can also use the results of a placebo test to compare two or more models. Using
 <code>causal-validation</code>, this is as simple as supplying a series of models to the placebo
 test and comparing their outputs. To demonstrate this, we will compare the previously
 used synthetic difference-in-differences model with regular difference-in-differences.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+
 <pre><code class="language-python">did_model = AZCausalWrapper(model=DID())
 PlaceboTest([model, did_model], data).execute().summary()
 </code></pre>
-<pre><code>Output()
-</code></pre>
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div id="2071cebc-301b-4cbb-b5dd-4cdebf5dcb8a"></div>
+<div class="output_subarea output_widget_view">
+<script type="text/javascript">
+var element = $('#2071cebc-301b-4cbb-b5dd-4cdebf5dcb8a');
+</script>
+<script type="application/vnd.jupyter.widget-view+json">
+{"version_major": 2, "version_minor": 0, "model_id": "08fc0a16f78e4d59aac5b13ddbb930a0"}
+</script>
+</div>
+</div>
+<div class="output_area">
+<div class="output_html rendered_html output_subarea">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_html rendered_html output_subarea output_execute_result">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">                                                                  
 |<span style="font-weight: bold"> Model </span>|<span style="font-weight: bold"> Effect </span>|<span style="font-weight: bold"> Standard Deviation </span>|<span style="font-weight: bold"> Standard Error </span>|<span style="font-weight: bold"> p-value </span>|
 |-------|--------|--------------------|----------------|---------|
@@ -604,6 +767,14 @@ PlaceboTest([model, did_model], data).execute().summary()
 |<span style="color: #800080; text-decoration-color: #800080"> DID   </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.0002 </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.2818             </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.0891         </span>|<span style="color: #800080; text-decoration-color: #800080"> 0.9982  </span>|
 
 </pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {"3a33da0b5a18474296fbae37322bbb82": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "96eb1518a64a4f779c0ad85ad74370ee": {"model_name": "OutputModel", "model_module": "@jupyter-widgets/output", "model_module_version": "1.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/output", "_model_module_version": "1.0.0", "_model_name": "OutputModel", "_view_count": null, "_view_module": "@jupyter-widgets/output", "_view_module_version": "1.0.0", "_view_name": "OutputView", "layout": "IPY_MODEL_3a33da0b5a18474296fbae37322bbb82", "msg_id": "", "outputs": [{"output_type": "display_data", "metadata": {}, "data": {"text/plain": "", "text/html": "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"></pre>\n"}}], "tabbable": null, "tooltip": null}}, "a84cc0a39e6542899bf60912b0a15ce2": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "08fc0a16f78e4d59aac5b13ddbb930a0": {"model_name": "OutputModel", "model_module": "@jupyter-widgets/output", "model_module_version": "1.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/output", "_model_module_version": "1.0.0", "_model_name": "OutputModel", "_view_count": null, "_view_module": "@jupyter-widgets/output", "_view_module_version": "1.0.0", "_view_name": "OutputView", "layout": "IPY_MODEL_a84cc0a39e6542899bf60912b0a15ce2", "msg_id": "", "outputs": [{"output_type": "display_data", "metadata": {}, "data": {"text/plain": "", "text/html": "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"></pre>\n"}}], "tabbable": null, "tooltip": null}}}, "version_major": 2, "version_minor": 0}
+</script>
 
 
 
