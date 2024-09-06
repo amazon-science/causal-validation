@@ -83,7 +83,7 @@ dependencies = [
   "mkdocs",
   "mkdocs-material",
   "mkdocs-gen-files",
-  "mkdocstrings-python",
+  "mknotebooks",
   "jupyter",
   "jupytext",
   "ipywidgets"
