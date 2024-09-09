@@ -48,13 +48,11 @@
       
     
     
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
       <link rel="stylesheet" href="../stylesheets/extra.css">
     
       <link rel="stylesheet" href="../css/ansi-colours.css">
-    
-      <link rel="stylesheet" href="../css/jupyter-cells.css">
-    
-      <link rel="stylesheet" href="../css/pandas-dataframe.css">
     
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -88,10 +86,6 @@
     <div data-md-component="announce">
       
     </div>
-    
-      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
-        
-      </div>
     
     
       
@@ -505,10 +499,10 @@
 <h1 id="installation">Installation</h1>
 <h2 id="stable-version">Stable version</h2>
 <p>The latest stable release of <code>causal-validation</code> can be installed via <code>pip</code>:</p>
-<div class="language-bash highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span style="color: #bbbbbb"> </span>install<span style="color: #bbbbbb"> </span>causal-validation
+<div class="language-bash highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip install causal-validation
 </span></code></pre></div>
 <p>We recommend you check your installation version:</p>
-<div class="language-bash highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span style="color: #bbbbbb"> </span>-c<span style="color: #bbbbbb"> </span><span style="color: #aa5500">&#39;import causal_validation; print(causal_validation.__version__)&#39;</span>
+<div class="language-bash highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python -c <span style="color: #a31515">&#39;import causal_validation; print(causal_validation.__version__)&#39;</span>
 </span></code></pre></div>
 <h2 id="development-version">Development version</h2>
 <div class="admonition warning">
@@ -516,16 +510,16 @@
 <p>This version is possibly unstable and may contain bugs.</p>
 </div>
 <p>The latest development version of <code>causal_validation</code> can be installed via running following:</p>
-<div class="language-bash highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>git<span style="color: #bbbbbb"> </span>clone<span style="color: #bbbbbb"> </span>git@github.com:amazon-science/causal-validation.git;
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span style="color: #00aaaa">cd</span><span style="color: #bbbbbb"> </span>causal-validation;
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>hatch<span style="color: #bbbbbb"> </span>shell<span style="color: #bbbbbb"> </span>create
+<div class="language-bash highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>git clone git@github.com:amazon-science/causal-validation.git;
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>cd causal-validation;
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>hatch shell create
 </span></code></pre></div>
 <p>We advise you create virtual environment before installing:</p>
-<div class="language-bash highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>conda<span style="color: #bbbbbb"> </span>create<span style="color: #bbbbbb"> </span>-n<span style="color: #bbbbbb"> </span>causal-validation<span style="color: #bbbbbb"> </span><span style="color: #aa0000">python</span>=<span style="color: #009999">3</span>.11.0;
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>conda<span style="color: #bbbbbb"> </span>activate<span style="color: #bbbbbb"> </span>causal-validation
+<div class="language-bash highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>conda create -n causal-validation python=3.11.0;
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>conda activate causal-validation
 </span></code></pre></div>
 <p>and recommend you check your installation passes the supplied unit tests:</p>
-<div class="language-bash highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>hatch<span style="color: #bbbbbb"> </span>run<span style="color: #bbbbbb"> </span>dev:test
+<div class="language-bash highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>hatch run dev:test
 </span></code></pre></div>
 
 
@@ -573,7 +567,7 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "search.suggest", "content.code.copy"], "search": "../assets/javascripts/workers/search.07f07601.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "search.suggest", "content.code.copy"], "search": "../assets/javascripts/workers/search.07f07601.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
       <script src="../assets/javascripts/bundle.56dfad97.min.js"></script>
