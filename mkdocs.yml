@@ -20,10 +20,23 @@ theme:
     - navigation.sections
     - search.suggest
     - content.code.copy
+  palette:
+    scheme: reds
 
 markdown_extensions:
   - abbr
   - admonition
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      use_pygments: true
+      pygments_lang_class: true
+      pygments_style: autumn
+      noclasses: true
 
 plugins:
   - search
@@ -34,6 +47,13 @@ plugins:
 extra:
   version:
     provider: mike
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
 
 watch:
   - src
