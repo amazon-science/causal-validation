@@ -1,6 +1,9 @@
 # Causal Validation
 
-This package provides functionality to define your own causal data generation process and then simulate data from the process. Within the package, there is functionality to include complex components to your process, such as periodic and temporal trends, and all of these operations are fully composable with one another. 
+This package provides functionality to define your own causal data generation process
+and then simulate data from the process. Within the package, there is functionality to
+include complex components to your process, such as periodic and temporal trends, and
+all of these operations are fully composable with one another. 
 
 A short example is given below
 ```python
@@ -38,9 +41,12 @@ plot(inflated_data)
 
 ## Examples
 
-To supplement the above example, we have two more detailed notebooks which exhaustively present and explain the functionalty in this package, along with how the generated data may be integrated with [AZCausal](https://github.com/amazon-science/azcausal).
-1. [Basic notebook](): We here show the full range of available functions for data generation
-2. [AZCausal notebook](): We here show how the generated data may be used within an AZCausal model.
+To supplement the above example, we have two more detailed notebooks which exhaustively
+present and explain the functionalty in this package, along with how the generated data
+may be integrated with [AZCausal](https://github.com/amazon-science/azcausal).
+1. [Data Synthesis](https://amazon-science.github.io/causal-validation/examples/basic/): We here show the full range of available functions for data generation.
+2. [Placebo testing](https://amazon-science.github.io/causal-validation/examples/placebo_test/): Validate your model(s) using placebo tests.
+3. [AZCausal notebook](https://amazon-science.github.io/causal-validation/examples/azcausal/): We here show how the generated data may be used within an AZCausal model.
 
 ## Installation
 

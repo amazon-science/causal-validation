@@ -5,6 +5,7 @@ repo_name: causal-validation
 
 nav:
   - Home: index.md
+  - Installation: installation.md
   - Examples:
     - Data Synthesis: examples/basic.ipynb
     - Placebo Testing: examples/placebo_test.ipynb
