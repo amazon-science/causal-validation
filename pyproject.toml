@@ -83,10 +83,13 @@ dependencies = [
   "mkdocs",
   "mkdocs-material",
   "mkdocs-gen-files",
+  "mkdocstrings-python",
+  "mkdocs-git-revision-date-localized-plugin",
   "mknotebooks",
   "jupyter",
   "jupytext",
-  "ipywidgets"
+  "ipywidgets",
+  "Pygments"
   ]
 
 [tool.hatch.envs.docs.scripts]
