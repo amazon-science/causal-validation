@@ -35,18 +35,29 @@ markdown_extensions:
       line_spans: __span
       use_pygments: true
       pygments_lang_class: true
-      pygments_style: autumn
+      pygments_style: vs
       noclasses: true
 
 plugins:
   - search
+  - mkdocstrings
+  - git-revision-date-localized:
+      timezone: Europe/Amsterdam
+      locale: en
+      exclude:
+        - index.md
+        - installation.md
+      fallback_to_build_date: false
+      enable_creation_date: true
   - mknotebooks:
       execute: true
       allow_errors: false
-
-extra:
-  version:
-    provider: mike
+      binder: true
+      binder_service_name: "gh"
+      binder_branch: "master"
+      binder_ui: "lab"
+      enable_default_jupyter_cell_styling: false
+      enable_default_pandas_dataframe_styling: false
 
 extra_css:
   - stylesheets/extra.css
