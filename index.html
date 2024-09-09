@@ -26,6 +26,9 @@
     
       <link rel="stylesheet" href="assets/stylesheets/main.35f28582.min.css">
       
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+      
       
 
 
@@ -43,6 +46,8 @@
       
     
     
+      <link rel="stylesheet" href="stylesheets/extra.css">
+    
       <link rel="stylesheet" href="css/ansi-colours.css">
     
       <link rel="stylesheet" href="css/jupyter-cells.css">
@@ -59,7 +64,12 @@
   </head>
   
   
-    <body dir="ltr">
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="reds" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -115,8 +125,8 @@
       </div>
     </div>
     
+      
     
-      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
     
     
     
@@ -501,43 +511,43 @@ induce a treatment effect. Any of these functions can be parameterised to either
 constant parameter values across all control units, or a value that varies across
 parameters. To see this, consider the below example where we simulate a dataset whose
 trend varies across each of the 10 control units.</p>
-<pre><code class="language-python">from causal_validation import Config, simulate
-from causal_validation.effects import StaticEffect
-from causal_validation.plotters import plot
-from causal_validation.transforms import Trend, Periodic
-from causal_validation.transforms.parameter import UnitVaryingParameter
-from scipy.stats import norm
-
-cfg = Config(
-    n_control_units=10,
-    n_pre_intervention_timepoints=60,
-    n_post_intervention_timepoints=30,
-)
-
-# Simulate the base observation
-base_data = simulate(cfg)
-
-# Apply a linear trend with unit-varying intercept
-intercept = UnitVaryingParameter(sampling_dist = norm(0, 1))
-trend_component = Trend(degree=1, coefficient=0.1, intercept=intercept)
-trended_data = trend_component(base_data)
-
-# Simulate a 5% lift in the treated unit's post-intervention data
-effect = StaticEffect(0.05)
-inflated_data = effect(trended_data)
-</code></pre>
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">causal_validation</span> <span style="color: #0000aa">import</span> Config, simulate
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">causal_validation.effects</span> <span style="color: #0000aa">import</span> StaticEffect
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">causal_validation.plotters</span> <span style="color: #0000aa">import</span> plot
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">causal_validation.transforms</span> <span style="color: #0000aa">import</span> Trend, Periodic
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">causal_validation.transforms.parameter</span> <span style="color: #0000aa">import</span> UnitVaryingParameter
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">scipy.stats</span> <span style="color: #0000aa">import</span> norm
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>cfg = Config(
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    n_control_units=<span style="color: #009999">10</span>,
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    n_pre_intervention_timepoints=<span style="color: #009999">60</span>,
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    n_post_intervention_timepoints=<span style="color: #009999">30</span>,
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>)
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span style="color: #aaaaaa; font-style: italic"># Simulate the base observation</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>base_data = simulate(cfg)
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span style="color: #aaaaaa; font-style: italic"># Apply a linear trend with unit-varying intercept</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>intercept = UnitVaryingParameter(sampling_dist = norm(<span style="color: #009999">0</span>, <span style="color: #009999">1</span>))
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>trend_component = Trend(degree=<span style="color: #009999">1</span>, coefficient=<span style="color: #009999">0.1</span>, intercept=intercept)
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>trended_data = trend_component(base_data)
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span style="color: #aaaaaa; font-style: italic"># Simulate a 5% lift in the treated unit&#39;s post-intervention data</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>effect = StaticEffect(<span style="color: #009999">0.05</span>)
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>inflated_data = effect(trended_data)
+</span></code></pre></div>
 <p><img alt="Gaussian process posterior." src="static/imgs/readme_fig.png" /></p>
 <h2 id="model-validation">Model Validation</h2>
 <p>Once a dataset has been synthesised, we may wish to validate our model using a placebo
 test. In Causal Validation this is straightforward and can be accomplished in
 combination with AZCausal by the following.</p>
-<pre><code class="language-python">from azcausal.estimators.panel.sdid import SDID
-from causal_validation.validation.placebo import PlaceboTest
-
-model = AZCausalWrapper(model=SDID())
-result = PlaceboTest(model, inflated_data).execute()
-result.summary()
-</code></pre>
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">azcausal.estimators.panel.sdid</span> <span style="color: #0000aa">import</span> SDID
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">causal_validation.validation.placebo</span> <span style="color: #0000aa">import</span> PlaceboTest
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>model = AZCausalWrapper(model=SDID())
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>result = PlaceboTest(model, inflated_data).execute()
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>result.summary()
+</span></code></pre></div>
 
 
 
@@ -588,6 +598,10 @@ result.summary()
     
     
       <script src="assets/javascripts/bundle.56dfad97.min.js"></script>
+      
+        <script src="javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>

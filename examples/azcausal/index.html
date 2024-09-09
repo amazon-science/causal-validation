@@ -26,6 +26,9 @@
     
       <link rel="stylesheet" href="../../assets/stylesheets/main.35f28582.min.css">
       
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
       
 
 
@@ -43,6 +46,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
       <link rel="stylesheet" href="../../css/ansi-colours.css">
     
       <link rel="stylesheet" href="../../css/jupyter-cells.css">
@@ -59,7 +64,12 @@
   </head>
   
   
-    <body dir="ltr">
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="reds" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -115,8 +125,8 @@
       </div>
     </div>
     
+      
     
-      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
     
     
     
@@ -519,56 +529,45 @@ dataset.</p>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-
-<pre><code class="language-python">from azcausal.estimators.panel.sdid import SDID
-import scipy.stats as st
-
-from causal_validation import (
-    Config,
-    simulate,
-)
-from causal_validation.effects import StaticEffect
-from causal_validation.plotters import plot
-from causal_validation.transforms import (
-    Periodic,
-    Trend,
-)
-from causal_validation.transforms.parameter import UnitVaryingParameter
-</code></pre>
-
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">azcausal.estimators.panel.sdid</span> <span style="color: #0000aa">import</span> SDID
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span style="color: #0000aa">import</span> <span style="color: #00aaaa; text-decoration: underline">scipy.stats</span> <span style="color: #0000aa">as</span> <span style="color: #00aaaa; text-decoration: underline">st</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">causal_validation</span> <span style="color: #0000aa">import</span> (
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    Config,
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    simulate,
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>)
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">causal_validation.effects</span> <span style="color: #0000aa">import</span> StaticEffect
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">causal_validation.plotters</span> <span style="color: #0000aa">import</span> plot
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">causal_validation.transforms</span> <span style="color: #0000aa">import</span> (
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    Periodic,
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    Trend,
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>)
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">causal_validation.transforms.parameter</span> <span style="color: #0000aa">import</span> UnitVaryingParameter
+</span></code></pre></div>
 
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-
-<pre><code class="language-python">cfg = Config(
-    n_control_units=10,
-    n_pre_intervention_timepoints=60,
-    n_post_intervention_timepoints=30,
-    seed=123,
-)
-
-linear_trend = Trend(degree=1, coefficient=0.05)
-data = linear_trend(simulate(cfg))
-plot(data)
-</code></pre>
-
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cfg = Config(
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    n_control_units=<span style="color: #009999">10</span>,
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    n_pre_intervention_timepoints=<span style="color: #009999">60</span>,
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    n_post_intervention_timepoints=<span style="color: #009999">30</span>,
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    seed=<span style="color: #009999">123</span>,
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>)
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>linear_trend = Trend(degree=<span style="color: #009999">1</span>, coefficient=<span style="color: #009999">0.05</span>)
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>data = linear_trend(simulate(cfg))
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>ax = plot(data)
+</span></code></pre></div>
 
 </div>
 <div class="output_wrapper">
 <div class="output">
 <div class="output_area">
-<div class="output_text output_subarea output_execute_result">
-<pre>
-<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
 <div class="output_png output_subarea">
-<img alt="No description has been provided for this image" src="output_2_1.png"/>
+<img alt="No description has been provided for this image" src="output_2_0.png"/>
 </div>
 </div>
 </div>
@@ -584,27 +583,18 @@ plot(data)
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-
-<pre><code class="language-python">TRUE_EFFECT = 0.05
-effect = StaticEffect(effect=TRUE_EFFECT)
-inflated_data = effect(data)
-plot(inflated_data)
-</code></pre>
-
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>TRUE_EFFECT = <span style="color: #009999">0.05</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>effect = StaticEffect(effect=TRUE_EFFECT)
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>inflated_data = effect(data)
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>ax = plot(inflated_data)
+</span></code></pre></div>
 
 </div>
 <div class="output_wrapper">
 <div class="output">
 <div class="output_area">
-<div class="output_text output_subarea output_execute_result">
-<pre>
-<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
 <div class="output_png output_subarea">
-<img alt="No description has been provided for this image" src="output_4_1.png"/>
+<img alt="No description has been provided for this image" src="output_4_0.png"/>
 </div>
 </div>
 </div>
@@ -627,14 +617,12 @@ is very simple by virtue of the clean design of AZCausal.</p>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-
-<pre><code class="language-python">panel = inflated_data.to_azcausal()
-model = SDID()
-result = model.fit(panel)
-print(f&quot;Delta: {TRUE_EFFECT - result.effect.percentage().value / 100}&quot;)
-print(result.summary(title=&quot;Synthetic Data Experiment&quot;))
-</code></pre>
-
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>panel = inflated_data.to_azcausal()
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>model = SDID()
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>result = model.fit(panel)
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span style="color: #00aaaa">print</span>(<span style="color: #aa5500">f&quot;Delta: {</span>TRUE_EFFECT<span style="color: #bbbbbb"> </span>-<span style="color: #bbbbbb"> </span>result.effect.percentage().value<span style="color: #bbbbbb"> </span>/<span style="color: #bbbbbb"> </span><span style="color: #009999">100</span><span style="color: #aa5500">}&quot;</span>)
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span style="color: #00aaaa">print</span>(result.summary(title=<span style="color: #aa5500">&quot;Synthetic Data Experiment&quot;</span>))
+</span></code></pre></div>
 
 </div>
 <div class="output_wrapper">
@@ -679,16 +667,18 @@ print(result.summary(title=&quot;Synthetic Data Experiment&quot;))
 functionality within this package though we can easily construct more complex datasets
 in effort to fully stress-test any new model and identify its limitations.</p>
 <p>To achieve this, we'll simulate 10 control units, 60 pre-intervention time points, and
-30 post-intervention time points according to the following process: $$ \begin{align}
-\mu_{n, t} &amp; \sim\mathcal{N}(20, 0.5^2)\
-\alpha_{n} &amp; \sim \mathcal{N}(0, 1^2)\
-\beta_{n} &amp; \sim \mathcal{N}(0.05, 0.01^2)\
-\nu_n &amp; \sim \mathcal{N}(1, 1^2)\
-\gamma_n &amp; \sim \operatorname{Student-t}<em>{10}(1, 1^2)\
-\mathbf{Y}</em>{n, t} &amp; = \mu_{n, t} + \alpha_{n} + \beta_{n}t + \nu_n\sin\left(3\times
-2\pi t + \gamma\right) + \delta_{t, n} \end{align} $$ where the true treatment effect
-$\delta_{t, n}$ is 5% when $n=1$ and $t\geq 60$ and 0 otherwise. Meanwhile,
-$\mathbf{Y}$ is the matrix of observations, long in the number of time points and wide
+30 post-intervention time points according to the following process: </p>
+<div class="arithmatex">\[ \begin{align}
+\mu_{n, t} &amp; \sim\mathcal{N}(20, 0.5^2)\\
+\alpha_{n} &amp; \sim \mathcal{N}(0, 1^2)\\
+\beta_{n} &amp; \sim \mathcal{N}(0.05, 0.01^2)\\
+\nu_n &amp; \sim \mathcal{N}(1, 1^2)\\
+\gamma_n &amp; \sim \operatorname{Student-t}_{10}(1, 1^2)\\
+\mathbf{Y}_{n, t} &amp; = \mu_{n, t} + \alpha_{n} + \beta_{n}t + \nu_n\sin\left(3\times
+2\pi t + \gamma\right) + \delta_{t, n} \end{align} \]</div>
+<p>where the true treatment effect
+<span class="arithmatex">\(\delta_{t, n}\)</span> is 5% when <span class="arithmatex">\(n=1\)</span> and <span class="arithmatex">\(t\geq 60\)</span> and 0 otherwise. Meanwhile,
+<span class="arithmatex">\(\mathbf{Y}\)</span> is the matrix of observations, long in the number of time points and wide
 in the number of units.</p>
 </div>
 </div>
@@ -696,42 +686,33 @@ in the number of units.</p>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-
-<pre><code class="language-python">cfg = Config(
-    n_control_units=10,
-    n_pre_intervention_timepoints=60,
-    n_post_intervention_timepoints=30,
-    global_mean=20,
-    global_scale=1,
-    seed=123,
-)
-
-intercept = UnitVaryingParameter(sampling_dist=st.norm(loc=0.0, scale=1))
-coefficient = UnitVaryingParameter(sampling_dist=st.norm(loc=0.05, scale=0.01))
-linear_trend = Trend(degree=1, coefficient=coefficient, intercept=intercept)
-
-amplitude = UnitVaryingParameter(sampling_dist=st.norm(loc=1.0, scale=2))
-shift = UnitVaryingParameter(sampling_dist=st.t(df=10))
-periodic = Periodic(amplitude=amplitude, shift=shift, frequency=3)
-
-data = effect(periodic(linear_trend(simulate(cfg))))
-plot(data)
-</code></pre>
-
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>cfg = Config(
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    n_control_units=<span style="color: #009999">10</span>,
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    n_pre_intervention_timepoints=<span style="color: #009999">60</span>,
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    n_post_intervention_timepoints=<span style="color: #009999">30</span>,
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    global_mean=<span style="color: #009999">20</span>,
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    global_scale=<span style="color: #009999">1</span>,
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    seed=<span style="color: #009999">123</span>,
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>)
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>intercept = UnitVaryingParameter(sampling_dist=st.norm(loc=<span style="color: #009999">0.0</span>, scale=<span style="color: #009999">1</span>))
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>coefficient = UnitVaryingParameter(sampling_dist=st.norm(loc=<span style="color: #009999">0.05</span>, scale=<span style="color: #009999">0.01</span>))
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>linear_trend = Trend(degree=<span style="color: #009999">1</span>, coefficient=coefficient, intercept=intercept)
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>amplitude = UnitVaryingParameter(sampling_dist=st.norm(loc=<span style="color: #009999">1.0</span>, scale=<span style="color: #009999">2</span>))
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>shift = UnitVaryingParameter(sampling_dist=st.t(df=<span style="color: #009999">10</span>))
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>periodic = Periodic(amplitude=amplitude, shift=shift, frequency=<span style="color: #009999">3</span>)
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>data = effect(periodic(linear_trend(simulate(cfg))))
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>ax = plot(data)
+</span></code></pre></div>
 
 </div>
 <div class="output_wrapper">
 <div class="output">
 <div class="output_area">
-<div class="output_text output_subarea output_execute_result">
-<pre>
-<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
 <div class="output_png output_subarea">
-<img alt="No description has been provided for this image" src="output_8_1.png"/>
+<img alt="No description has been provided for this image" src="output_8_0.png"/>
 </div>
 </div>
 </div>
@@ -748,14 +729,12 @@ before.</p>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-
-<pre><code class="language-python">panel = data.to_azcausal()
-model = SDID()
-result = model.fit(panel)
-print(f&quot;Delta: {100*(TRUE_EFFECT - result.effect.percentage().value / 100): .2f}%&quot;)
-print(result.summary(title=&quot;Synthetic Data Experiment&quot;))
-</code></pre>
-
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>panel = data.to_azcausal()
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>model = SDID()
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>result = model.fit(panel)
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span style="color: #00aaaa">print</span>(<span style="color: #aa5500">f&quot;Delta: {</span><span style="color: #009999">100</span>*(TRUE_EFFECT<span style="color: #bbbbbb"> </span>-<span style="color: #bbbbbb"> </span>result.effect.percentage().value<span style="color: #bbbbbb"> </span>/<span style="color: #bbbbbb"> </span><span style="color: #009999">100</span>)<span style="color: #aa5500">: .2f}%&quot;</span>)
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span style="color: #00aaaa">print</span>(result.summary(title=<span style="color: #aa5500">&quot;Synthetic Data Experiment&quot;</span>))
+</span></code></pre></div>
 
 </div>
 <div class="output_wrapper">
@@ -843,6 +822,10 @@ print(result.summary(title=&quot;Synthetic Data Experiment&quot;))
     
     
       <script src="../../assets/javascripts/bundle.56dfad97.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>

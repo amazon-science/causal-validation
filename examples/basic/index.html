@@ -28,6 +28,9 @@
     
       <link rel="stylesheet" href="../../assets/stylesheets/main.35f28582.min.css">
       
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
       
 
 
@@ -45,6 +48,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
       <link rel="stylesheet" href="../../css/ansi-colours.css">
     
       <link rel="stylesheet" href="../../css/jupyter-cells.css">
@@ -61,7 +66,12 @@
   </head>
   
   
-    <body dir="ltr">
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="reds" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -117,8 +127,8 @@
       </div>
     </div>
     
+      
     
-      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
     
     
     
@@ -641,29 +651,27 @@ parameters may be specified.</p>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-
-<pre><code class="language-python">from itertools import product
-
-import matplotlib.pyplot as plt
-import numpy as np
-from scipy.stats import (
-    norm,
-    poisson,
-)
-
-from causal_validation import (
-    Config,
-    simulate,
-)
-from causal_validation.effects import StaticEffect
-from causal_validation.plotters import plot
-from causal_validation.transforms import (
-    Periodic,
-    Trend,
-)
-from causal_validation.transforms.parameter import UnitVaryingParameter
-</code></pre>
-
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">itertools</span> <span style="color: #0000aa">import</span> product
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span style="color: #0000aa">import</span> <span style="color: #00aaaa; text-decoration: underline">matplotlib.pyplot</span> <span style="color: #0000aa">as</span> <span style="color: #00aaaa; text-decoration: underline">plt</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span style="color: #0000aa">import</span> <span style="color: #00aaaa; text-decoration: underline">numpy</span> <span style="color: #0000aa">as</span> <span style="color: #00aaaa; text-decoration: underline">np</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">scipy.stats</span> <span style="color: #0000aa">import</span> (
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    norm,
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    poisson,
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>)
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">causal_validation</span> <span style="color: #0000aa">import</span> (
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    Config,
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    simulate,
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>)
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">causal_validation.effects</span> <span style="color: #0000aa">import</span> StaticEffect
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">causal_validation.plotters</span> <span style="color: #0000aa">import</span> plot
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">causal_validation.transforms</span> <span style="color: #0000aa">import</span> (
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    Periodic,
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    Trend,
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>)
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span style="color: #0000aa">from</span> <span style="color: #00aaaa; text-decoration: underline">causal_validation.transforms.parameter</span> <span style="color: #0000aa">import</span> UnitVaryingParameter
+</span></code></pre></div>
 
 </div>
 </div>
@@ -685,32 +693,23 @@ through the <code>plot</code> function.</p>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-
-<pre><code class="language-python">cfg = Config(
-    n_control_units=10,
-    n_pre_intervention_timepoints=60,
-    n_post_intervention_timepoints=30,
-    seed=123,
-)
-
-data = simulate(cfg)
-plot(data)
-</code></pre>
-
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cfg = Config(
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    n_control_units=<span style="color: #009999">10</span>,
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    n_pre_intervention_timepoints=<span style="color: #009999">60</span>,
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    n_post_intervention_timepoints=<span style="color: #009999">30</span>,
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    seed=<span style="color: #009999">123</span>,
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>)
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>data = simulate(cfg)
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>ax = plot(data)
+</span></code></pre></div>
 
 </div>
 <div class="output_wrapper">
 <div class="output">
 <div class="output_area">
-<div class="output_text output_subarea output_execute_result">
-<pre>
-<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
 <div class="output_png output_subarea">
-<img alt="No description has been provided for this image" src="output_4_1.png"/>
+<img alt="No description has been provided for this image" src="output_4_0.png"/>
 </div>
 </div>
 </div>
@@ -730,23 +729,21 @@ specify that through the config file.</p>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-
-<pre><code class="language-python">means = [10, 50]
-scales = [0.1, 0.5]
-
-fig, axes = plt.subplots(ncols=2, nrows=2, figsize=(10, 6), tight_layout=True)
-for (m, s), ax in zip(product(means, scales), axes.ravel(), strict=False):
-    cfg = Config(
-        n_control_units=10,
-        n_pre_intervention_timepoints=60,
-        n_post_intervention_timepoints=30,
-        global_mean=m,
-        global_scale=s,
-    )
-    data = simulate(cfg)
-    plot(data, ax=ax, title=f&quot;Mean: {m}, Scale: {s}&quot;)
-</code></pre>
-
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>means = [<span style="color: #009999">10</span>, <span style="color: #009999">50</span>]
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>scales = [<span style="color: #009999">0.1</span>, <span style="color: #009999">0.5</span>]
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>fig, axes = plt.subplots(ncols=<span style="color: #009999">2</span>, nrows=<span style="color: #009999">2</span>, figsize=(<span style="color: #009999">10</span>, <span style="color: #009999">6</span>), tight_layout=<span style="color: #0000aa">True</span>)
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span style="color: #0000aa">for</span> (m, s), ax <span style="color: #0000aa">in</span> <span style="color: #00aaaa">zip</span>(product(means, scales), axes.ravel(), strict=<span style="color: #0000aa">False</span>):
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    cfg = Config(
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        n_control_units=<span style="color: #009999">10</span>,
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        n_pre_intervention_timepoints=<span style="color: #009999">60</span>,
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        n_post_intervention_timepoints=<span style="color: #009999">30</span>,
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        global_mean=m,
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>        global_scale=s,
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    )
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    data = simulate(cfg)
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    _ = plot(data, ax=ax, title=<span style="color: #aa5500">f&quot;Mean: {</span>m<span style="color: #aa5500">}, Scale: {</span>s<span style="color: #aa5500">}&quot;</span>)
+</span></code></pre></div>
 
 </div>
 <div class="output_wrapper">
@@ -773,15 +770,13 @@ you may either change the underlying seed in the config file.</p>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-
-<pre><code class="language-python">cfg = Config(
-    n_control_units=10,
-    n_pre_intervention_timepoints=60,
-    n_post_intervention_timepoints=30,
-    seed=42,
-)
-</code></pre>
-
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cfg = Config(
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    n_control_units=<span style="color: #009999">10</span>,
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    n_pre_intervention_timepoints=<span style="color: #009999">60</span>,
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    n_post_intervention_timepoints=<span style="color: #009999">30</span>,
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    seed=<span style="color: #009999">42</span>,
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>)
+</span></code></pre></div>
 
 </div>
 </div>
@@ -795,13 +790,11 @@ you may either change the underlying seed in the config file.</p>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-
-<pre><code class="language-python">fig, axes = plt.subplots(ncols=2, figsize=(10, 3))
-for ax in axes:
-    data = simulate(cfg)
-    plot(data, ax=ax)
-</code></pre>
-
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>fig, axes = plt.subplots(ncols=<span style="color: #009999">2</span>, figsize=(<span style="color: #009999">10</span>, <span style="color: #009999">3</span>))
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span style="color: #0000aa">for</span> ax <span style="color: #0000aa">in</span> axes:
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    data = simulate(cfg)
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    _ = plot(data, ax=ax)
+</span></code></pre></div>
 
 </div>
 <div class="output_wrapper">
@@ -824,16 +817,13 @@ for ax in axes:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-
-<pre><code class="language-python">
-rng = np.random.RandomState(42)
-
-fig, axes = plt.subplots(ncols=2, figsize=(10, 3))
-for ax in axes:
-    data = simulate(cfg, key=rng)
-    plot(data, ax=ax)
-</code></pre>
-
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>rng = np.random.RandomState(<span style="color: #009999">42</span>)
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>fig, axes = plt.subplots(ncols=<span style="color: #009999">2</span>, figsize=(<span style="color: #009999">10</span>, <span style="color: #009999">3</span>))
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span style="color: #0000aa">for</span> ax <span style="color: #0000aa">in</span> axes:
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    data = simulate(cfg, key=rng)
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    _ = plot(data, ax=ax)
+</span></code></pre></div>
 
 </div>
 <div class="output_wrapper">
@@ -861,28 +851,19 @@ In the below, we shall inflate our data by 2%.</p>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-
-<pre><code class="language-python">effect = StaticEffect(effect=0.02)
-inflated_data = effect(data)
-fig, (ax0, ax1) = plt.subplots(ncols=2, figsize=(10, 3))
-plot(data, ax=ax0, title=&quot;Original data&quot;)
-plot(inflated_data, ax=ax1, title=&quot;Inflated data&quot;)
-</code></pre>
-
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>effect = StaticEffect(effect=<span style="color: #009999">0.02</span>)
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>inflated_data = effect(data)
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>fig, (ax0, ax1) = plt.subplots(ncols=<span style="color: #009999">2</span>, figsize=(<span style="color: #009999">10</span>, <span style="color: #009999">3</span>))
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>ax0 = plot(data, ax=ax0, title=<span style="color: #aa5500">&quot;Original data&quot;</span>)
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>ax1 = plot(inflated_data, ax=ax1, title=<span style="color: #aa5500">&quot;Inflated data&quot;</span>)
+</span></code></pre></div>
 
 </div>
 <div class="output_wrapper">
 <div class="output">
 <div class="output_area">
-<div class="output_text output_subarea output_execute_result">
-<pre>
-<code>&lt;Axes: title={'center': 'Inflated data'}, xlabel='Time', ylabel='Observed'&gt;</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
 <div class="output_png output_subarea">
-<img alt="No description has been provided for this image" src="output_14_1.png"/>
+<img alt="No description has been provided for this image" src="output_14_0.png"/>
 </div>
 </div>
 </div>
@@ -901,26 +882,17 @@ the data.</p>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-
-<pre><code class="language-python">trend_term = Trend(degree=1, coefficient=0.1)
-data_with_trend = effect(trend_term(data))
-plot(data_with_trend)
-</code></pre>
-
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>trend_term = Trend(degree=<span style="color: #009999">1</span>, coefficient=<span style="color: #009999">0.1</span>)
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>data_with_trend = effect(trend_term(data))
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>ax = plot(data_with_trend)
+</span></code></pre></div>
 
 </div>
 <div class="output_wrapper">
 <div class="output">
 <div class="output_area">
-<div class="output_text output_subarea output_execute_result">
-<pre>
-<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
 <div class="output_png output_subarea">
-<img alt="No description has been provided for this image" src="output_16_1.png"/>
+<img alt="No description has been provided for this image" src="output_16_0.png"/>
 </div>
 </div>
 </div>
@@ -929,26 +901,17 @@ plot(data_with_trend)
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-
-<pre><code class="language-python">trend_term = Trend(degree=2, coefficient=0.0025)
-data_with_trend = effect(trend_term(data))
-plot(data_with_trend)
-</code></pre>
-
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>trend_term = Trend(degree=<span style="color: #009999">2</span>, coefficient=<span style="color: #009999">0.0025</span>)
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>data_with_trend = effect(trend_term(data))
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>ax = plot(data_with_trend)
+</span></code></pre></div>
 
 </div>
 <div class="output_wrapper">
 <div class="output">
 <div class="output_area">
-<div class="output_text output_subarea output_execute_result">
-<pre>
-<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
 <div class="output_png output_subarea">
-<img alt="No description has been provided for this image" src="output_17_1.png"/>
+<img alt="No description has been provided for this image" src="output_17_0.png"/>
 </div>
 </div>
 </div>
@@ -964,26 +927,17 @@ plot(data_with_trend)
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-
-<pre><code class="language-python">periodicity = Periodic(amplitude=2, frequency=6)
-perioidic_data = effect(periodicity(trend_term(data)))
-plot(perioidic_data)
-</code></pre>
-
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>periodicity = Periodic(amplitude=<span style="color: #009999">2</span>, frequency=<span style="color: #009999">6</span>)
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>perioidic_data = effect(periodicity(trend_term(data)))
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>ax = plot(perioidic_data)
+</span></code></pre></div>
 
 </div>
 <div class="output_wrapper">
 <div class="output">
 <div class="output_area">
-<div class="output_text output_subarea output_execute_result">
-<pre>
-<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
 <div class="output_png output_subarea">
-<img alt="No description has been provided for this image" src="output_19_1.png"/>
+<img alt="No description has been provided for this image" src="output_19_0.png"/>
 </div>
 </div>
 </div>
@@ -999,28 +953,19 @@ plot(perioidic_data)
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-
-<pre><code class="language-python">sampling_dist = norm(0.0, 1.0)
-intercept = UnitVaryingParameter(sampling_dist=sampling_dist)
-trend_term = Trend(degree=1, intercept=intercept, coefficient=0.1)
-data_with_trend = effect(trend_term(data))
-plot(data_with_trend)
-</code></pre>
-
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>sampling_dist = norm(<span style="color: #009999">0.0</span>, <span style="color: #009999">1.0</span>)
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>intercept = UnitVaryingParameter(sampling_dist=sampling_dist)
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>trend_term = Trend(degree=<span style="color: #009999">1</span>, intercept=intercept, coefficient=<span style="color: #009999">0.1</span>)
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>data_with_trend = effect(trend_term(data))
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>ax = plot(data_with_trend)
+</span></code></pre></div>
 
 </div>
 <div class="output_wrapper">
 <div class="output">
 <div class="output_area">
-<div class="output_text output_subarea output_execute_result">
-<pre>
-<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
 <div class="output_png output_subarea">
-<img alt="No description has been provided for this image" src="output_21_1.png"/>
+<img alt="No description has been provided for this image" src="output_21_0.png"/>
 </div>
 </div>
 </div>
@@ -1029,28 +974,19 @@ plot(data_with_trend)
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-
-<pre><code class="language-python">sampling_dist = poisson(2)
-frequency = UnitVaryingParameter(sampling_dist=sampling_dist)
-
-p = Periodic(frequency=frequency)
-plot(p(data))
-</code></pre>
-
+<div class="language-python highlight" style="background: #ffffff"><pre style="line-height: 125%;"><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>sampling_dist = poisson(<span style="color: #009999">2</span>)
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>frequency = UnitVaryingParameter(sampling_dist=sampling_dist)
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>p = Periodic(frequency=frequency)
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>ax = plot(p(data))
+</span></code></pre></div>
 
 </div>
 <div class="output_wrapper">
 <div class="output">
 <div class="output_area">
-<div class="output_text output_subarea output_execute_result">
-<pre>
-<code>&lt;Axes: xlabel='Time', ylabel='Observed'&gt;</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
 <div class="output_png output_subarea">
-<img alt="No description has been provided for this image" src="output_22_1.png"/>
+<img alt="No description has been provided for this image" src="output_22_0.png"/>
 </div>
 </div>
 </div>
@@ -1066,7 +1002,7 @@ example with periodic and temporal components, perhaps containing unit-level
 variation. In a follow-up notebook, we show how these datasets may be integrated with
 Amazon's own AZCausal library to compare the effect estimated by a model with the true
 effect of the underlying data generating process. A link to this notebook is
-<a href="https://github.com/amazon-science/causal-validation/blob/main/examples/azcausal.pct.py">here</a>.</p>
+<a href="http://localhost:9998/causal-validation/examples/azcausal/">here</a>.</p>
 </div>
 </div>
 </div>
@@ -1120,6 +1056,10 @@ effect of the underlying data generating process. A link to this notebook is
     
     
       <script src="../../assets/javascripts/bundle.56dfad97.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>
