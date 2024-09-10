@@ -46,7 +46,7 @@ python = "3.10"
 [tool.hatch.envs.dev]
 dependencies = [
   "mypy",
-  "black",
+  "black[jupyter]",
   "isort",
   "pytest",
   "pytest-xdist",
@@ -61,17 +61,19 @@ dependencies = [
   "ipykernel",
   "ipython",
   "jupytext",
+  "nbstripout"
   ]
 
 [tool.hatch.envs.dev.scripts]
 test = "pytest --hypothesis-profile causal_validation"
 ptest = "pytest -n auto . --hypothesis-profile causal_validation"
-black-format = ["black src tests", "jupytext --pipe black examples/*.py"]
+black-format = ["black src tests docs/examples"]
 imports-format = [
   "isort src tests",
-  "isort examples/*.py --treat-comment-as-code '# %%' --float-to-top",
+  "isort --profile black docs/examples"
+  # "isort docs/examples/*.ipynb --treat-comment-as-code '# %%' --float-to-top",
 ]
-lint-format = ['ruff format src tests examples']
+lint-format = ['ruff format src tests docs/examples']
 format = ["black-format", "imports-format", "lint-format"]
 build_nbs = [
   "jupytext --to notebook examples/*.pct.py",

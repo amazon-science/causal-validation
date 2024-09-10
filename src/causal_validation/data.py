@@ -19,7 +19,7 @@ from pandas.core.indexes.datetimes import DatetimeIndex
 from causal_validation.types import InterventionTypes
 
 
-@dataclass(frozen=True)
+@dataclass
 class Dataset:
     Xtr: Float[np.ndarray, "N D"]
     Xte: Float[np.ndarray, "M D"]
@@ -27,6 +27,7 @@ class Dataset:
     yte: Float[np.ndarray, "M 1"]
     _start_date: dt.date
     counterfactual: tp.Optional[Float[np.ndarray, "M 1"]] = None
+    _name: str = None
 
     def to_df(
         self, index_start: str = dt.date(year=2023, month=1, day=1)
@@ -159,6 +160,43 @@ class Dataset:
         dropped_data = self.drop_unit(to_treat_idx)
         placebo_data = reassign_treatment(dropped_data, ytr, yte)
         return placebo_data
+
+    @property
+    def name(self) -> tp.Optional[str]:
+        return self._name
+
+    @name.setter
+    def name(self, value: str) -> None:
+        self._name = value
+
+
+@dataclass
+class DatasetContainer:
+    datasets: tp.List[Dataset]
+    names: tp.Optional[tp.List[str]] = None
+
+    def __post_init__(self):
+        self.n_datasets = len(self.datasets)
+        if self.names is None:
+            names = []
+            for idx, dataset in enumerate(self.datasets):
+                if dataset.name:
+                    names.append(dataset.name)
+                else:
+                    names.append(f"Dataset {idx}")
+            self.names = names
+
+    def __iter__(self) -> tp.Iterator[Dataset]:
+        return iter(self.datasets)
+
+    def as_dict(self) -> tp.Dict[str, Dataset]:
+        dict_result = {}
+        for n, d in zip(self.names, self.datasets, strict=True):
+            dict_result[n] = d
+        return dict_result
+
+    def __len__(self) -> int:
+        return len(self.datasets)
 
 
 def reassign_treatment(

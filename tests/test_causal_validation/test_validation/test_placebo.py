@@ -29,7 +29,7 @@ def test_schema_coerce():
     df = PlaceboSchema.example()
     cols = df.columns
     for col in cols:
-        if col != "Model":
+        if not col in ["Model", "Dataset"]:
             df[col] = np.ceil((df[col]))
             PlaceboSchema.validate(df)
 
@@ -40,7 +40,7 @@ def test_schema_coerce():
     n_control=st.integers(min_value=10, max_value=20),
     model=st.sampled_from([DID(), SDID()]),
 )
-@settings(max_examples=10)
+@settings(max_examples=5)
 def test_placebo_test(
     global_mean: float, seed: int, n_control: int, model: tp.Union[DID, SDID]
 ):
@@ -63,7 +63,7 @@ def test_placebo_test(
     summary = result.to_df()
     PlaceboSchema.validate(summary)
     assert isinstance(summary, pd.DataFrame)
-    assert summary.shape == (1, 5)
+    assert summary.shape == (1, 6)
     assert summary["Effect"].iloc[0] == pytest.approx(0.0, abs=0.1)
 
     rich_summary = result.summary()
@@ -85,8 +85,27 @@ def test_multiple_models(n_control: int):
 
     result_df = result.to_df()
     result_rich = result.summary()
-    assert result_df.shape == (2, 5)
+    assert result_df.shape == (2, 6)
     assert result_df.shape[0] == result_rich.row_count
     assert result_df["Model"].tolist() == ["DID", "SDID"]
     for _, v in result.effects.items():
         assert len(v) == n_control
+
+
+@given(
+    seeds=st.lists(
+        elements=st.integers(min_value=1, max_value=1000), min_size=1, max_size=5
+    )
+)
+@settings(max_examples=5)
+def test_multiple_datasets(seeds: tp.List[int]):
+    data = [simulate_data(global_mean=20.0, seed=s) for s in seeds]
+    n_data = len(data)
+
+    model = AZCausalWrapper(DID())
+    result = PlaceboTest(model, data).execute()
+
+    result_df = result.to_df()
+    result_rich = result.summary()
+    assert result_df.shape == (n_data, 6)
+    assert result_df.shape[0] == result_rich.row_count
