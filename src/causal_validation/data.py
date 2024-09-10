@@ -186,7 +186,7 @@ class DatasetContainer:
                     names.append(f"Dataset {idx}")
             self.names = names
 
-    def __iter__(self) -> tp.Iterable[Dataset]:
+    def __iter__(self) -> tp.Iterator[Dataset]:
         return iter(self.datasets)
 
     def as_dict(self) -> tp.Dict[str, Dataset]:

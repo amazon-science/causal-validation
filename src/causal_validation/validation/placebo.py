@@ -121,14 +121,8 @@ class PlaceboTest:
                 total=n_control,
                 visible=verbose,
             )
-            for idx, (data_name, dataset) in enumerate(datasets.items()):
+            for data_name, dataset in datasets.items():
                 progress.update(data_task, advance=1)
-                # n_control = dataset.n_units
-                # unit_task = progress.add_task(
-                #     f"[green]Control Units ({data_name})",
-                #     total=n_control,
-                #     visible=verbose,
-                # )
                 for model in self.models:
                     progress.update(model_task, advance=1)
                     model_result = []
