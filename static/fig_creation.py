@@ -16,7 +16,6 @@ from causal_validation.transforms.parameter import UnitVaryingParameter
 plt.style.use("style.mplstyle")
 
 if __name__ == "__main__":
-
     cfg = Config(
         n_control_units=10,
         n_pre_intervention_timepoints=60,

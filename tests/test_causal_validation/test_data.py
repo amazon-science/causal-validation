@@ -1,4 +1,6 @@
 from copy import deepcopy
+import string
+import typing as tp
 
 from azcausal.estimators.panel.did import DID
 from hypothesis import (
@@ -13,6 +15,7 @@ import pytest
 
 from causal_validation.data import (
     Dataset,
+    DatasetContainer,
     reassign_treatment,
 )
 from causal_validation.testing import (
@@ -21,6 +24,8 @@ from causal_validation.testing import (
 )
 from causal_validation.types import InterventionTypes
 
+MIN_STRING_LENGTH = 1
+MAX_STRING_LENGTH = 20
 DEFAULT_SEED = 123
 NUM_NON_CONTROL_COLS = 2
 LARGE_N_POST = 5000
@@ -259,3 +264,61 @@ def test_reassign_treatment(n_pre: int, n_post: int, n_control: int):
     assert not data == reassigned_data
     np.testing.assert_equal(reassigned_data.ytr, to_assign_ytr)
     np.testing.assert_equal(reassigned_data.yte, to_assign_yte)
+
+
+@given(
+    name=st.text(
+        alphabet=st.sampled_from(string.ascii_letters + string.digits + "_-"),
+        min_size=1,
+        max_size=10,
+    ),
+    extra_chars=st.text(
+        alphabet=st.sampled_from(string.ascii_letters + string.digits + "_-"),
+        min_size=1,
+        max_size=10,
+    ),
+)
+def test_naming_setter(name: str, extra_chars: str):
+    data = simulate_data(10.0, DEFAULT_SEED)
+    data.name = name
+    assert data.name == name
+    new_name = name + extra_chars
+    data.name = new_name
+    assert data.name == new_name
+
+
+@given(
+    seeds=st.lists(
+        elements=st.integers(min_value=1, max_value=1000), min_size=1, max_size=10
+    ),
+    to_name=st.booleans(),
+)
+def test_dataset_container(seeds: tp.List[int], to_name: bool):
+    datasets = [simulate_data(0.0, s) for s in seeds]
+    if to_name:
+        names = [f"D_{idx}" for idx in range(len(datasets))]
+    else:
+        names = None
+    container = DatasetContainer(datasets, names)
+
+    # Test names were correctly assigned
+    if to_name:
+        assert container.names == names
+    else:
+        assert container.names == [f"Dataset {idx}" for idx in range(len(datasets))]
+
+    # Assert ordering
+    for idx, dataset in enumerate(container):
+        assert dataset == datasets[idx]
+
+    # Assert no data was dropped/added
+    assert len(container) == len(datasets)
+
+    # Test `as_dict()` method preserves order
+    container_dict = container.as_dict()
+    for idx, (k, v) in enumerate(container_dict.items()):
+        if to_name:
+            assert k == names[idx]
+        else:
+            assert k == f"Dataset {idx}"
+        assert v == datasets[idx]
