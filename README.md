@@ -76,4 +76,4 @@ in your terminal.
 1. Follow steps 1-3 from `For Users`
 2. Create a hatch environment `hatch env create`
 3. Open a hatch shell `hatch shell`
-4. Validate your installation by running `hatch run tests:test`
+4. Validate your installation by running `hatch run dev:test`
