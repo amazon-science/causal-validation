@@ -2,22 +2,22 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://amazon-science.github.io/causal-validation/</loc>
-         <lastmod>2024-09-10</lastmod>
+         <lastmod>2024-09-13</lastmod>
     </url>
     <url>
          <loc>https://amazon-science.github.io/causal-validation/installation/</loc>
-         <lastmod>2024-09-10</lastmod>
+         <lastmod>2024-09-13</lastmod>
     </url>
     <url>
          <loc>https://amazon-science.github.io/causal-validation/examples/azcausal/</loc>
-         <lastmod>2024-09-10</lastmod>
+         <lastmod>2024-09-13</lastmod>
     </url>
     <url>
          <loc>https://amazon-science.github.io/causal-validation/examples/basic/</loc>
-         <lastmod>2024-09-10</lastmod>
+         <lastmod>2024-09-13</lastmod>
     </url>
     <url>
          <loc>https://amazon-science.github.io/causal-validation/examples/placebo_test/</loc>
-         <lastmod>2024-09-10</lastmod>
+         <lastmod>2024-09-13</lastmod>
     </url>
 </urlset>
