@@ -27,6 +27,24 @@ def test_slot_type():
     assert isinstance(noise_transform.noise_dist, TimeVaryingParameter)
 
 
+def test_timepoints_randomness():
+    base_data = simulate_data(GLOBAL_MEAN, DEFAULT_SEED)
+
+    noise_transform = Noise()
+    noisy_data = noise_transform(base_data)
+
+    diff_tr = (noisy_data.ytr - base_data.ytr).reshape(-1)
+    diff_te = (noisy_data.yte - base_data.yte).reshape(-1)
+
+    assert np.all(diff_tr != diff_te)
+
+    diff_tr_permute = np.random.permutation(diff_tr)
+    diff_te_permute = np.random.permutation(diff_te)
+
+    assert not np.all(diff_tr == diff_tr_permute)
+    assert not np.all(diff_te == diff_te_permute)
+
+
 @given(
     loc=st.floats(min_value=-5.0, max_value=5.0),
     scale=st.floats(min_value=0.1, max_value=1.0),
@@ -63,3 +81,47 @@ def test_composite_transform(degree: int, coefficient: float, intercept: float):
     assert np.all(noisy_trendy_data.Xte == trendy_data.Xte)
     assert np.all(noisy_trendy_data.ytr != trendy_data.ytr)
     assert np.all(noisy_trendy_data.yte != trendy_data.yte)
+
+
+@given(
+    loc_large=st.floats(min_value=10.0, max_value=15.0),
+    loc_small=st.floats(min_value=-2.5, max_value=2.5),
+    scale_large=st.floats(min_value=10.0, max_value=15.0),
+    scale_small=st.floats(min_value=0.1, max_value=1.0),
+)
+@settings(max_examples=5)
+def test_perturbation_impact(
+    loc_large: float, loc_small: float, scale_large: float, scale_small: float
+):
+    base_data = simulate_data(GLOBAL_MEAN, DEFAULT_SEED)
+
+    noise_transform1 = Noise(
+        noise_dist=TimeVaryingParameter(sampling_dist=norm(loc_small, scale_small))
+    )
+    noise_transform2 = Noise(
+        noise_dist=TimeVaryingParameter(sampling_dist=norm(loc_small, scale_large))
+    )
+    noise_transform3 = Noise(
+        noise_dist=TimeVaryingParameter(sampling_dist=norm(loc_large, scale_small))
+    )
+
+    noise_transforms = [noise_transform1, noise_transform2, noise_transform3]
+
+    diff_tr_list, diff_te_list = [], []
+
+    for noise_transform in noise_transforms:
+        noisy_data = noise_transform(base_data)
+        diff_tr = noisy_data.ytr - base_data.ytr
+        diff_te = noisy_data.yte - base_data.yte
+        diff_tr_list.append(diff_tr)
+        diff_te_list.append(diff_te)
+
+    assert np.max(diff_tr_list[0]) < np.max(diff_tr_list[1])
+    assert np.min(diff_tr_list[0]) > np.min(diff_tr_list[1])
+    assert np.max(diff_tr_list[0]) < np.max(diff_tr_list[2])
+    assert np.min(diff_tr_list[0]) < np.min(diff_tr_list[2])
+
+    assert np.max(diff_te_list[0]) < np.max(diff_te_list[1])
+    assert np.min(diff_te_list[0]) > np.min(diff_te_list[1])
+    assert np.max(diff_te_list[0]) < np.max(diff_te_list[2])
+    assert np.min(diff_te_list[0]) < np.min(diff_te_list[2])
