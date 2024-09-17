@@ -13,8 +13,9 @@ from causal_validation.transforms.parameter import TimeVaryingParameter
 @dataclass(kw_only=True)
 class Noise(AdditiveTransform):
     """
-    Transform the treatment by adding TimeVaryingParameter noise terms sampled from a specified sampling distribution.
-    By default, the sampling distribution is Normal with 0 loc and 0.1 scale.
+    Transform the treatment by adding TimeVaryingParameter noise terms sampled from
+    a specified sampling distribution. By default, the sampling distribution is
+    Normal with 0 loc and 0.1 scale.
     """
 
     noise_dist: TimeVaryingParameter = TimeVaryingParameter(sampling_dist=norm(0, 0.1))
