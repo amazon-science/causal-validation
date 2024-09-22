@@ -21,41 +21,46 @@ class AbstractTestStatistic:
         self,
         dataset: Dataset,
         counterfactual: Float[np.ndarray, "N 1"],
+        synthetic: tp.Optional[Float[np.ndarray, "M 1"]],
         treatment_index: int,
-    ) -> TestResult:
+    ) -> Float:
         raise NotImplementedError
 
     def __call__(
         self,
         observed: Float[np.ndarray, "N 1"],
         counterfactual: Float[np.ndarray, "N 1"],
+        synthetic: tp.Optional[Float[np.ndarray, "M 1"]],
         treatment_index: int,
-    ) -> TestResult:
-        return self._compute(observed, counterfactual, treatment_index)
+    ) -> Float:
+        return self._compute(observed, counterfactual, synthetic, treatment_index)
 
 
 @dataclass
 class RMSPETestStatistic(AbstractTestStatistic):
+    @staticmethod
     def _compute(
-        self,
         dataset: Dataset,
         counterfactual: Float[np.ndarray, "N 1"],
+        synthetic: Float[np.ndarray, "N 1"],
         treatment_index: int,
-    ) -> TestResult:
+    ) -> Float:
         _, pre_observed = dataset.pre_intervention_obs
         _, post_observed = dataset.post_intervention_obs
-        pre_counterfactual, post_counterfactual = self._split_array(
+        _, post_counterfactual = RMSPETestStatistic._split_array(
             counterfactual, treatment_index
         )
-        pre_rmspe = self._rmspe(pre_observed, pre_counterfactual)
-        post_rmspe = self._rmspe(post_observed, post_counterfactual)
+        pre_synthetic, _ = RMSPETestStatistic._split_array(synthetic, treatment_index)
+        pre_rmspe = RMSPETestStatistic._rmspe(pre_observed, pre_synthetic)
+        post_rmspe = RMSPETestStatistic._rmspe(post_observed, post_counterfactual)
         test_statistic = post_rmspe / pre_rmspe
+        return test_statistic
 
     @staticmethod
     def _rmspe(
-        observed: Float[np.ndarray, "N 1"], counterfactual: Float[np.ndarray, "N 1"]
+        observed: Float[np.ndarray, "N 1"], generated: Float[np.ndarray, "N 1"]
     ) -> float:
-        return np.sqrt(np.mean(np.square(observed - counterfactual)))
+        return np.sqrt(np.mean(np.square(observed - generated)))
 
     @staticmethod
     def _split_array(
