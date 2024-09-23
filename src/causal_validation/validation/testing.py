@@ -4,8 +4,35 @@ import typing as tp
 
 from jaxtyping import Float
 import numpy as np
+import pandas as pd
+from rich import box
+from rich.table import Table
 
 from causal_validation.data import Dataset
+
+
+@dataclass
+class TestResultFrame:
+    """A parent class for test results"""
+
+    @abc.abstractmethod
+    def to_df(self) -> pd.DataFrame:
+        raise NotImplementedError
+
+    def summary(self, precision: int = 4) -> Table:
+        table = Table(show_header=True, box=box.MARKDOWN)
+        df = self.to_df()
+        numeric_cols = df.select_dtypes(include=[np.number])
+        df.loc[:, numeric_cols.columns] = np.round(numeric_cols, decimals=precision)
+
+        for column in df.columns:
+            table.add_column(str(column), style="magenta")
+
+        for _, value_list in enumerate(df.values.tolist()):
+            row = [str(x) for x in value_list]
+            table.add_row(*row)
+
+        return table
 
 
 @dataclass

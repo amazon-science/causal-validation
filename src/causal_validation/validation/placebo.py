@@ -30,6 +30,7 @@ from causal_validation.models import (
     AZCausalWrapper,
     Result,
 )
+from causal_validation.validation.testing import TestResultFrame
 
 PlaceboSchema = DataFrameSchema(
     {
@@ -46,7 +47,7 @@ PlaceboSchema = DataFrameSchema(
 
 
 @dataclass
-class PlaceboTestResult:
+class PlaceboTestResult(TestResultFrame):
     effects: tp.Dict[tp.Tuple[str, str], tp.List[Result]]
 
     def _model_to_df(
@@ -78,21 +79,6 @@ class PlaceboTestResult:
         df = pd.concat(dfs)
         PlaceboSchema.validate(df)
         return df
-
-    def summary(self, precision: int = 4) -> Table:
-        table = Table(show_header=True, box=box.MARKDOWN)
-        df = self.to_df()
-        numeric_cols = df.select_dtypes(include=[np.number])
-        df.loc[:, numeric_cols.columns] = np.round(numeric_cols, decimals=precision)
-
-        for column in df.columns:
-            table.add_column(str(column), style="magenta")
-
-        for _, value_list in enumerate(df.values.tolist()):
-            row = [str(x) for x in value_list]
-            table.add_row(*row)
-
-        return table
 
 
 @dataclass

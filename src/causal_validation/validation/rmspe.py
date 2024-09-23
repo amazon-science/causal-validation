@@ -21,6 +21,7 @@ from causal_validation.validation.placebo import PlaceboTest
 from causal_validation.validation.testing import (
     RMSPETestStatistic,
     TestResult,
+    TestResultFrame,
 )
 
 RMSPESchema = DataFrameSchema(
@@ -41,7 +42,7 @@ RMSPESchema = DataFrameSchema(
 
 
 @dataclass
-class RMSPETestResult:
+class RMSPETestResult(TestResultFrame):
     treatment_test_results: tp.Dict[tp.Tuple[str, str], TestResult]
     pseudo_treatment_test_statistics: tp.Dict[tp.Tuple[str, str], tp.List[Float]]
 
@@ -59,21 +60,6 @@ class RMSPETestResult:
         df = pd.concat(dfs)
         RMSPESchema.validate(df)
         return df
-
-    def summary(self, precision: int = 4) -> Table:
-        table = Table(show_header=True, box=box.MARKDOWN)
-        df = self.to_df()
-        numeric_cols = df.select_dtypes(include=[np.number])
-        df.loc[:, numeric_cols.columns] = np.round(numeric_cols, decimals=precision)
-
-        for column in df.columns:
-            table.add_column(str(column), style="magenta")
-
-        for _, value_list in enumerate(df.values.tolist()):
-            row = [str(x) for x in value_list]
-            table.add_row(*row)
-
-        return table
 
 
 @dataclass
