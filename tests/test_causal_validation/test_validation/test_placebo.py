@@ -23,6 +23,7 @@ from causal_validation.validation.placebo import (
     PlaceboTest,
     PlaceboTestResult,
 )
+from causal_validation.validation.testing import TestResultFrame
 
 
 def test_schema_coerce():
@@ -56,6 +57,7 @@ def test_placebo_test(
 
     # Check that the structure of result
     assert isinstance(result, PlaceboTestResult)
+    assert isinstance(result, TestResultFrame)
     for _, v in result.effects.items():
         assert len(v) == n_control
 

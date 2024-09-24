@@ -27,6 +27,7 @@ class Dataset:
     yte: Float[np.ndarray, "M 1"]
     _start_date: dt.date
     counterfactual: tp.Optional[Float[np.ndarray, "M 1"]] = None
+    synthetic: tp.Optional[Float[np.ndarray, "M 1"]] = None
     _name: str = None
 
     def to_df(
@@ -151,7 +152,13 @@ class Dataset:
         Xtr = np.delete(self.Xtr, [idx], axis=1)
         Xte = np.delete(self.Xte, [idx], axis=1)
         return Dataset(
-            Xtr, Xte, self.ytr, self.yte, self._start_date, self.counterfactual
+            Xtr,
+            Xte,
+            self.ytr,
+            self.yte,
+            self._start_date,
+            self.counterfactual,
+            self.synthetic,
         )
 
     def to_placebo_data(self, to_treat_idx: int) -> Dataset:
@@ -204,4 +211,6 @@ def reassign_treatment(
 ) -> Dataset:
     Xtr = data.Xtr
     Xte = data.Xte
-    return Dataset(Xtr, Xte, ytr, yte, data._start_date, data.counterfactual)
+    return Dataset(
+        Xtr, Xte, ytr, yte, data._start_date, data.counterfactual, data.synthetic
+    )

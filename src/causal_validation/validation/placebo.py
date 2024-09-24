@@ -9,20 +9,26 @@ from pandera import (
     Column,
     DataFrameSchema,
 )
-from rich import box
 from rich.progress import (
     Progress,
     ProgressBar,
     track,
 )
-from rich.table import Table
 from scipy.stats import ttest_1samp
+from tqdm import (
+    tqdm,
+    trange,
+)
 
 from causal_validation.data import (
     Dataset,
     DatasetContainer,
 )
-from causal_validation.models import AZCausalWrapper
+from causal_validation.models import (
+    AZCausalWrapper,
+    Result,
+)
+from causal_validation.validation.testing import TestResultFrame
 
 PlaceboSchema = DataFrameSchema(
     {
@@ -39,13 +45,13 @@ PlaceboSchema = DataFrameSchema(
 
 
 @dataclass
-class PlaceboTestResult:
-    effects: tp.Dict[tp.Tuple[str, str], tp.List[Effect]]
+class PlaceboTestResult(TestResultFrame):
+    effects: tp.Dict[tp.Tuple[str, str], tp.List[Result]]
 
     def _model_to_df(
-        self, model_name: str, dataset_name: str, effects: tp.List[Effect]
+        self, model_name: str, dataset_name: str, effects: tp.List[Result]
     ) -> pd.DataFrame:
-        _effects = [effect.value for effect in effects]
+        _effects = [e.effect.percentage().value for e in effects]
         _n_effects = len(_effects)
         expected_effect = np.mean(_effects)
         stddev_effect = np.std(_effects)
@@ -71,21 +77,6 @@ class PlaceboTestResult:
         PlaceboSchema.validate(df)
         return df
 
-    def summary(self, precision: int = 4) -> Table:
-        table = Table(show_header=True, box=box.MARKDOWN)
-        df = self.to_df()
-        numeric_cols = df.select_dtypes(include=[np.number])
-        df.loc[:, numeric_cols.columns] = np.round(numeric_cols, decimals=precision)
-
-        for column in df.columns:
-            table.add_column(str(column), style="magenta")
-
-        for _, value_list in enumerate(df.values.tolist()):
-            row = [str(x) for x in value_list]
-            table.add_row(*row)
-
-        return table
-
 
 @dataclass
 class PlaceboTest:
@@ -109,7 +100,7 @@ class PlaceboTest:
         datasets = self.dataset_dict
         n_datasets = len(datasets)
         n_control = sum([d.n_units for d in datasets.values()])
-        with Progress() as progress:
+        with Progress(disable=not verbose) as progress:
             model_task = progress.add_task(
                 "[red]Models", total=len(self.models), visible=verbose
             )
@@ -130,7 +121,6 @@ class PlaceboTest:
                         progress.update(unit_task, advance=1)
                         placebo_data = dataset.to_placebo_data(i)
                         result = model(placebo_data)
-                        result = result.effect.percentage()
                         model_result.append(result)
                     results[(model._model_name, data_name)] = model_result
         return PlaceboTestResult(effects=results)

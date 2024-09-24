@@ -7,7 +7,7 @@ from azcausal.core.error import (
     JackKnife,
 )
 from azcausal.core.estimator import Estimator
-from azcausal.core.result import Result
+from azcausal.core.result import Result as _Result
 from azcausal.estimators.panel import (
     did,
     sdid,
@@ -19,7 +19,10 @@ from hypothesis import (
 )
 import numpy as np
 
-from causal_validation.models import AZCausalWrapper
+from causal_validation.models import (
+    AZCausalWrapper,
+    Result,
+)
 from causal_validation.testing import (
     TestConstants,
     simulate_data,
@@ -49,15 +52,20 @@ def test_call(
     n_post_treatment: int,
     seed: int,
 ):
-    constancts = TestConstants(
+    constants = TestConstants(
         N_CONTROL=n_control,
         N_PRE_TREATMENT=n_pre_treatment,
         N_POST_TREATMENT=n_post_treatment,
     )
-    data = simulate_data(global_mean=10.0, seed=seed, constants=constancts)
+    data = simulate_data(global_mean=10.0, seed=seed, constants=constants)
     model = AZCausalWrapper(*model_error)
     result = model(data)
 
     assert isinstance(result, Result)
     assert isinstance(result.effect, Effect)
     assert not np.isnan(result.effect.value)
+    assert isinstance(model._az_result, _Result)
+    assert np.all(np.concatenate((data.ytr, data.yte), axis=0) == result.observed)
+    assert (
+        result.observed.shape == result.counterfactual.shape == result.synthetic.shape
+    )

@@ -74,7 +74,9 @@ class AdditiveTransform(AbstractTransform):
         ytr = ytr + pre_intervention_vals[:, :1]
         Xte = Xte + post_intervention_vals[:, 1:]
         yte = yte + post_intervention_vals[:, :1]
-        return Dataset(Xtr, Xte, ytr, yte, data._start_date, data.counterfactual)
+        return Dataset(
+            Xtr, Xte, ytr, yte, data._start_date, data.counterfactual, data.synthetic
+        )
 
 
 @dataclass(kw_only=True)
@@ -91,4 +93,6 @@ class MultiplicativeTransform(AbstractTransform):
         ytr = ytr * pre_intervention_vals
         Xte = Xte * post_intervention_vals
         yte = yte * post_intervention_vals
-        return Dataset(Xtr, Xte, ytr, yte, data._start_date, data.counterfactual)
+        return Dataset(
+            Xtr, Xte, ytr, yte, data._start_date, data.counterfactual, data.synthetic
+        )
