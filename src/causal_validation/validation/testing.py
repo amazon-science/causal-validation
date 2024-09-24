@@ -80,7 +80,10 @@ class RMSPETestStatistic(AbstractTestStatistic):
         pre_synthetic, _ = RMSPETestStatistic._split_array(synthetic, treatment_index)
         pre_rmspe = RMSPETestStatistic._rmspe(pre_observed, pre_synthetic)
         post_rmspe = RMSPETestStatistic._rmspe(post_observed, post_counterfactual)
-        test_statistic = post_rmspe / pre_rmspe
+        if pre_rmspe == 0:
+            raise ZeroDivisionError("Error: pre intervention period MSPE is 0!")
+        else:
+            test_statistic = post_rmspe / pre_rmspe
         return test_statistic
 
     @staticmethod

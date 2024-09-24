@@ -15,7 +15,6 @@ from rich.progress import (
     ProgressBar,
     track,
 )
-from rich.table import Table
 
 from causal_validation.validation.placebo import PlaceboTest
 from causal_validation.validation.testing import (

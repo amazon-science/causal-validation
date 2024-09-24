@@ -23,7 +23,7 @@ class Result:
 class AZCausalWrapper:
     model: Estimator
     error_estimator: tp.Optional[Error] = None
-    _az_result: Result = None
+    _az_result: _Result = None
 
     def __post_init__(self):
         self._model_name = self.model.__class__.__name__

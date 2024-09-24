@@ -9,13 +9,11 @@ from pandera import (
     Column,
     DataFrameSchema,
 )
-from rich import box
 from rich.progress import (
     Progress,
     ProgressBar,
     track,
 )
-from rich.table import Table
 from scipy.stats import ttest_1samp
 from tqdm import (
     tqdm,
@@ -53,7 +51,6 @@ class PlaceboTestResult(TestResultFrame):
     def _model_to_df(
         self, model_name: str, dataset_name: str, effects: tp.List[Result]
     ) -> pd.DataFrame:
-        breakpoint()
         _effects = [e.effect.percentage().value for e in effects]
         _n_effects = len(_effects)
         expected_effect = np.mean(_effects)
