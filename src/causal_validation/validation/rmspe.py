@@ -124,7 +124,7 @@ class RMSPETest(PlaceboTest):
                     treatment_results[(model._model_name, data_name)] = TestResult(
                         p_value=pval, test_statistic=treatment_test_stat
                     )
-                    pseuod_treatment_results[(model._model_name, data_name)] = (
+                    pseudo_treatment_results[(model._model_name, data_name)] = (
                         placebo_test_stats
                     )
         return RMSPETestResult(
