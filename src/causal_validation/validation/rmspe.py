@@ -74,7 +74,7 @@ class RMSPETest(PlaceboTest):
     """
 
     def execute(self, verbose: bool = True) -> RMSPETestResult:
-        treatment_results, pseuod_treatment_results = {}, {}
+        treatment_results, pseudo_treatment_results = {}, {}
         datasets = self.dataset_dict
         n_datasets = len(datasets)
         n_control = sum([d.n_units for d in datasets.values()])
@@ -129,5 +129,5 @@ class RMSPETest(PlaceboTest):
                     )
         return RMSPETestResult(
             treatment_test_results=treatment_results,
-            pseudo_treatment_test_statistics=pseuod_treatment_results,
+            pseudo_treatment_test_statistics=pseudo_treatment_results,
         )
