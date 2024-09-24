@@ -43,8 +43,8 @@ RMSPESchema = DataFrameSchema(
 @dataclass
 class RMSPETestResult(TestResultFrame):
     """
-    A subclass of TestResultFrame, RMSPETestResult stores test statistics and p-value for the treated unit.
-    Test statistics for pseudo treatment units are stored, too.
+    A subclass of TestResultFrame, RMSPETestResult stores test statistics and p-value
+    for the treated unit. Test statistics for pseudo treatment units are also stored.
     """
 
     treatment_test_results: tp.Dict[tp.Tuple[str, str], TestResult]

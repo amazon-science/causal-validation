@@ -66,8 +66,9 @@ class AbstractTestStatistic:
 @dataclass
 class RMSPETestStatistic(AbstractTestStatistic):
     """
-    Provided a dataset and treatment index together with counterfactuals and synthetic control
-    for the unit assigned to treatment, rmspe test statistic is calculated.
+    Provided a dataset and treatment index together with counterfactuals and
+    synthetic control for the unit assigned to treatment, rmspe test statistic
+    is calculated.
     """
 
     @staticmethod
