@@ -15,6 +15,7 @@ from causal_validation.types import NPArray
 class Result:
     effect: Effect
     counterfactual: Float[NPArray, "N 1"]
+    synthetic: Float[NPArray, "N 1"]
     observed: Float[NPArray, "N 1"]
 
 
@@ -22,7 +23,7 @@ class Result:
 class AZCausalWrapper:
     model: Estimator
     error_estimator: tp.Optional[Error] = None
-    _az_result: Result = None
+    _az_result: _Result = None
 
     def __post_init__(self):
         self._model_name = self.model.__class__.__name__
@@ -37,6 +38,7 @@ class AZCausalWrapper:
         res = Result(
             effect=result.effect,
             counterfactual=self.counterfactual,
+            synthetic=self.synthetic,
             observed=self.observed,
         )
         return res
@@ -46,6 +48,12 @@ class AZCausalWrapper:
         df = self._az_result.effect.by_time
         c_factual = df.loc[:, "CF"].values.reshape(-1, 1)
         return c_factual
+
+    @property
+    def synthetic(self) -> Float[NPArray, "N 1"]:
+        df = self._az_result.effect.by_time
+        synth_control = df.loc[:, "C"].values.reshape(-1, 1)
+        return synth_control
 
     @property
     def observed(self) -> Float[NPArray, "N 1"]:

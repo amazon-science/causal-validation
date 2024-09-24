@@ -9,13 +9,11 @@ from pandera import (
     Column,
     DataFrameSchema,
 )
-from rich import box
 from rich.progress import (
     Progress,
     ProgressBar,
     track,
 )
-from rich.table import Table
 from scipy.stats import ttest_1samp
 from tqdm import (
     tqdm,
@@ -30,6 +28,7 @@ from causal_validation.models import (
     AZCausalWrapper,
     Result,
 )
+from causal_validation.validation.testing import TestResultFrame
 
 PlaceboSchema = DataFrameSchema(
     {
@@ -46,13 +45,12 @@ PlaceboSchema = DataFrameSchema(
 
 
 @dataclass
-class PlaceboTestResult:
+class PlaceboTestResult(TestResultFrame):
     effects: tp.Dict[tp.Tuple[str, str], tp.List[Result]]
 
     def _model_to_df(
         self, model_name: str, dataset_name: str, effects: tp.List[Result]
     ) -> pd.DataFrame:
-        breakpoint()
         _effects = [e.effect.percentage().value for e in effects]
         _n_effects = len(_effects)
         expected_effect = np.mean(_effects)
@@ -78,21 +76,6 @@ class PlaceboTestResult:
         df = pd.concat(dfs)
         PlaceboSchema.validate(df)
         return df
-
-    def summary(self, precision: int = 4) -> Table:
-        table = Table(show_header=True, box=box.MARKDOWN)
-        df = self.to_df()
-        numeric_cols = df.select_dtypes(include=[np.number])
-        df.loc[:, numeric_cols.columns] = np.round(numeric_cols, decimals=precision)
-
-        for column in df.columns:
-            table.add_column(str(column), style="magenta")
-
-        for _, value_list in enumerate(df.values.tolist()):
-            row = [str(x) for x in value_list]
-            table.add_row(*row)
-
-        return table
 
 
 @dataclass
