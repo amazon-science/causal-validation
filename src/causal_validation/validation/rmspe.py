@@ -42,6 +42,11 @@ RMSPESchema = DataFrameSchema(
 
 @dataclass
 class RMSPETestResult(TestResultFrame):
+    """
+    A subclass of TestResultFrame, RMSPETestResult stores test statistics and p-value for the treated unit.
+    Test statistics for pseudo treatment units are stored, too.
+    """
+
     treatment_test_results: tp.Dict[tp.Tuple[str, str], TestResult]
     pseudo_treatment_test_statistics: tp.Dict[tp.Tuple[str, str], tp.List[Float]]
 
@@ -63,6 +68,11 @@ class RMSPETestResult(TestResultFrame):
 
 @dataclass
 class RMSPETest(PlaceboTest):
+    """
+    A subclass of PlaceboTest calculates RMSPE as test statistic for all units.
+    Given the RMSPE test stats, p-value for actual treatment is calculated.
+    """
+
     def execute(self, verbose: bool = True) -> RMSPETestResult:
         treatment_results, pseuod_treatment_results = {}, {}
         datasets = self.dataset_dict
