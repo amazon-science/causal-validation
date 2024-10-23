@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Tuple
 
 from jaxtyping import Float
@@ -18,7 +18,9 @@ class Noise(AdditiveTransform):
     Normal with 0 loc and 0.1 scale.
     """
 
-    noise_dist: TimeVaryingParameter = TimeVaryingParameter(sampling_dist=norm(0, 0.1))
+    noise_dist: TimeVaryingParameter = field(
+        default_factory=lambda: TimeVaryingParameter(sampling_dist=norm(0, 0.1))
+    )
     _slots: Tuple[str] = ("noise_dist",)
 
     def get_values(self, data: Dataset) -> Float[np.ndarray, "N D"]:
