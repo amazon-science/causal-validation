@@ -2,18 +2,14 @@ from dataclasses import dataclass
 import typing as tp
 
 from jaxtyping import Float
-import numpy as np
 import pandas as pd
 from pandera import (
     Check,
     Column,
     DataFrameSchema,
 )
-from rich import box
 from rich.progress import (
     Progress,
-    ProgressBar,
-    track,
 )
 
 from causal_validation.validation.placebo import PlaceboTest
@@ -87,7 +83,7 @@ class RMSPETest(PlaceboTest):
                 "[blue]Datasets", total=n_datasets, visible=verbose
             )
             unit_task = progress.add_task(
-                f"[green]Treatment and Control Units",
+                "[green]Treatment and Control Units",
                 total=n_control + 1,
                 visible=verbose,
             )

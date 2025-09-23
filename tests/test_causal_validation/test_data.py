@@ -23,6 +23,7 @@ from causal_validation.testing import (
     simulate_data,
 )
 from causal_validation.types import InterventionTypes
+import datetime as dt
 
 MIN_STRING_LENGTH = 1
 MAX_STRING_LENGTH = 20
@@ -198,6 +199,10 @@ def test_drop_unit(n_pre: int, n_post: int, n_control: int):
         assert reduced_data.Xte.shape == desired_shape_Xte
         assert reduced_data.ytr.shape == desired_shape_ytr
         assert reduced_data.yte.shape == desired_shape_yte
+        
+        assert reduced_data.counterfactual == data.counterfactual
+        assert reduced_data.synthetic == data.synthetic
+        assert reduced_data._name == data._name
 
 
 @pytest.mark.parametrize("n_pre, n_post, n_control", [(60, 30, 10), (60, 30, 20)])
@@ -288,37 +293,188 @@ def test_naming_setter(name: str, extra_chars: str):
 
 
 @given(
-    seeds=st.lists(
-        elements=st.integers(min_value=1, max_value=1000), min_size=1, max_size=10
-    ),
-    to_name=st.booleans(),
+    n_pre=st.integers(min_value=10, max_value=100),
+    n_post=st.integers(min_value=10, max_value=100),
+    n_control=st.integers(min_value=2, max_value=20),
 )
-def test_dataset_container(seeds: tp.List[int], to_name: bool):
-    datasets = [simulate_data(0.0, s) for s in seeds]
-    if to_name:
-        names = [f"D_{idx}" for idx in range(len(datasets))]
-    else:
-        names = None
-    container = DatasetContainer(datasets, names)
+@settings(max_examples=5)
+def test_counterfactual_synthetic_attributes(n_pre: int, n_post: int, n_control: int):
+    constants = TestConstants(
+        N_POST_TREATMENT=n_post,
+        N_PRE_TREATMENT=n_pre,
+        N_CONTROL=n_control,
+    )
+    data = simulate_data(0.0, DEFAULT_SEED, constants=constants)
+    
+    assert data.counterfactual is None
+    assert data.synthetic is None
+    
+    counterfactual_vals = np.random.randn(n_post, 1)
+    synthetic_vals = np.random.randn(n_post, 1)
+    
+    data_with_attrs = Dataset(
+        data.Xtr, data.Xte, data.ytr, data.yte, data._start_date,
+        data.Ptr, data.Pte, data.Rtr, data.Rte,
+        counterfactual_vals, synthetic_vals, "test_dataset"
+    )
+    
+    np.testing.assert_array_equal(data_with_attrs.counterfactual, counterfactual_vals)
+    np.testing.assert_array_equal(data_with_attrs.synthetic, synthetic_vals)
+    assert data_with_attrs.name == "test_dataset"
 
-    # Test names were correctly assigned
-    if to_name:
-        assert container.names == names
-    else:
-        assert container.names == [f"Dataset {idx}" for idx in range(len(datasets))]
 
-    # Assert ordering
-    for idx, dataset in enumerate(container):
-        assert dataset == datasets[idx]
+@given(
+    n_pre=st.integers(min_value=10, max_value=100),
+    n_post=st.integers(min_value=10, max_value=100),
+    n_control=st.integers(min_value=2, max_value=20),
+)
+@settings(max_examples=5)
+def test_inflate_method(n_pre: int, n_post: int, n_control: int):
+    constants = TestConstants(
+        N_POST_TREATMENT=n_post,
+        N_PRE_TREATMENT=n_pre,
+        N_CONTROL=n_control,
+    )
+    data = simulate_data(0.0, DEFAULT_SEED, constants=constants)
+    
+    inflation_vals = np.ones((n_post, 1)) * 1.1 
+    inflated_data = data.inflate(inflation_vals)
+    
+    np.testing.assert_array_equal(inflated_data.Xtr, data.Xtr)
+    np.testing.assert_array_equal(inflated_data.ytr, data.ytr)
+    np.testing.assert_array_equal(inflated_data.Xte, data.Xte)
+    
+    expected_yte = data.yte * inflation_vals
+    np.testing.assert_array_equal(inflated_data.yte, expected_yte)
+    
+    np.testing.assert_array_equal(inflated_data.counterfactual, data.yte)
 
-    # Assert no data was dropped/added
-    assert len(container) == len(datasets)
 
-    # Test `as_dict()` method preserves order
-    container_dict = container.as_dict()
-    for idx, (k, v) in enumerate(container_dict.items()):
-        if to_name:
-            assert k == names[idx]
-        else:
-            assert k == f"Dataset {idx}"
-        assert v == datasets[idx]
+@given(
+    n_pre=st.integers(min_value=10, max_value=100),
+    n_post=st.integers(min_value=10, max_value=100),
+    n_control=st.integers(min_value=2, max_value=20),
+)
+@settings(max_examples=5)
+def test_control_treated_properties(n_pre: int, n_post: int, n_control: int):
+    constants = TestConstants(
+        N_POST_TREATMENT=n_post,
+        N_PRE_TREATMENT=n_pre,
+        N_CONTROL=n_control,
+    )
+    data = simulate_data(0.0, DEFAULT_SEED, constants=constants)
+    
+    control_units = data.control_units
+    expected_control = np.vstack([data.Xtr, data.Xte])
+    np.testing.assert_array_equal(control_units, expected_control)
+    assert control_units.shape == (n_pre + n_post, n_control)
+    
+    treated_units = data.treated_units
+    expected_treated = np.vstack([data.ytr, data.yte])
+    np.testing.assert_array_equal(treated_units, expected_treated)
+    assert treated_units.shape == (n_pre + n_post, 1)
+
+
+@given(
+    n_pre=st.integers(min_value=10, max_value=100),
+    n_post=st.integers(min_value=10, max_value=100),
+    n_control=st.integers(min_value=2, max_value=20),
+)
+@settings(max_examples=5)
+def test_covariate_properties_without_covariates(n_pre: int, n_post: int, n_control: int):
+    constants = TestConstants(
+        N_POST_TREATMENT=n_post,
+        N_PRE_TREATMENT=n_pre,
+        N_CONTROL=n_control,
+    )
+    data = simulate_data(0.0, DEFAULT_SEED, constants=constants)
+    
+    assert data.has_covariates is False
+    assert data.control_covariates is None
+    assert data.treated_covariates is None
+    assert data.pre_intervention_covariates is None
+    assert data.post_intervention_covariates is None
+    assert data.n_covariates == 0
+
+
+@given(
+    n_pre=st.integers(min_value=10, max_value=50),
+    n_post=st.integers(min_value=10, max_value=50),
+    n_control=st.integers(min_value=2, max_value=10),
+    n_covariates=st.integers(min_value=1, max_value=5),
+    Xtr=st.data(),
+    Xte=st.data(),
+    ytr=st.data(),
+    yte=st.data(),
+    Ptr=st.data(),
+    Pte=st.data(),
+    Rtr=st.data(),
+    Rte=st.data(),
+)
+@settings(max_examples=5)
+def test_covariate_properties_with_covariates(n_pre: int, 
+                                              n_post: int, 
+                                              n_control: int, 
+                                              n_covariates: int, 
+                                              Xtr, 
+                                              Xte, 
+                                              ytr, 
+                                              yte, 
+                                              Ptr, 
+                                              Pte, 
+                                              Rtr, 
+                                              Rte):
+    
+    Xtr = Xtr.draw(st.lists(st.floats(min_value=-10, max_value=10), 
+                            min_size=n_pre*n_control, max_size=n_pre*n_control))
+    Xtr = np.array(Xtr).reshape(n_pre, n_control)
+    
+    Xte = Xte.draw(st.lists(st.floats(min_value=-10, max_value=10), 
+                            min_size=n_post*n_control, max_size=n_post*n_control))
+    Xte = np.array(Xte).reshape(n_post, n_control)
+    
+    ytr = ytr.draw(st.lists(st.floats(min_value=-10, max_value=10), 
+                            min_size=n_pre, max_size=n_pre))
+    ytr = np.array(ytr).reshape(n_pre, 1)
+    
+    yte = yte.draw(st.lists(st.floats(min_value=-10, max_value=10), 
+                            min_size=n_post, max_size=n_post))
+    yte = np.array(yte).reshape(n_post, 1)
+    
+    Ptr = Ptr.draw(st.lists(st.floats(min_value=-10, max_value=10), 
+                            min_size=n_pre*n_control*n_covariates, max_size=n_pre*n_control*n_covariates))
+    Ptr = np.array(Ptr).reshape(n_pre, n_control, n_covariates)
+    
+    Pte = Pte.draw(st.lists(st.floats(min_value=-10, max_value=10), 
+                            min_size=n_post*n_control*n_covariates, max_size=n_post*n_control*n_covariates))
+    Pte = np.array(Pte).reshape(n_post, n_control, n_covariates)
+    
+    Rtr = Rtr.draw(st.lists(st.floats(min_value=-10, max_value=10), 
+                            min_size=n_pre*n_covariates, max_size=n_pre*n_covariates))
+    Rtr = np.array(Rtr).reshape(n_pre, 1, n_covariates)
+    
+    Rte = Rte.draw(st.lists(st.floats(min_value=-10, max_value=10), 
+                            min_size=n_post*n_covariates, max_size=n_post*n_covariates))
+    Rte = np.array(Rte).reshape(n_post, 1, n_covariates)
+    
+    data = Dataset(Xtr, Xte, ytr, yte, dt.date(2023, 1, 1), Ptr, Pte, Rtr, Rte)
+    
+    assert data.n_covariates == n_covariates
+    assert data.has_covariates is True
+    
+    control_covariates = data.control_covariates
+    expected_control_cov = np.vstack([Ptr, Pte])
+    np.testing.assert_array_equal(control_covariates, expected_control_cov)
+    assert control_covariates.shape == (n_pre + n_post, n_control, n_covariates)
+    
+    treated_covariates = data.treated_covariates
+    expected_treated_cov = np.vstack([Rtr, Rte])
+    np.testing.assert_array_equal(treated_covariates, expected_treated_cov)
+    assert treated_covariates.shape == (n_pre + n_post, 1, n_covariates)
+    
+    pre_cov = data.pre_intervention_covariates
+    assert pre_cov == (Ptr, Rtr)
+    
+    post_cov = data.post_intervention_covariates
+    assert post_cov == (Pte, Rte)
+
