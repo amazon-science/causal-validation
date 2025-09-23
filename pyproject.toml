@@ -171,7 +171,7 @@ select = [
   "TID",
   "ISC",
 ]
-ignore = ["F722"]
+ignore = ["F722", "PLW1641"]
 
 [tool.ruff.format]
 quote-style = "double"

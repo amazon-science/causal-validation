@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 import typing as tp
 
-from azcausal.core.effect import Effect
 import numpy as np
 import pandas as pd
 from pandera import (
@@ -11,14 +10,8 @@ from pandera import (
 )
 from rich.progress import (
     Progress,
-    ProgressBar,
-    track,
 )
 from scipy.stats import ttest_1samp
-from tqdm import (
-    tqdm,
-    trange,
-)
 
 from causal_validation.data import (
     Dataset,
@@ -108,7 +101,7 @@ class PlaceboTest:
                 "[blue]Datasets", total=n_datasets, visible=verbose
             )
             unit_task = progress.add_task(
-                f"[green]Control Units",
+                "[green]Control Units",
                 total=n_control,
                 visible=verbose,
             )

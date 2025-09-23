@@ -21,14 +21,44 @@ from causal_validation.types import InterventionTypes
 
 @dataclass
 class Dataset:
+    """A causal inference dataset containing pre/post intervention observations
+    and optional associated covariates.
+
+    Attributes:
+        Xtr: Pre-intervention control unit observations (N x D)
+        Xte: Post-intervention control unit observations (M x D)
+        ytr: Pre-intervention treated unit observations (N x 1)
+        yte: Post-intervention treated unit observations (M x 1)
+        _start_date: Start date for time indexing
+        Ptr: Pre-intervention control unit covariates (N x D x F)
+        Pte: Post-intervention control unit covariates (M x D x F)
+        Rtr: Pre-intervention treated unit covariates (N x 1 x F)
+        Rte: Post-intervention treated unit covariates (M x 1 x F)
+        counterfactual: Optional counterfactual outcomes (M x 1)
+        synthetic: Optional synthetic control outcomes (M x 1).
+            This is weighted combination of control units
+            minimizing a distance-based error w.r.t. the
+            treated in pre-intervention period.
+        _name: Optional name identifier for the dataset
+    """
     Xtr: Float[np.ndarray, "N D"]
     Xte: Float[np.ndarray, "M D"]
     ytr: Float[np.ndarray, "N 1"]
     yte: Float[np.ndarray, "M 1"]
     _start_date: dt.date
+    Ptr: tp.Optional[Float[np.ndarray, "N D F"]] = None
+    Pte: tp.Optional[Float[np.ndarray, "M D F"]] = None
+    Rtr: tp.Optional[Float[np.ndarray, "N 1 F"]] = None
+    Rte: tp.Optional[Float[np.ndarray, "M 1 F"]] = None
     counterfactual: tp.Optional[Float[np.ndarray, "M 1"]] = None
     synthetic: tp.Optional[Float[np.ndarray, "M 1"]] = None
     _name: str = None
+
+    def __post_init__(self):
+        covariates = [self.Ptr, self.Pte, self.Rtr, self.Rte]
+        self.has_covariates = all(cov is not None for cov in covariates)
+        if not self.has_covariates:
+            assert all(cov is None for cov in covariates)
 
     def to_df(
         self, index_start: str = dt.date(year=2023, month=1, day=1)
@@ -60,12 +90,39 @@ class Dataset:
         return self.n_post_intervention + self.n_pre_intervention
 
     @property
+    def n_covariates(self) -> int:
+        if self.has_covariates:
+            return self.Ptr.shape[2]
+        else:
+            return 0
+
+    @property
     def control_units(self) -> Float[np.ndarray, "{self.n_timepoints} {self.n_units}"]:
         return np.vstack([self.Xtr, self.Xte])
 
     @property
     def treated_units(self) -> Float[np.ndarray, "{self.n_timepoints} 1"]:
         return np.vstack([self.ytr, self.yte])
+
+    @property
+    def control_covariates(
+        self,
+    ) -> tp.Optional[
+        Float[np.ndarray, "{self.n_timepoints} {self.n_units} {self.n_covariates}"]
+    ]:
+        if self.has_covariates:
+            return np.vstack([self.Ptr, self.Pte])
+        else:
+            return None
+
+    @property
+    def treated_covariates(
+        self,
+    ) -> tp.Optional[Float[np.ndarray, "{self.n_timepoints} 1 {self.n_covariates}"]]:
+        if self.has_covariates:
+            return np.vstack([self.Rtr, self.Rte])
+        else:
+            return None
 
     @property
     def pre_intervention_obs(
@@ -78,6 +135,32 @@ class Dataset:
         self,
     ) -> tp.Tuple[Float[np.ndarray, "M D"], Float[np.ndarray, "M 1"]]:
         return self.Xte, self.yte
+
+    @property
+    def pre_intervention_covariates(
+        self,
+    ) -> tp.Optional[
+        tp.Tuple[
+            Float[np.ndarray, "N D F"], Float[np.ndarray, "N 1 F"],
+        ]
+    ]:
+        if self.has_covariates:
+            return self.Ptr, self.Rtr
+        else:
+            return None
+
+    @property
+    def post_intervention_covariates(
+        self,
+    ) -> tp.Optional[
+        tp.Tuple[
+            Float[np.ndarray, "M D F"], Float[np.ndarray, "M 1 F"],
+        ]
+    ]:
+        if self.has_covariates:
+            return self.Pte, self.Rte
+        else:
+            return None
 
     @property
     def full_index(self) -> DatetimeIndex:
@@ -97,7 +180,12 @@ class Dataset:
             return self.full_index
 
     def _get_columns(self) -> tp.List[str]:
-        colnames = ["T"] + [f"C{i}" for i in range(self.n_units)]
+        if self.has_covariates:
+            colnames = ["T"] + [f"C{i}" for i in range(self.n_units)] + [
+                f"F{i}" for i in range(self.n_covariates)
+            ]
+        else:
+            colnames = ["T"] + [f"C{i}" for i in range(self.n_units)]
         return colnames
 
     def _get_index(self, start_date: dt.date) -> DatetimeIndex:
@@ -116,7 +204,10 @@ class Dataset:
         Xtr, ytr = [deepcopy(i) for i in self.pre_intervention_obs]
         Xte, yte = [deepcopy(i) for i in self.post_intervention_obs]
         inflated_yte = yte * inflation_vals
-        return Dataset(Xtr, Xte, ytr, inflated_yte, self._start_date, yte)
+        return Dataset(
+            Xtr, Xte, ytr, inflated_yte, self._start_date,
+            self.Ptr, self.Pte, self.Rtr, self.Rte, yte, self.synthetic, self._name
+        )
 
     def __eq__(self, other: Dataset) -> bool:
         ytr = np.allclose(self.ytr, other.ytr)
@@ -151,14 +242,21 @@ class Dataset:
     def drop_unit(self, idx: int) -> Dataset:
         Xtr = np.delete(self.Xtr, [idx], axis=1)
         Xte = np.delete(self.Xte, [idx], axis=1)
+        Ptr = np.delete(self.Ptr, [idx], axis=1) if self.Ptr is not None else None
+        Pte = np.delete(self.Pte, [idx], axis=1) if self.Pte is not None else None
         return Dataset(
             Xtr,
             Xte,
             self.ytr,
             self.yte,
             self._start_date,
+            Ptr,
+            Pte,
+            self.Rtr,
+            self.Rte,
             self.counterfactual,
             self.synthetic,
+            self._name,
         )
 
     def to_placebo_data(self, to_treat_idx: int) -> Dataset:
@@ -212,5 +310,7 @@ def reassign_treatment(
     Xtr = data.Xtr
     Xte = data.Xte
     return Dataset(
-        Xtr, Xte, ytr, yte, data._start_date, data.counterfactual, data.synthetic
+        Xtr, Xte, ytr, yte, data._start_date,
+        data.Ptr, data.Pte, data.Rtr, data.Rte,
+        data.counterfactual, data.synthetic, data._name
     )
