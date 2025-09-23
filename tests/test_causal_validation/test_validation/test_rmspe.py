@@ -35,7 +35,7 @@ def test_schema_coerce():
     df = RMSPESchema.example()
     cols = df.columns
     for col in cols:
-        if not col in ["Model", "Dataset"]:
+        if col not in ["Model", "Dataset"]:
             df[col] = np.ceil((df[col]))
             RMSPESchema.validate(df)
 
