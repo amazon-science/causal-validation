@@ -374,6 +374,41 @@ def test_control_treated_properties(n_pre: int, n_post: int, n_control: int):
     np.testing.assert_array_equal(treated_units, expected_treated)
     assert treated_units.shape == (n_pre + n_post, 1)
 
+@given(
+    seeds=st.lists(
+        elements=st.integers(min_value=1, max_value=1000), min_size=1, max_size=10
+    ),
+    to_name=st.booleans(),
+)
+def test_dataset_container(seeds: tp.List[int], to_name: bool):
+    datasets = [simulate_data(0.0, s) for s in seeds]
+    if to_name:
+        names = [f"D_{idx}" for idx in range(len(datasets))]
+    else:
+        names = None
+    container = DatasetContainer(datasets, names)
+
+    # Test names were correctly assigned
+    if to_name:
+        assert container.names == names
+    else:
+        assert container.names == [f"Dataset {idx}" for idx in range(len(datasets))]
+
+    # Assert ordering
+    for idx, dataset in enumerate(container):
+        assert dataset == datasets[idx]
+
+    # Assert no data was dropped/added
+    assert len(container) == len(datasets)
+
+    # Test `as_dict()` method preserves order
+    container_dict = container.as_dict()
+    for idx, (k, v) in enumerate(container_dict.items()):
+        if to_name:
+            assert k == names[idx]
+        else:
+            assert k == f"Dataset {idx}"
+        assert v == datasets[idx]
 
 @given(
     n_pre=st.integers(min_value=10, max_value=100),
