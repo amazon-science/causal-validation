@@ -29,9 +29,40 @@ def _simulate_base_obs(
     obs = key.normal(
         loc=config.global_mean, scale=config.global_scale, size=(n_timepoints, n_units)
     )
-    Xtr = obs[: config.n_pre_intervention_timepoints, :]
-    Xte = obs[config.n_pre_intervention_timepoints :, :]
-    ytr = weights.weight_obs(Xtr)
-    yte = weights.weight_obs(Xte)
-    data = Dataset(Xtr, Xte, ytr, yte, _start_date=config.start_date)
+
+    if config.n_covariates is not None:
+        Xtr_ = obs[: config.n_pre_intervention_timepoints, :]
+        Xte_ = obs[config.n_pre_intervention_timepoints :, :]
+
+        covariates = key.normal(
+            loc=config.covariate_means,
+            scale=config.covariate_stds,
+            size=(n_timepoints, n_units, config.n_covariates)
+        )
+
+        Ptr = covariates[:config.n_pre_intervention_timepoints, :, :]
+        Pte = covariates[config.n_pre_intervention_timepoints:, :, :]
+
+        Xtr = Xtr_ + Ptr @ config.covariate_coeffs
+        Xte = Xte_ + Pte @ config.covariate_coeffs
+
+        ytr = weights.weight_contr(Xtr)
+        yte = weights.weight_contr(Xte)
+
+        Rtr = weights.weight_contr(Ptr)
+        Rte = weights.weight_contr(Pte)
+
+        data = Dataset(
+            Xtr, Xte, ytr, yte, _start_date=config.start_date,
+            Ptr=Ptr, Pte=Pte, Rtr=Rtr, Rte=Rte
+        )
+    else:
+        Xtr = obs[: config.n_pre_intervention_timepoints, :]
+        Xte = obs[config.n_pre_intervention_timepoints :, :]
+
+        ytr = weights.weight_contr(Xtr)
+        yte = weights.weight_contr(Xte)
+
+        data = Dataset(Xtr, Xte, ytr, yte, _start_date=config.start_date)
+
     return data
