@@ -62,16 +62,36 @@ class Dataset:
 
     def to_df(
         self, index_start: str = dt.date(year=2023, month=1, day=1)
-    ) -> pd.DataFrame:
-        inputs = np.vstack([self.Xtr, self.Xte])
-        outputs = np.vstack([self.ytr, self.yte])
-        data = np.hstack([outputs, inputs])
+    ) -> tp.Tuple[pd.DataFrame, tp.Optional[pd.DataFrame]]:
+        control_outputs = np.vstack([self.Xtr, self.Xte])
+        treated_outputs = np.vstack([self.ytr, self.yte])
+        data = np.hstack([treated_outputs, control_outputs])
         index = self._get_index(index_start)
         colnames = self._get_columns()
         indicator = self._get_indicator()
-        df = pd.DataFrame(data, index=index, columns=colnames)
-        df = df.assign(treated=indicator)
-        return df
+        df_outputs = pd.DataFrame(data, index=index, columns=colnames)
+        df_outputs = df_outputs.assign(treated=indicator)
+
+        if not self.has_covariates:
+            cov_df = None
+        else:
+            control_covs = np.concatenate([self.Ptr, self.Pte], axis=0)
+            treated_covs = np.concatenate([self.Rtr, self.Rte], axis=0)
+
+            all_covs = np.concatenate([treated_covs, control_covs], axis=1)
+
+            unit_cols = self._get_columns()
+            covariate_cols = [f"F{i}" for i in range(self.n_covariates)]
+
+            cov_data = all_covs.reshape(self.n_timepoints, -1)
+
+            col_tuples = [(unit, cov) for unit in unit_cols for cov in covariate_cols]
+            multi_cols = pd.MultiIndex.from_tuples(col_tuples)
+
+            cov_df = pd.DataFrame(cov_data, index=index, columns=multi_cols)
+            cov_df = cov_df.assign(treated=indicator)
+
+        return df_outputs, cov_df
 
     @property
     def n_post_intervention(self) -> int:
@@ -180,12 +200,7 @@ class Dataset:
             return self.full_index
 
     def _get_columns(self) -> tp.List[str]:
-        if self.has_covariates:
-            colnames = ["T"] + [f"C{i}" for i in range(self.n_units)] + [
-                f"F{i}" for i in range(self.n_covariates)
-            ]
-        else:
-            colnames = ["T"] + [f"C{i}" for i in range(self.n_units)]
+        colnames = ["T"] + [f"C{i}" for i in range(self.n_units)]
         return colnames
 
     def _get_index(self, start_date: dt.date) -> DatetimeIndex:
@@ -224,7 +239,8 @@ class Dataset:
 
     def to_azcausal(self):
         time_index = np.arange(self.n_timepoints)
-        data = self.to_df().assign(time=time_index).melt(id_vars=["time", "treated"])
+        data_df, _ = self.to_df()
+        data = data_df.assign(time=time_index).melt(id_vars=["time", "treated"])
         data.loc[:, "treated"] = np.where(
             (data["variable"] == "T") & (data["treated"] == 1.0), 1, 0
         )

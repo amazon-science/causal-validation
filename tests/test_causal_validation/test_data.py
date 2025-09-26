@@ -29,6 +29,7 @@ MIN_STRING_LENGTH = 1
 MAX_STRING_LENGTH = 20
 DEFAULT_SEED = 123
 NUM_NON_CONTROL_COLS = 2
+NUM_TREATED = 1
 LARGE_N_POST = 5000
 LARGE_N_PRE = 5000
 
@@ -109,7 +110,7 @@ def test_indicator(n_pre_treatment: int, n_post_treatment: int):
     n_pre_treatment=st.integers(min_value=1, max_value=50),
     n_post_treatment=st.integers(min_value=1, max_value=50),
 )
-def test_to_df(n_control: int, n_pre_treatment: int, n_post_treatment: int):
+def test_to_df_no_cov(n_control: int, n_pre_treatment: int, n_post_treatment: int):
     constants = TestConstants(
         N_POST_TREATMENT=n_post_treatment,
         N_PRE_TREATMENT=n_pre_treatment,
@@ -117,11 +118,52 @@ def test_to_df(n_control: int, n_pre_treatment: int, n_post_treatment: int):
     )
     data = simulate_data(0.0, DEFAULT_SEED, constants=constants)
 
-    df = data.to_df()
+    df, _ = data.to_df()
     assert isinstance(df, pd.DataFrame)
     assert df.shape == (
         n_pre_treatment + n_post_treatment,
         n_control + NUM_NON_CONTROL_COLS,
+    )
+
+    colnames = data._get_columns()
+    assert isinstance(colnames, list)
+    assert colnames[0] == "T"
+    assert len(colnames) == n_control + 1
+
+    index = data.full_index
+    assert isinstance(index, DatetimeIndex)
+    assert index[0].strftime("%Y-%m-%d") == data._start_date.strftime("%Y-%m-%d")
+
+@given(
+    n_control=st.integers(min_value=1, max_value=50),
+    n_pre_treatment=st.integers(min_value=1, max_value=50),
+    n_post_treatment=st.integers(min_value=1, max_value=50),
+    n_covariates=st.integers(min_value=1, max_value=50),
+)
+def test_to_df_with_cov(n_control: int,
+                        n_pre_treatment: int,
+                        n_post_treatment: int,
+                        n_covariates:int):
+    constants = TestConstants(
+        N_POST_TREATMENT=n_post_treatment,
+        N_PRE_TREATMENT=n_pre_treatment,
+        N_CONTROL=n_control,
+        N_COVARIATES=n_covariates,
+    )
+    data = simulate_data(0.0, DEFAULT_SEED, constants=constants)
+
+    df_outs, df_covs = data.to_df()
+    assert isinstance(df_outs, pd.DataFrame)
+    assert df_outs.shape == (
+        n_pre_treatment + n_post_treatment,
+        n_control + NUM_NON_CONTROL_COLS,
+    )
+
+    assert isinstance(df_covs, pd.DataFrame)
+    assert df_covs.shape == (
+        n_pre_treatment + n_post_treatment,
+        n_covariates * (n_control + NUM_TREATED)
+        + NUM_NON_CONTROL_COLS - NUM_TREATED,
     )
 
     colnames = data._get_columns()
