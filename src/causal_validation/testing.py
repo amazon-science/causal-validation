@@ -11,6 +11,7 @@ class TestConstants:
     N_CONTROL: int = 10
     N_PRE_TREATMENT: int = 500
     N_POST_TREATMENT: int = 500
+    N_COVARIATES: tp.Optional[int] = None
     DATA_SLOTS: tp.Tuple[str, str, str, str] = ("Xtr", "Xte", "ytr", "yte")
     ZERO_DIVISION_ERROR: float = 1e-6
     GLOBAL_SCALE: float = 1.0
@@ -26,6 +27,7 @@ def simulate_data(
         n_control_units=constants.N_CONTROL,
         n_pre_intervention_timepoints=constants.N_PRE_TREATMENT,
         n_post_intervention_timepoints=constants.N_POST_TREATMENT,
+        n_covariates=constants.N_COVARIATES,
         global_mean=global_mean,
         global_scale=constants.GLOBAL_SCALE,
         seed=seed,

@@ -5,12 +5,12 @@ from jaxtyping import Float
 import numpy as np
 
 from causal_validation.data import Dataset
-from causal_validation.transforms.base import AdditiveTransform
+from causal_validation.transforms.base import AdditiveOutputTransform
 from causal_validation.transforms.parameter import ParameterOrFloat
 
 
 @dataclass(kw_only=True)
-class Periodic(AdditiveTransform):
+class Periodic(AdditiveOutputTransform):
     amplitude: ParameterOrFloat = 1.0
     frequency: ParameterOrFloat = 1.0
     shift: ParameterOrFloat = 0.0

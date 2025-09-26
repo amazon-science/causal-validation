@@ -51,6 +51,18 @@ class TimeVaryingParameter(RandomParameter):
         return np.tile(time_param, reps=n_units)
 
 
+@dataclass
+class CovariateNoiseParameter(RandomParameter):
+    def get_value(
+        self, n_units: int, n_timepoints: int, n_covariates: int
+    ) -> Float[np.ndarray, "{n_timepoints} {n_units} {n_covariates}"]:
+        covariate_noise = self.sampling_dist.rvs(
+            size=(n_timepoints, n_units, n_covariates),
+            random_state=self.random_state
+        )
+        return covariate_noise
+
+
 ParameterOrFloat = tp.Union[Parameter, float]
 
 
