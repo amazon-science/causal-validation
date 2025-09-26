@@ -61,7 +61,7 @@ class AbstractTransform:
 
 
 @dataclass(kw_only=True)
-class AdditiveTransform(AbstractTransform):
+class AdditiveOutputTransform(AbstractTransform):
     def apply_values(
         self,
         pre_intervention_vals: np.ndarray,
@@ -82,7 +82,7 @@ class AdditiveTransform(AbstractTransform):
 
 
 @dataclass(kw_only=True)
-class MultiplicativeTransform(AbstractTransform):
+class MultiplicativeOutputTransform(AbstractTransform):
     def apply_values(
         self,
         pre_intervention_vals: np.ndarray,
@@ -98,5 +98,25 @@ class MultiplicativeTransform(AbstractTransform):
         return Dataset(
             Xtr, Xte, ytr, yte, data._start_date,
             data.Ptr, data.Pte, data.Rtr, data.Rte,
+            data.counterfactual, data.synthetic
+        )
+
+@dataclass(kw_only=True)
+class AdditiveCovariateTransform(AbstractTransform):
+    def apply_values(
+        self,
+        pre_intervention_vals: np.ndarray,
+        post_intervention_vals: np.ndarray,
+        data: Dataset,
+    ) -> Dataset:
+        Ptr, Rtr = [deepcopy(i) for i in data.pre_intervention_covariates]
+        Pte, Rte = [deepcopy(i) for i in data.post_intervention_covariates]
+        Ptr = Ptr + pre_intervention_vals[:, 1:, :]
+        Rtr = Rtr + pre_intervention_vals[:, :1, :]
+        Pte = Pte + post_intervention_vals[:, 1:, :]
+        Rte = Rte + post_intervention_vals[:, :1, :]
+        return Dataset(
+            data.Xtr, data.Xte, data.ytr, data.yte,
+            data._start_date, Ptr, Pte, Rtr, Rte,
             data.counterfactual, data.synthetic
         )
