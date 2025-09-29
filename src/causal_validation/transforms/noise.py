@@ -1,4 +1,7 @@
-from dataclasses import dataclass, field
+from dataclasses import (
+    dataclass,
+    field,
+)
 from typing import Tuple
 
 from jaxtyping import Float
@@ -7,12 +10,12 @@ from scipy.stats import norm
 
 from causal_validation.data import Dataset
 from causal_validation.transforms.base import (
+    AdditiveCovariateTransform,
     AdditiveOutputTransform,
-    AdditiveCovariateTransform
 )
 from causal_validation.transforms.parameter import (
+    CovariateNoiseParameter,
     TimeVaryingParameter,
-    CovariateNoiseParameter
 )
 
 
@@ -53,8 +56,8 @@ class CovariateNoise(AdditiveCovariateTransform):
 
     def get_values(self, data: Dataset) -> Float[np.ndarray, "N D"]:
         noise = self.noise_dist.get_value(
-            n_units=data.n_units+1,
+            n_units=data.n_units + 1,
             n_timepoints=data.n_timepoints,
-            n_covariates=data.n_covariates
+            n_covariates=data.n_covariates,
         )
         return noise

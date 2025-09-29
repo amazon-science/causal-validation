@@ -43,8 +43,9 @@ def test_weight_contr_3d(n_units: int, n_time: int, n_covariates: int):
     weighted_covs = weights.weight_contr(covariates)
 
     assert weighted_covs.shape == (n_time, 1, n_covariates)
-    expected = np.einsum("n d k, d i -> n i k",
-                         covariates, weights.get_weights(covariates))
+    expected = np.einsum(
+        "n d k, d i -> n i k", covariates, weights.get_weights(covariates)
+    )
     np.testing.assert_almost_equal(weighted_covs, expected, decimal=6)
 
 

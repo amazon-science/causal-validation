@@ -37,11 +37,11 @@ def _simulate_base_obs(
         covariates = key.normal(
             loc=config.covariate_means,
             scale=config.covariate_stds,
-            size=(n_timepoints, n_units, config.n_covariates)
+            size=(n_timepoints, n_units, config.n_covariates),
         )
 
-        Ptr = covariates[:config.n_pre_intervention_timepoints, :, :]
-        Pte = covariates[config.n_pre_intervention_timepoints:, :, :]
+        Ptr = covariates[: config.n_pre_intervention_timepoints, :, :]
+        Pte = covariates[config.n_pre_intervention_timepoints :, :, :]
 
         Xtr = Xtr_ + Ptr @ config.covariate_coeffs
         Xte = Xte_ + Pte @ config.covariate_coeffs
@@ -53,8 +53,15 @@ def _simulate_base_obs(
         Rte = weights.weight_contr(Pte)
 
         data = Dataset(
-            Xtr, Xte, ytr, yte, _start_date=config.start_date,
-            Ptr=Ptr, Pte=Pte, Rtr=Rtr, Rte=Rte
+            Xtr,
+            Xte,
+            ytr,
+            yte,
+            _start_date=config.start_date,
+            Ptr=Ptr,
+            Pte=Pte,
+            Rtr=Rtr,
+            Rte=Rte,
         )
     else:
         Xtr = obs[: config.n_pre_intervention_timepoints, :]

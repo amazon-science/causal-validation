@@ -1,5 +1,8 @@
+from hypothesis import (
+    given,
+    strategies as st,
+)
 import numpy as np
-from hypothesis import given, strategies as st
 
 from causal_validation.config import Config
 from causal_validation.simulate import simulate
@@ -9,14 +12,14 @@ from causal_validation.simulate import simulate
     n_units=st.integers(min_value=1, max_value=5),
     n_pre=st.integers(min_value=1, max_value=10),
     n_post=st.integers(min_value=1, max_value=10),
-    seed=st.integers(min_value=1, max_value=1000)
+    seed=st.integers(min_value=1, max_value=1000),
 )
 def test_simulate_basic(n_units, n_pre, n_post, seed):
     cfg = Config(
         n_control_units=n_units,
         n_pre_intervention_timepoints=n_pre,
         n_post_intervention_timepoints=n_post,
-        seed=seed
+        seed=seed,
     )
     data = simulate(cfg)
 
@@ -32,7 +35,7 @@ def test_simulate_basic(n_units, n_pre, n_post, seed):
     n_pre=st.integers(min_value=1, max_value=10),
     n_post=st.integers(min_value=1, max_value=10),
     n_covariates=st.integers(min_value=1, max_value=3),
-    seed=st.integers(min_value=1, max_value=1000)
+    seed=st.integers(min_value=1, max_value=1000),
 )
 def test_simulate_with_covariates(n_units, n_pre, n_post, n_covariates, seed):
     cfg = Config(
@@ -40,7 +43,7 @@ def test_simulate_with_covariates(n_units, n_pre, n_post, n_covariates, seed):
         n_pre_intervention_timepoints=n_pre,
         n_post_intervention_timepoints=n_post,
         n_covariates=n_covariates,
-        seed=seed
+        seed=seed,
     )
     data = simulate(cfg)
 
@@ -59,14 +62,14 @@ def test_simulate_with_covariates(n_units, n_pre, n_post, n_covariates, seed):
     n_units=st.integers(min_value=1, max_value=5),
     n_pre=st.integers(min_value=1, max_value=10),
     n_post=st.integers(min_value=1, max_value=10),
-    seed=st.integers(min_value=1, max_value=1000)
+    seed=st.integers(min_value=1, max_value=1000),
 )
 def test_simulate_reproducible(n_units, n_pre, n_post, seed):
     cfg1 = Config(
         n_control_units=n_units,
         n_pre_intervention_timepoints=n_pre,
         n_post_intervention_timepoints=n_post,
-        seed=seed
+        seed=seed,
     )
     data1 = simulate(cfg1)
 
@@ -74,7 +77,7 @@ def test_simulate_reproducible(n_units, n_pre, n_post, seed):
         n_control_units=n_units,
         n_pre_intervention_timepoints=n_pre,
         n_post_intervention_timepoints=n_post,
-        seed=seed
+        seed=seed,
     )
     data2 = simulate(cfg2)
 
@@ -88,7 +91,7 @@ def test_simulate_reproducible(n_units, n_pre, n_post, seed):
     n_units=st.integers(min_value=1, max_value=3),
     n_pre=st.integers(min_value=3, max_value=10),
     n_post=st.integers(min_value=1, max_value=5),
-    seed=st.integers(min_value=1, max_value=1000)
+    seed=st.integers(min_value=1, max_value=1000),
 )
 def test_simulate_covariate_effects(n_units, n_pre, n_post, seed):
     cfg = Config(
@@ -97,7 +100,7 @@ def test_simulate_covariate_effects(n_units, n_pre, n_post, seed):
         n_post_intervention_timepoints=n_post,
         n_covariates=1,
         covariate_coeffs=np.array([10.0]),
-        seed=seed
+        seed=seed,
     )
     data_with_cov = simulate(cfg)
 
@@ -105,7 +108,7 @@ def test_simulate_covariate_effects(n_units, n_pre, n_post, seed):
         n_control_units=n_units,
         n_pre_intervention_timepoints=n_pre,
         n_post_intervention_timepoints=n_post,
-        seed=seed
+        seed=seed,
     )
     data_no_cov = simulate(cfg_no_cov)
 
@@ -117,7 +120,7 @@ def test_simulate_covariate_effects(n_units, n_pre, n_post, seed):
     n_units=st.integers(min_value=1, max_value=3),
     n_pre=st.integers(min_value=3, max_value=10),
     n_post=st.integers(min_value=1, max_value=5),
-    seed=st.integers(min_value=1, max_value=1000)
+    seed=st.integers(min_value=1, max_value=1000),
 )
 def test_simulate_exact_covariate_effects(n_units, n_pre, n_post, seed):
     cfg = Config(
@@ -125,10 +128,10 @@ def test_simulate_exact_covariate_effects(n_units, n_pre, n_post, seed):
         n_pre_intervention_timepoints=n_pre,
         n_post_intervention_timepoints=n_post,
         n_covariates=2,
-        covariate_means=np.ones((n_units,2)),
-        covariate_stds= 1e-12*np.ones((n_units,2)),
+        covariate_means=np.ones((n_units, 2)),
+        covariate_stds=1e-12 * np.ones((n_units, 2)),
         covariate_coeffs=np.array([10.0, 5.0]),
-        seed=seed
+        seed=seed,
     )
     data_with_cov = simulate(cfg)
 
@@ -136,10 +139,9 @@ def test_simulate_exact_covariate_effects(n_units, n_pre, n_post, seed):
         n_control_units=n_units,
         n_pre_intervention_timepoints=n_pre,
         n_post_intervention_timepoints=n_post,
-        seed=seed
+        seed=seed,
     )
     data_no_cov = simulate(cfg_no_cov)
 
-    assert np.allclose(data_with_cov.Xtr-15, data_no_cov.Xtr)
-    assert np.allclose(data_with_cov.Xte-15, data_no_cov.Xte)
-
+    assert np.allclose(data_with_cov.Xtr - 15, data_no_cov.Xtr)
+    assert np.allclose(data_with_cov.Xte - 15, data_no_cov.Xte)

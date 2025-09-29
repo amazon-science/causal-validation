@@ -3,10 +3,9 @@ from dataclasses import (
     field,
 )
 import datetime as dt
-
-from jaxtyping import Float
 import typing as tp
 
+from jaxtyping import Float
 import numpy as np
 from scipy.stats import halfcauchy
 
@@ -49,6 +48,7 @@ class Config:
         weights_cfg (WeightConfig): Configuration for unit weights. Defaults to
             UniformWeights.
     """
+
     n_control_units: int
     n_pre_intervention_timepoints: int
     n_post_intervention_timepoints: int
@@ -65,25 +65,27 @@ class Config:
     def __post_init__(self):
         self.rng = np.random.RandomState(self.seed)
         if self.covariate_means is not None:
-            assert self.covariate_means.shape == (self.n_control_units,
-                                                  self.n_covariates)
+            assert self.covariate_means.shape == (
+                self.n_control_units,
+                self.n_covariates,
+            )
 
         if self.covariate_stds is not None:
-            assert self.covariate_stds.shape == (self.n_control_units,
-                                                 self.n_covariates)
+            assert self.covariate_stds.shape == (
+                self.n_control_units,
+                self.n_covariates,
+            )
 
         if (self.n_covariates is not None) & (self.covariate_means is None):
             self.covariate_means = self.rng.normal(
-                loc=0.0, scale=5.0, size=(self.n_control_units,
-                                          self.n_covariates)
+                loc=0.0, scale=5.0, size=(self.n_control_units, self.n_covariates)
             )
 
         if (self.n_covariates is not None) & (self.covariate_stds is None):
-            self.covariate_stds = (
-                halfcauchy.rvs(scale=0.5,
-                               size=(self.n_control_units,
-                                     self.n_covariates),
-                               random_state=self.rng)
+            self.covariate_stds = halfcauchy.rvs(
+                scale=0.5,
+                size=(self.n_control_units, self.n_covariates),
+                random_state=self.rng,
             )
 
         if (self.n_covariates is not None) & (self.covariate_coeffs is None):

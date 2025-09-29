@@ -75,9 +75,17 @@ class AdditiveOutputTransform(AbstractTransform):
         Xte = Xte + post_intervention_vals[:, 1:]
         yte = yte + post_intervention_vals[:, :1]
         return Dataset(
-            Xtr, Xte, ytr, yte, data._start_date,
-            data.Ptr, data.Pte, data.Rtr, data.Rte,
-            data.counterfactual, data.synthetic
+            Xtr,
+            Xte,
+            ytr,
+            yte,
+            data._start_date,
+            data.Ptr,
+            data.Pte,
+            data.Rtr,
+            data.Rte,
+            data.counterfactual,
+            data.synthetic,
         )
 
 
@@ -96,10 +104,19 @@ class MultiplicativeOutputTransform(AbstractTransform):
         Xte = Xte * post_intervention_vals
         yte = yte * post_intervention_vals
         return Dataset(
-            Xtr, Xte, ytr, yte, data._start_date,
-            data.Ptr, data.Pte, data.Rtr, data.Rte,
-            data.counterfactual, data.synthetic
+            Xtr,
+            Xte,
+            ytr,
+            yte,
+            data._start_date,
+            data.Ptr,
+            data.Pte,
+            data.Rtr,
+            data.Rte,
+            data.counterfactual,
+            data.synthetic,
         )
+
 
 @dataclass(kw_only=True)
 class AdditiveCovariateTransform(AbstractTransform):
@@ -116,7 +133,15 @@ class AdditiveCovariateTransform(AbstractTransform):
         Pte = Pte + post_intervention_vals[:, 1:, :]
         Rte = Rte + post_intervention_vals[:, :1, :]
         return Dataset(
-            data.Xtr, data.Xte, data.ytr, data.yte,
-            data._start_date, Ptr, Pte, Rtr, Rte,
-            data.counterfactual, data.synthetic
+            data.Xtr,
+            data.Xte,
+            data.ytr,
+            data.yte,
+            data._start_date,
+            Ptr,
+            Pte,
+            Rtr,
+            Rte,
+            data.counterfactual,
+            data.synthetic,
         )
