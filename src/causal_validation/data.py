@@ -41,6 +41,7 @@ class Dataset:
             treated in pre-intervention period.
         _name: Optional name identifier for the dataset
     """
+
     Xtr: Float[np.ndarray, "N D"]
     Xte: Float[np.ndarray, "M D"]
     ytr: Float[np.ndarray, "N 1"]
@@ -161,7 +162,8 @@ class Dataset:
         self,
     ) -> tp.Optional[
         tp.Tuple[
-            Float[np.ndarray, "N D F"], Float[np.ndarray, "N 1 F"],
+            Float[np.ndarray, "N D F"],
+            Float[np.ndarray, "N 1 F"],
         ]
     ]:
         if self.has_covariates:
@@ -174,7 +176,8 @@ class Dataset:
         self,
     ) -> tp.Optional[
         tp.Tuple[
-            Float[np.ndarray, "M D F"], Float[np.ndarray, "M 1 F"],
+            Float[np.ndarray, "M D F"],
+            Float[np.ndarray, "M 1 F"],
         ]
     ]:
         if self.has_covariates:
@@ -220,8 +223,18 @@ class Dataset:
         Xte, yte = [deepcopy(i) for i in self.post_intervention_obs]
         inflated_yte = yte * inflation_vals
         return Dataset(
-            Xtr, Xte, ytr, inflated_yte, self._start_date,
-            self.Ptr, self.Pte, self.Rtr, self.Rte, yte, self.synthetic, self._name
+            Xtr,
+            Xte,
+            ytr,
+            inflated_yte,
+            self._start_date,
+            self.Ptr,
+            self.Pte,
+            self.Rtr,
+            self.Rte,
+            yte,
+            self.synthetic,
+            self._name,
         )
 
     def __eq__(self, other: Dataset) -> bool:
@@ -326,7 +339,16 @@ def reassign_treatment(
     Xtr = data.Xtr
     Xte = data.Xte
     return Dataset(
-        Xtr, Xte, ytr, yte, data._start_date,
-        data.Ptr, data.Pte, data.Rtr, data.Rte,
-        data.counterfactual, data.synthetic, data._name
+        Xtr,
+        Xte,
+        ytr,
+        yte,
+        data._start_date,
+        data.Ptr,
+        data.Pte,
+        data.Rtr,
+        data.Rte,
+        data.counterfactual,
+        data.synthetic,
+        data._name,
     )

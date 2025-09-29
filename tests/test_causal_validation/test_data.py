@@ -1,4 +1,5 @@
 from copy import deepcopy
+import datetime as dt
 import string
 import typing as tp
 
@@ -23,7 +24,6 @@ from causal_validation.testing import (
     simulate_data,
 )
 from causal_validation.types import InterventionTypes
-import datetime as dt
 
 MIN_STRING_LENGTH = 1
 MAX_STRING_LENGTH = 20
@@ -134,16 +134,16 @@ def test_to_df_no_cov(n_control: int, n_pre_treatment: int, n_post_treatment: in
     assert isinstance(index, DatetimeIndex)
     assert index[0].strftime("%Y-%m-%d") == data._start_date.strftime("%Y-%m-%d")
 
+
 @given(
     n_control=st.integers(min_value=1, max_value=50),
     n_pre_treatment=st.integers(min_value=1, max_value=50),
     n_post_treatment=st.integers(min_value=1, max_value=50),
     n_covariates=st.integers(min_value=1, max_value=50),
 )
-def test_to_df_with_cov(n_control: int,
-                        n_pre_treatment: int,
-                        n_post_treatment: int,
-                        n_covariates:int):
+def test_to_df_with_cov(
+    n_control: int, n_pre_treatment: int, n_post_treatment: int, n_covariates: int
+):
     constants = TestConstants(
         N_POST_TREATMENT=n_post_treatment,
         N_PRE_TREATMENT=n_pre_treatment,
@@ -162,8 +162,7 @@ def test_to_df_with_cov(n_control: int,
     assert isinstance(df_covs, pd.DataFrame)
     assert df_covs.shape == (
         n_pre_treatment + n_post_treatment,
-        n_covariates * (n_control + NUM_TREATED)
-        + NUM_NON_CONTROL_COLS - NUM_TREATED,
+        n_covariates * (n_control + NUM_TREATED) + NUM_NON_CONTROL_COLS - NUM_TREATED,
     )
 
     colnames = data._get_columns()
@@ -355,9 +354,18 @@ def test_counterfactual_synthetic_attributes(n_pre: int, n_post: int, n_control:
     synthetic_vals = np.random.randn(n_post, 1)
 
     data_with_attrs = Dataset(
-        data.Xtr, data.Xte, data.ytr, data.yte, data._start_date,
-        data.Ptr, data.Pte, data.Rtr, data.Rte,
-        counterfactual_vals, synthetic_vals, "test_dataset"
+        data.Xtr,
+        data.Xte,
+        data.ytr,
+        data.yte,
+        data._start_date,
+        data.Ptr,
+        data.Pte,
+        data.Rtr,
+        data.Rte,
+        counterfactual_vals,
+        synthetic_vals,
+        "test_dataset",
     )
 
     np.testing.assert_array_equal(data_with_attrs.counterfactual, counterfactual_vals)
@@ -416,6 +424,7 @@ def test_control_treated_properties(n_pre: int, n_post: int, n_control: int):
     np.testing.assert_array_equal(treated_units, expected_treated)
     assert treated_units.shape == (n_pre + n_post, 1)
 
+
 @given(
     seeds=st.lists(
         elements=st.integers(min_value=1, max_value=1000), min_size=1, max_size=10
@@ -451,6 +460,7 @@ def test_dataset_container(seeds: tp.List[int], to_name: bool):
         else:
             assert k == f"Dataset {idx}"
         assert v == datasets[idx]
+
 
 @given(
     n_pre=st.integers(min_value=10, max_value=100),
@@ -522,4 +532,3 @@ def test_covariate_properties_with_covariates(
 
     post_cov = data.post_intervention_covariates
     assert post_cov == (Pte, Rte)
-

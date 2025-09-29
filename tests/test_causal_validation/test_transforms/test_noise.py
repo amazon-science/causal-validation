@@ -130,6 +130,7 @@ def test_perturbation_impact(
     assert np.max(diff_te_list[0]) < np.max(diff_te_list[2])
     assert np.min(diff_te_list[0]) < np.min(diff_te_list[2])
 
+
 # Covariate Noise Test
 def test_cov_slot_type():
     noise_transform = CovariateNoise()
@@ -138,7 +139,7 @@ def test_cov_slot_type():
 
 @given(n_covariates=st.integers(min_value=1, max_value=50))
 @settings(max_examples=5)
-def test_output_covariate_transform(n_covariates:int):
+def test_output_covariate_transform(n_covariates: int):
     CONSTANTS2 = TestConstants(N_COVARIATES=n_covariates)
     base_data = simulate_data(GLOBAL_MEAN, DEFAULT_SEED, CONSTANTS2)
 
@@ -173,7 +174,7 @@ def test_output_covariate_transform(n_covariates:int):
 
 @given(n_covariates=st.integers(min_value=1, max_value=50))
 @settings(max_examples=5)
-def test_cov_composite_transform(n_covariates:int):
+def test_cov_composite_transform(n_covariates: int):
     CONSTANTS2 = TestConstants(N_COVARIATES=n_covariates)
     base_data = simulate_data(GLOBAL_MEAN, DEFAULT_SEED, CONSTANTS2)
 
@@ -206,7 +207,7 @@ def test_cov_perturbation_impact(
     loc_small: float,
     scale_large: float,
     scale_small: float,
-    n_covariates:int
+    n_covariates: int,
 ):
     CONSTANTS2 = TestConstants(N_COVARIATES=n_covariates)
     base_data = simulate_data(GLOBAL_MEAN, DEFAULT_SEED, CONSTANTS2)
