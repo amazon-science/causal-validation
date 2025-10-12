@@ -12,14 +12,7 @@ from scipy.stats import halfcauchy
 from causal_validation.types import (
     Number,
     TreatedSimulationTypes,
-    WeightTypes,
 )
-from causal_validation.weights import UniformWeights
-
-
-@dataclass(kw_only=True, frozen=True)
-class WeightConfig:
-    weight_type: "WeightTypes" = field(default_factory=UniformWeights)
 
 
 @dataclass(kw_only=True)
