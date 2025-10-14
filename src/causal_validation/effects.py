@@ -15,11 +15,11 @@ if tp.TYPE_CHECKING:
 class AbstractEffect(BaseObject):
     name: str = "Abstract Effect"
 
-    def get_effect(self, data: Dataset, **kwargs) -> Float[np.ndarray, "N 1"]:
+    def get_effect(self, data: Dataset, **kwargs) -> Float[np.ndarray, "T N"]:
         raise NotImplementedError("Please implement `get_effect` in all subclasses.")
 
     def __call__(self, data: Dataset, **kwargs) -> Dataset:
-        inflation_vals = self.get_effect(data)
+        inflation_vals = self.get_effect(data, **kwargs)
         return data.inflate(inflation_vals)
 
 
@@ -36,30 +36,47 @@ class _RandomEffect:
 
 @dataclass
 class StaticEffect(AbstractEffect, _StaticEffect):
-    effect: float
-    name = "Static Effect"
+    """
+    Static effect to be applied on treated units in treatment periods.
+    The effect is meant to be applied proportionally to the treatment
+    dosage.
 
-    def get_effect(self, data: Dataset, **kwargs) -> Float[np.ndarray, "N 1"]:
-        n_post_intervention = data.n_post_intervention
-        return np.repeat(1.0 + self.effect, repeats=n_post_intervention)[:, None]
+    Attributes:
+        effect (float): Rate effect to be applied, i.e., 0.3 = 30% lift.
+        name (str): Name for the effect. 'Static Effect' by default.
+    """
+    effect: float
+    name: str = "Static Effect"
+
+    def get_effect(self, data: Dataset, **kwargs) -> Float[np.ndarray, "T N"]:
+        return np.ones(data.D.shape) + data.D*self.effect
 
 
 @dataclass
 class RandomEffect(AbstractEffect, _RandomEffect):
+    """
+    Random effect to be applied on treated units in treatment periods.
+    The effect is meant to be applied proportionally to the treatment
+    dosage. The effects are randomly sampled from Normal dist.
+
+    Attributes:
+        mean_effect (float): Rate effect mean to be applied.
+        stddev_effect (float): Rate effect std. dev. to be applied.
+        name (str): Name for the effect. 'Random Effect' by default.
+    """
     mean_effect: float
     stddev_effect: float
     name: str = "Random Effect"
 
     def get_effect(
         self, data: Dataset, key: np.random.RandomState
-    ) -> Float[np.ndarray, "N 1"]:
-        n_post_intervention = data.n_post_intervention
+    ) -> Float[np.ndarray, "T N"]:
         effect_sample = key.normal(
-            loc=1.0 + self.mean_effect,
+            loc=self.mean_effect,
             scale=self.stddev_effect,
-            size=(n_post_intervention, 1),
+            size=data.D.shape
         )
-        return effect_sample
+        return np.ones(data.D.shape) + data.D*effect_sample
 
 
 # Placeholder for now.

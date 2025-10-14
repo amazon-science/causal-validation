@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass
 import datetime as dt
 import typing as tp
@@ -264,6 +265,30 @@ class Dataset:
 
     def _get_index(self, start_date: dt.date) -> DatetimeIndex:
         return pd.date_range(start=start_date, freq="D", periods=self.n_timepoints)
+    
+    def inflate(self, inflation_vals: Float[np.ndarray, "T N"]) -> Dataset:
+        """
+        Inflate the outputs Y by inflation_vals that are multiplicative factors
+        to be applied, i.e. Y*inflation_vals.
+
+        Args:
+            inflation_vals (Float[np.ndarray, "T N"]): Multiplicative inflation
+                coefficients.
+
+        Returns:
+            Dataset: Inflated dataset.
+        """
+        Y_ = deepcopy(self.Y)
+        D_ = deepcopy(self.D)
+        X_ = deepcopy(self.X)
+        inflated_Y_ = Y_ * inflation_vals
+        return Dataset(
+            inflated_Y_,
+            D_,
+            X_,
+            self._start_date,
+            self._name,
+        )
 
     def __eq__(self, other: Dataset) -> bool:
         if self.Y.shape == other.Y.shape:
