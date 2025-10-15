@@ -190,3 +190,31 @@ def test_dataset_container(seeds: tp.List[int], to_name: bool, T: int, N: int):
         else:
             assert k == f"Dataset {idx}"
         assert v == datasets[idx]
+
+
+@given(
+    T=st.integers(min_value=2, max_value=100),
+    N=st.integers(min_value=2, max_value=100),
+    K=st.integers(min_value=1, max_value=10),
+    seed=st.integers(min_value=1, max_value=100),
+    use_bernoulli=st.booleans(),
+    include_X=st.booleans(),
+)
+@settings(max_examples=10)
+def test_inflate(T: int, N: int, K: int, seed: int, use_bernoulli: bool, include_X: bool):
+    rng = np.random.RandomState(seed)
+    Y = rng.randn(T, N)
+    D = rng.binomial(1, 0.3, (T, N)) if use_bernoulli else np.abs(rng.randn(T, N))
+    X = rng.randn(T, N, K) if include_X else None
+    
+    data = Dataset(Y, D, X)
+    inflation_vals = rng.uniform(0.01, 1.0, (T, N))
+    
+    inflated_data = data.inflate(inflation_vals)
+    
+    assert np.allclose(inflated_data.Y, Y * inflation_vals)
+    assert np.allclose(inflated_data.D, D)
+    if include_X:
+        assert np.allclose(inflated_data.X, X)
+    else:
+        assert inflated_data.X is None

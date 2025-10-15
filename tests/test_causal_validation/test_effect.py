@@ -1,58 +1,72 @@
 from hypothesis import (
     given,
+    settings,
     strategies as st,
 )
+import numpy as np
 
-from causal_validation.effects import StaticEffect
-from causal_validation.testing import (
-    TestConstants,
-    simulate_data,
-)
-
-EFFECT_LOWER_BOUND = 1e-3
-
-
-@st.composite
-def effect_strategy(draw):
-    lower_range = st.floats(
-        min_value=-0.1,
-        max_value=-1e-4,
-        exclude_max=True,
-        allow_infinity=False,
-        allow_nan=False,
-    )
-    upper_range = st.floats(
-        min_value=1e-4,
-        max_value=0.1,
-        exclude_min=True,
-        allow_infinity=False,
-        allow_nan=False,
-    )
-    combined_strategy = st.one_of(lower_range, upper_range)
-    return draw(combined_strategy)
+from causal_validation.data import Dataset
+from causal_validation.effects import StaticEffect, RandomEffect
 
 
 @given(
-    global_mean=st.floats(
-        min_value=20.0, max_value=50.0, allow_nan=False, allow_infinity=False
-    ),
-    effect_val=effect_strategy(),
-    seed=st.integers(min_value=1, max_value=10),
+    T=st.integers(min_value=2, max_value=50),
+    N=st.integers(min_value=2, max_value=50),
+    K=st.integers(min_value=1, max_value=10),
+    effect=st.floats(min_value=-0.5, max_value=0.5, allow_nan=False, allow_infinity=False),
+    seed=st.integers(min_value=1, max_value=100),
+    use_bernoulli=st.booleans(),
+    include_X=st.booleans(),
 )
-def test_array_shapes(global_mean: float, effect_val: float, seed: int):
-    constants = TestConstants(GLOBAL_SCALE=0.01)
-    data = simulate_data(global_mean, seed, constants=constants)
-    effect = StaticEffect(effect=effect_val)
+@settings(max_examples=10)
+def test_static_effect(T: int, N: int, K: int, effect: float, seed: int, use_bernoulli: bool, include_X: bool):
+    rng = np.random.RandomState(seed)
+    Y = rng.randn(T, N)
+    D = rng.binomial(1, 0.3, (T, N)) if use_bernoulli else np.abs(rng.randn(T, N))
+    X = rng.randn(T, N, K) if include_X else None
+    
+    data = Dataset(Y, D, X)
+    static_effect = StaticEffect(effect=effect)
+    
+    inflated_data = static_effect(data)
+    expected_inflation = np.ones(D.shape) + D * effect
+    
+    assert np.allclose(inflated_data.Y, Y * expected_inflation)
+    assert np.allclose(inflated_data.D, D)
+    if include_X:
+        assert np.allclose(inflated_data.X, X)
+    else:
+        assert inflated_data.X is None
 
-    inflated_data = effect(data)
-    if effect_val == 0:
-        assert inflated_data.yte.sum() == data.yte.sum()
-    elif effect_val < 0:
-        assert inflated_data.yte.sum() < data.yte.sum()
-    elif effect_val > 0:
-        assert inflated_data.yte.sum() > data.yte.sum()
 
-    assert inflated_data.counterfactual.sum() == data.yte.sum()
 
-    _effects = effect.get_effect(data)
-    assert _effects.shape == (data.n_post_intervention, 1)
+        
+
+@given(
+    T=st.integers(min_value=2, max_value=50),
+    N=st.integers(min_value=2, max_value=50),
+    K=st.integers(min_value=1, max_value=10),
+    mean_effect=st.floats(min_value=-0.3, max_value=0.3, allow_nan=False, allow_infinity=False),
+    stddev_effect=st.floats(min_value=0.01, max_value=0.2, allow_nan=False, allow_infinity=False),
+    seed=st.integers(min_value=1, max_value=100),
+    use_bernoulli=st.booleans(),
+    include_X=st.booleans(),
+)
+@settings(max_examples=10)
+def test_random_effect(T: int, N: int, K: int, mean_effect: float, stddev_effect: float, seed: int, use_bernoulli: bool, include_X: bool):
+    rng = np.random.RandomState(seed)
+    Y = rng.randn(T, N)
+    D = rng.binomial(1, 0.3, (T, N)) if use_bernoulli else np.abs(rng.randn(T, N))
+    X = rng.randn(T, N, K) if include_X else None
+    
+    data = Dataset(Y, D, X)
+    random_effect = RandomEffect(mean_effect=mean_effect, stddev_effect=stddev_effect)
+    
+    inflated_data = random_effect(data, key=rng)
+    
+    assert inflated_data.Y.shape == Y.shape
+    assert np.allclose(inflated_data.D, D)
+    if include_X:
+        assert np.allclose(inflated_data.X, X)
+    else:
+        assert inflated_data.X is None

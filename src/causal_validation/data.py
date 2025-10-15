@@ -7,6 +7,7 @@ import typing as tp
 
 from jaxtyping import (
     Float,
+    Integer,
 )
 import numpy as np
 import pandas as pd
@@ -37,7 +38,7 @@ class Dataset:
     """
 
     Y: Float[np.ndarray, "T N"]
-    D: Float[np.ndarray, "T N"]
+    D: tp.Union[Float[np.ndarray, "T N"], Integer[np.ndarray, "T N"]]
     X: tp.Optional[Float[np.ndarray, "T N D"]] = None
     _start_date: dt.date = dt.date(year=2023, month=1, day=1)
     # counterfactual: tp.Optional[Float[np.ndarray, "M 1"]] = None
