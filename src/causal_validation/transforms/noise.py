@@ -15,29 +15,30 @@ from causal_validation.transforms.base import (
 )
 from causal_validation.transforms.parameter import (
     CovariateNoiseParameter,
-    TimeVaryingParameter,
+    TimeAndUnitVaryingParameter,
 )
 
 
 @dataclass(kw_only=True)
 class Noise(AdditiveOutputTransform):
     """
-    Transform the treatment by adding TimeVaryingParameter noise terms sampled from
-    a specified sampling distribution. By default, the sampling distribution is
-    Normal with 0 loc and 0.1 scale.
+    Transform the treated units by adding TimeAndUnitVaryingParameter noise terms
+    sampled from a specified sampling distribution. By default, the sampling distribution
+    is Normal with 0 loc and 0.1 scale.
     """
 
-    noise_dist: TimeVaryingParameter = field(
-        default_factory=lambda: TimeVaryingParameter(sampling_dist=norm(0, 0.1))
+    noise_dist: TimeAndUnitVaryingParameter = field(
+        default_factory=lambda: TimeAndUnitVaryingParameter(sampling_dist=norm(0, 0.1))
     )
     _slots: Tuple[str] = ("noise_dist",)
 
-    def get_values(self, data: Dataset) -> Float[np.ndarray, "N D"]:
-        noise = np.zeros((data.n_timepoints, data.n_units + 1))
+    def get_values(self, data: Dataset) -> Float[np.ndarray, "T N"]:
+        noise = np.zeros((data.n_timepoints, data.n_units))
         noise_treatment = self.noise_dist.get_value(
-            n_units=1, n_timepoints=data.n_timepoints
-        ).reshape(-1)
-        noise[:, 0] = noise_treatment
+            n_units=data.n_treated_units, n_timepoints=data.n_timepoints
+        )
+        print(noise_treatment.shape)
+        noise[:,data.treated_unit_indices] = noise_treatment
         return noise
 
 
@@ -56,7 +57,7 @@ class CovariateNoise(AdditiveCovariateTransform):
 
     def get_values(self, data: Dataset) -> Float[np.ndarray, "N D"]:
         noise = self.noise_dist.get_value(
-            n_units=data.n_units + 1,
+            n_units=data.n_units,
             n_timepoints=data.n_timepoints,
             n_covariates=data.n_covariates,
         )

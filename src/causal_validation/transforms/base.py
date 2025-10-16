@@ -26,20 +26,15 @@ class AbstractTransform:
                 setattr(self, slot, coerced_param)
 
     def __call__(self, data: Dataset) -> Dataset:
-        vals = self.get_values(data)
-        pre_intervention_trend = vals[: data.n_pre_intervention]
-        post_intervention_trend = vals[data.n_pre_intervention :]
-        return self.apply_values(
-            pre_intervention_trend, post_intervention_trend, data=data
-        )
+        transform_vals = self.get_values(data)
+        return self.apply_values(transform_vals, data=data)
 
-    def get_values(self, data: Dataset) -> Float[np.ndarray, "N D"]:
+    def get_values(self, data: Dataset) -> Float[np.ndarray, "T N"]:
         raise NotImplementedError
 
     def apply_values(
         self,
-        pre_intervention_vals: np.ndarray,
-        post_intervention_vals: np.ndarray,
+        transform_vals: np.ndarray,
         data: Dataset,
     ) -> Dataset:
         raise NotImplementedError
@@ -64,28 +59,17 @@ class AbstractTransform:
 class AdditiveOutputTransform(AbstractTransform):
     def apply_values(
         self,
-        pre_intervention_vals: np.ndarray,
-        post_intervention_vals: np.ndarray,
+        transform_vals: np.ndarray,
         data: Dataset,
     ) -> Dataset:
-        Xtr, ytr = [deepcopy(i) for i in data.pre_intervention_obs]
-        Xte, yte = [deepcopy(i) for i in data.post_intervention_obs]
-        Xtr = Xtr + pre_intervention_vals[:, 1:]
-        ytr = ytr + pre_intervention_vals[:, :1]
-        Xte = Xte + post_intervention_vals[:, 1:]
-        yte = yte + post_intervention_vals[:, :1]
+        Y = deepcopy(data.Y)
+        Y = Y + transform_vals
         return Dataset(
-            Xtr,
-            Xte,
-            ytr,
-            yte,
+            Y,
+            data.D,
+            data.X,
             data._start_date,
-            data.Ptr,
-            data.Pte,
-            data.Rtr,
-            data.Rte,
-            data.counterfactual,
-            data.synthetic,
+            data._name
         )
 
 
@@ -93,28 +77,17 @@ class AdditiveOutputTransform(AbstractTransform):
 class MultiplicativeOutputTransform(AbstractTransform):
     def apply_values(
         self,
-        pre_intervention_vals: np.ndarray,
-        post_intervention_vals: np.ndarray,
+        transform_vals: np.ndarray,
         data: Dataset,
     ) -> Dataset:
-        Xtr, ytr = [deepcopy(i) for i in data.pre_intervention_obs]
-        Xte, yte = [deepcopy(i) for i in data.post_intervention_obs]
-        Xtr = Xtr * pre_intervention_vals
-        ytr = ytr * pre_intervention_vals
-        Xte = Xte * post_intervention_vals
-        yte = yte * post_intervention_vals
+        Y = deepcopy(data.Y)
+        Y = Y * transform_vals
         return Dataset(
-            Xtr,
-            Xte,
-            ytr,
-            yte,
+            Y,
+            data.D,
+            data.X,
             data._start_date,
-            data.Ptr,
-            data.Pte,
-            data.Rtr,
-            data.Rte,
-            data.counterfactual,
-            data.synthetic,
+            data._name
         )
 
 
@@ -122,26 +95,15 @@ class MultiplicativeOutputTransform(AbstractTransform):
 class AdditiveCovariateTransform(AbstractTransform):
     def apply_values(
         self,
-        pre_intervention_vals: np.ndarray,
-        post_intervention_vals: np.ndarray,
+        transform_vals: np.ndarray,
         data: Dataset,
     ) -> Dataset:
-        Ptr, Rtr = [deepcopy(i) for i in data.pre_intervention_covariates]
-        Pte, Rte = [deepcopy(i) for i in data.post_intervention_covariates]
-        Ptr = Ptr + pre_intervention_vals[:, 1:, :]
-        Rtr = Rtr + pre_intervention_vals[:, :1, :]
-        Pte = Pte + post_intervention_vals[:, 1:, :]
-        Rte = Rte + post_intervention_vals[:, :1, :]
+        X = deepcopy(data.X)
+        X = X + transform_vals
         return Dataset(
-            data.Xtr,
-            data.Xte,
-            data.ytr,
-            data.yte,
+            data.Y,
+            data.D,
+            X,
             data._start_date,
-            Ptr,
-            Pte,
-            Rtr,
-            Rte,
-            data.counterfactual,
-            data.synthetic,
+            data._name
         )

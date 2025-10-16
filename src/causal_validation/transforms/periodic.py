@@ -29,7 +29,7 @@ class Periodic(AdditiveOutputTransform):
         offset = self.offset.get_value(**data._slots)
         x_vals = np.tile(
             np.linspace(0, 2 * np.pi, num=data.n_timepoints).reshape(-1, 1),
-            reps=data.n_units + 1,
+            reps=data.n_units,
         )
         sine_curve = amplitude * np.sin((x_vals * np.abs(frequency)) + shift) + offset
         return sine_curve
