@@ -17,7 +17,7 @@ from causal_validation.transforms import (
 )
 from causal_validation.transforms.parameter import (
     CovariateNoiseParameter,
-    TimeVaryingParameter,
+    TimeAndUnitVaryingParameter,
 )
 
 CONSTANTS = TestConstants()
@@ -28,25 +28,28 @@ STATES = [42, 123]
 
 def test_slot_type():
     noise_transform = Noise()
-    assert isinstance(noise_transform.noise_dist, TimeVaryingParameter)
+    assert isinstance(noise_transform.noise_dist, TimeAndUnitVaryingParameter)
 
 
-def test_timepoints_randomness():
+def test_time_unit_points_randomness():
     base_data = simulate_data(GLOBAL_MEAN, DEFAULT_SEED)
 
     noise_transform = Noise()
     noisy_data = noise_transform(base_data)
 
-    diff_tr = (noisy_data.ytr - base_data.ytr).reshape(-1)
-    diff_te = (noisy_data.yte - base_data.yte).reshape(-1)
+    treated_unit_indices = base_data.treated_unit_indices
+    ix_treat1 = treated_unit_indices[0]
+    diff_treat1 = noisy_data.Y[:,ix_treat1] - base_data.Y[:,ix_treat1]
 
-    assert np.all(diff_tr != diff_te)
+    ix_treat2 = treated_unit_indices[1]
+    diff_treat2 = noisy_data.Y[:,ix_treat2] - base_data.Y[:,ix_treat2]
 
-    diff_tr_permute = np.random.permutation(diff_tr)
-    diff_te_permute = np.random.permutation(diff_te)
+    assert np.all(diff_treat1 != diff_treat2)
 
-    assert not np.all(diff_tr == diff_tr_permute)
-    assert not np.all(diff_te == diff_te_permute)
+    diff_treat1_1 = diff_treat1[:base_data.n_timepoints//2]
+    diff_treat1_2 = diff_treat1[base_data.n_timepoints//2:2*base_data.n_timepoints//2]
+    
+    assert np.all(diff_treat1_1 != diff_treat1_2)
 
 
 @given(
@@ -57,14 +60,16 @@ def test_timepoints_randomness():
 def test_base_transform(loc: float, scale: float):
     base_data = simulate_data(GLOBAL_MEAN, DEFAULT_SEED)
     noise_transform = Noise(
-        noise_dist=TimeVaryingParameter(sampling_dist=norm(loc, scale))
+        noise_dist=TimeAndUnitVaryingParameter(sampling_dist=norm(loc, scale))
     )
     noisy_data = noise_transform(base_data)
+    treated_unit_indices = base_data.treated_unit_indices
+    control_unit_indices = base_data.control_unit_indices
 
-    assert np.all(noisy_data.Xtr == base_data.Xtr)
-    assert np.all(noisy_data.Xte == base_data.Xte)
-    assert np.all(noisy_data.ytr != base_data.ytr)
-    assert np.all(noisy_data.yte != base_data.yte)
+    assert np.all(noisy_data.X == base_data.X)
+    assert np.all(noisy_data.D == base_data.D)
+    assert np.all(noisy_data.Y[:,treated_unit_indices] != base_data.Y[:,treated_unit_indices])
+    assert np.all(noisy_data.Y[:,control_unit_indices] == base_data.Y[:,control_unit_indices])
 
 
 @given(
@@ -81,10 +86,11 @@ def test_composite_transform(degree: int, coefficient: float, intercept: float):
     noise_transform = Noise()
     noisy_trendy_data = noise_transform(trendy_data)
 
-    assert np.all(noisy_trendy_data.Xtr == trendy_data.Xtr)
-    assert np.all(noisy_trendy_data.Xte == trendy_data.Xte)
-    assert np.all(noisy_trendy_data.ytr != trendy_data.ytr)
-    assert np.all(noisy_trendy_data.yte != trendy_data.yte)
+    treated_unit_indices = base_data.treated_unit_indices
+
+    assert np.all(noisy_trendy_data.X == trendy_data.X)
+    assert np.all(noisy_trendy_data.D == trendy_data.D)
+    assert np.all(noisy_trendy_data.Y[:,treated_unit_indices] != trendy_data.Y[:,treated_unit_indices])
 
 
 @given(
@@ -100,35 +106,31 @@ def test_perturbation_impact(
     base_data = simulate_data(GLOBAL_MEAN, DEFAULT_SEED)
 
     noise_transform1 = Noise(
-        noise_dist=TimeVaryingParameter(sampling_dist=norm(loc_small, scale_small))
+        noise_dist=TimeAndUnitVaryingParameter(sampling_dist=norm(loc_small, scale_small))
     )
     noise_transform2 = Noise(
-        noise_dist=TimeVaryingParameter(sampling_dist=norm(loc_small, scale_large))
+        noise_dist=TimeAndUnitVaryingParameter(sampling_dist=norm(loc_small, scale_large))
     )
     noise_transform3 = Noise(
-        noise_dist=TimeVaryingParameter(sampling_dist=norm(loc_large, scale_small))
+        noise_dist=TimeAndUnitVaryingParameter(sampling_dist=norm(loc_large, scale_small))
     )
 
     noise_transforms = [noise_transform1, noise_transform2, noise_transform3]
-
-    diff_tr_list, diff_te_list = [], []
+    
+    treated_unit_indices = base_data.treated_unit_indices
+    ix_treat = treated_unit_indices[0]
+    
+    diff_list = []
 
     for noise_transform in noise_transforms:
         noisy_data = noise_transform(base_data)
-        diff_tr = noisy_data.ytr - base_data.ytr
-        diff_te = noisy_data.yte - base_data.yte
-        diff_tr_list.append(diff_tr)
-        diff_te_list.append(diff_te)
+        diff = noisy_data.Y[:,ix_treat] - base_data.Y[:,ix_treat]
+        diff_list.append(diff)
 
-    assert np.max(diff_tr_list[0]) < np.max(diff_tr_list[1])
-    assert np.min(diff_tr_list[0]) > np.min(diff_tr_list[1])
-    assert np.max(diff_tr_list[0]) < np.max(diff_tr_list[2])
-    assert np.min(diff_tr_list[0]) < np.min(diff_tr_list[2])
-
-    assert np.max(diff_te_list[0]) < np.max(diff_te_list[1])
-    assert np.min(diff_te_list[0]) > np.min(diff_te_list[1])
-    assert np.max(diff_te_list[0]) < np.max(diff_te_list[2])
-    assert np.min(diff_te_list[0]) < np.min(diff_te_list[2])
+    assert np.max(diff_list[0]) < np.max(diff_list[1])
+    assert np.min(diff_list[0]) > np.min(diff_list[1])
+    assert np.max(diff_list[0]) < np.max(diff_list[2])
+    assert np.min(diff_list[0]) < np.min(diff_list[2])
 
 
 # Covariate Noise Test
@@ -146,30 +148,9 @@ def test_output_covariate_transform(n_covariates: int):
     covariate_noise_transform = CovariateNoise()
     noisy_data = covariate_noise_transform(base_data)
 
-    assert np.all(noisy_data.ytr == base_data.ytr)
-    assert np.all(noisy_data.yte == base_data.yte)
-    assert np.all(noisy_data.Xtr == base_data.Xtr)
-    assert np.all(noisy_data.Xte == base_data.Xte)
-
-    diff_Ptr = (noisy_data.Ptr - base_data.Ptr).reshape(-1)
-    diff_Pte = (noisy_data.Pte - base_data.Pte).reshape(-1)
-
-    assert np.all(diff_Ptr != diff_Pte)
-
-    diff_Rtr = (noisy_data.Rtr - base_data.Rtr).reshape(-1)
-    diff_Rte = (noisy_data.Rte - base_data.Rte).reshape(-1)
-
-    assert np.all(diff_Rtr != diff_Rte)
-
-    diff_Ptr_permute = np.random.permutation(diff_Ptr)
-    diff_Pte_permute = np.random.permutation(diff_Pte)
-    diff_Rtr_permute = np.random.permutation(diff_Rtr)
-    diff_Rte_permute = np.random.permutation(diff_Rte)
-
-    assert not np.all(diff_Ptr == diff_Ptr_permute)
-    assert not np.all(diff_Pte == diff_Pte_permute)
-    assert not np.all(diff_Rtr == diff_Rtr_permute)
-    assert not np.all(diff_Rte == diff_Rte_permute)
+    assert np.all(noisy_data.Y == base_data.Y)
+    assert np.all(noisy_data.D == base_data.D)
+    assert np.all(noisy_data.X != base_data.X)
 
 
 @given(n_covariates=st.integers(min_value=1, max_value=50))
@@ -184,14 +165,13 @@ def test_cov_composite_transform(n_covariates: int):
     noise_transform = Noise()
     noisy_data = noise_transform(cov_noisy_data)
 
-    assert np.all(noisy_data.Xtr == cov_noisy_data.Xtr)
-    assert np.all(noisy_data.Xte == cov_noisy_data.Xte)
-    assert np.all(noisy_data.Ptr == cov_noisy_data.Ptr)
-    assert np.all(noisy_data.Pte == cov_noisy_data.Pte)
-    assert np.all(noisy_data.Rtr == cov_noisy_data.Rtr)
-    assert np.all(noisy_data.Rte == cov_noisy_data.Rte)
-    assert np.all(noisy_data.ytr != cov_noisy_data.ytr)
-    assert np.all(noisy_data.yte != cov_noisy_data.yte)
+    assert np.all(noisy_data.X == cov_noisy_data.X)
+    assert np.all(noisy_data.D == cov_noisy_data.D)
+
+    treated_unit_indices = base_data.treated_unit_indices
+    control_unit_indices = base_data.control_unit_indices
+    assert np.all(noisy_data.Y[:,treated_unit_indices] != cov_noisy_data.Y[:,treated_unit_indices])
+    assert np.all(noisy_data.Y[:,control_unit_indices] == cov_noisy_data.Y[:,control_unit_indices])
 
 
 @given(
@@ -224,36 +204,14 @@ def test_cov_perturbation_impact(
 
     noise_transforms = [noise_transform1, noise_transform2, noise_transform3]
 
-    diff_Rtr_list, diff_Rte_list = [], []
-    diff_Ptr_list, diff_Pte_list = [], []
+    diff_list = []
 
     for noise_transform in noise_transforms:
         noisy_data = noise_transform(base_data)
-        diff_Rtr = noisy_data.Rtr - base_data.Rtr
-        diff_Rte = noisy_data.Rte - base_data.Rte
-        diff_Ptr = noisy_data.Ptr - base_data.Ptr
-        diff_Pte = noisy_data.Pte - base_data.Pte
-        diff_Rtr_list.append(diff_Rtr)
-        diff_Rte_list.append(diff_Rte)
-        diff_Ptr_list.append(diff_Ptr)
-        diff_Pte_list.append(diff_Pte)
+        diff = noisy_data.X - base_data.X
+        diff_list.append(diff)
 
-    assert np.max(diff_Rtr_list[0]) < np.max(diff_Rtr_list[1])
-    assert np.min(diff_Rtr_list[0]) > np.min(diff_Rtr_list[1])
-    assert np.max(diff_Rtr_list[0]) < np.max(diff_Rtr_list[2])
-    assert np.min(diff_Rtr_list[0]) < np.min(diff_Rtr_list[2])
-
-    assert np.max(diff_Rte_list[0]) < np.max(diff_Rte_list[1])
-    assert np.min(diff_Rte_list[0]) > np.min(diff_Rte_list[1])
-    assert np.max(diff_Rte_list[0]) < np.max(diff_Rte_list[2])
-    assert np.min(diff_Rte_list[0]) < np.min(diff_Rte_list[2])
-
-    assert np.max(diff_Ptr_list[0]) < np.max(diff_Ptr_list[1])
-    assert np.min(diff_Ptr_list[0]) > np.min(diff_Ptr_list[1])
-    assert np.max(diff_Ptr_list[0]) < np.max(diff_Ptr_list[2])
-    assert np.min(diff_Ptr_list[0]) < np.min(diff_Ptr_list[2])
-
-    assert np.max(diff_Pte_list[0]) < np.max(diff_Pte_list[1])
-    assert np.min(diff_Pte_list[0]) > np.min(diff_Pte_list[1])
-    assert np.max(diff_Pte_list[0]) < np.max(diff_Pte_list[2])
-    assert np.min(diff_Pte_list[0]) < np.min(diff_Pte_list[2])
+    assert np.max(diff_list[0]) < np.max(diff_list[1])
+    assert np.min(diff_list[0]) > np.min(diff_list[1])
+    assert np.max(diff_list[0]) < np.max(diff_list[2])
+    assert np.min(diff_list[0]) < np.min(diff_list[2])

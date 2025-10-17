@@ -37,7 +37,6 @@ class Noise(AdditiveOutputTransform):
         noise_treatment = self.noise_dist.get_value(
             n_units=data.n_treated_units, n_timepoints=data.n_timepoints
         )
-        print(noise_treatment.shape)
         noise[:,data.treated_unit_indices] = noise_treatment
         return noise
 
