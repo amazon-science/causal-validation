@@ -69,10 +69,7 @@ def test_frequency_param(frequency: int, seed: int, global_mean: float):
     base_data = simulate_data(global_mean, seed)
     data = periodic_transform(base_data)
     np.testing.assert_array_almost_equal(
-        np.mean(data.control_units, axis=0), np.mean(base_data.control_units, axis=0)
-    )
-    np.testing.assert_array_almost_equal(
-        np.mean(data.treated_units, axis=0), np.mean(base_data.treated_units, axis=0)
+        np.mean(data.Y, axis=0), np.mean(base_data.Y, axis=0)
     )
 
 
@@ -109,10 +106,7 @@ def test_amplitude_param(amplitude: float, seed: int, global_mean: float):
     data = periodic_transform(base_data)
 
     assert np.isclose(
-        np.max(data.control_units - base_data.control_units), np.abs(amplitude), rtol=1
-    )
-    assert np.isclose(
-        np.max(data.treated_units - base_data.treated_units), np.abs(amplitude), rtol=1
+        np.max(data.Y - base_data.Y), np.abs(amplitude), rtol=1
     )
 
 
@@ -124,15 +118,23 @@ def test_amplitude_param(amplitude: float, seed: int, global_mean: float):
     ),
 )
 def test_num_frequencies(frequency: int, seed: int, global_mean: float):
+    constants = TestConstants(TREATMENT_ASSIGNMENTS = np.random.randn(100, 20))
     periodic_transform = Periodic(frequency=frequency, amplitude=1, shift=0, offset=0)
-    base_data = simulate_data(global_mean, seed)
+    base_data = simulate_data(global_mean, seed, constants=constants)
     data = periodic_transform(base_data)
-    control_units = data.control_units
-    treated_units = data.treated_units
-    for d in [control_units, treated_units]:
-        num_samples = d.shape[0]
-        fft_vals = np.fft.fft(d, axis=0)
-        peak_frequency = np.argmax(np.abs(fft_vals[1 : num_samples // 2]), axis=0) + 1
+
+    periodic_signal = data.Y - base_data.Y
+    
+    for i in range(data.n_units):
+        signal = periodic_signal[:, i]
+        num_samples = len(signal)
+        
+        fft_vals = np.fft.fft(signal)
+        fft_magnitudes = np.abs(fft_vals)
+
+        positive_freqs = fft_magnitudes[1:num_samples//2]
+        peak_frequency = np.argmax(positive_freqs) + 1
+            
         np.testing.assert_equal(peak_frequency, frequency)
 
 
@@ -149,22 +151,19 @@ def test_offset(offset: float, seed: int, global_mean: float):
     periodic_transform = Periodic(frequency=1, amplitude=5, shift=0, offset=offset)
     base_data = simulate_data(global_mean, seed)
     data = periodic_transform(base_data)
-    original_array = base_data.treated_units.squeeze()
-    offset_array = data.treated_units.squeeze()
-
-    normal_mean = np.mean(original_array)
-    offset_mean = np.mean(offset_array)
-    assert np.isclose(offset_mean - normal_mean, offset, atol=0.1)
+    
+    mean_diff = np.mean(data.Y - base_data.Y)
+    assert np.isclose(mean_diff, offset, atol=0.1)
 
 
 def test_varying_parameters():
     periodic_transform = Periodic()
     param_slots = periodic_transform._slots
-    constants = TestConstants(N_CONTROL=2)
+    constants = TestConstants()
     data_slots = constants.DATA_SLOTS
     base_data = simulate_data(GLOBAL_MEAN, DEFAULT_SEED, constants=constants)
     base_data_transform = periodic_transform(base_data)
-    for slot in param_slots:
+    for i, slot in enumerate(param_slots):
         setattr(
             periodic_transform,
             slot,
@@ -173,6 +172,7 @@ def test_varying_parameters():
         data = periodic_transform(base_data)
         for dslot in data_slots:
             assert not np.any(np.isnan(getattr(data, dslot)))
-            assert not np.array_equal(
-                getattr(data, dslot), getattr(base_data_transform, dslot)
-            )
+
+        assert np.array_equal(data.X, base_data_transform.X)
+        assert np.array_equal(data.D, base_data_transform.D)
+        assert not np.array_equal(data.Y, base_data_transform.Y)

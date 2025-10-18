@@ -19,13 +19,13 @@ class TestConstants:
     TREATED_SIMULATION_TYPE: "TreatedSimulationTypes" = "control-weighted"
     DIRICHLET_CONCENTRATION: Number = 1.0
     N_COVARIATES: tp.Optional[int] = 2
-    #DATA_SLOTS: tp.Tuple[str, str, str, str] = ("Xtr", "Xte", "ytr", "yte")
+    DATA_SLOTS: tp.Tuple[str, str, str] = ("Y", "D", "X")
     ZERO_DIVISION_ERROR: float = 1e-6
     GLOBAL_SCALE: float = 1.0
     __test__: bool = False
 
     def __post_init__(self):
-        if not self.TREATMENT_ASSIGNMENTS:
+        if self.TREATMENT_ASSIGNMENTS is None:
             D = np.zeros((10,5))
             D[6:, 2] = 1
             D[8:, 3] = 1
