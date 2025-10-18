@@ -47,9 +47,9 @@ def test_trend_coefficient(degree: int, coefficient: float):
     data = trend_transform(base_data)
 
     if coefficient > 1:
-        assert np.all(data.Xtr[-1, :] > base_data.Xtr[-1, :])
+        assert np.all(data.Y[-1, :] > base_data.Y[-1, :])
     elif coefficient < 0:
-        assert np.all(data.Xtr[-1, :] < base_data.Xtr[-1, :])
+        assert np.all(data.Y[-1, :] < base_data.Y[-1, :])
 
 
 @given(intercept=coefficient_strategy())
@@ -60,9 +60,9 @@ def test_trend_intercept(intercept: float):
     data = trend_transform(base_data)
 
     if intercept > 0:
-        assert np.all(data.Xtr > base_data.Xtr)
+        assert np.all(data.Y > base_data.Y)
     elif intercept < 0:
-        assert np.all(data.Xtr < base_data.Xtr)
+        assert np.all(data.Y < base_data.Y)
 
 
 @given(
@@ -74,19 +74,16 @@ def test_trend_intercept(intercept: float):
     ),
 )
 def test_varying_trend(loc: float, scale: float):
-    constants = TestConstants(
-        N_CONTROL=2,
-    )
-    data = simulate_data(GLOBAL_MEAN, DEFAULT_SEED, constants=constants)
+    data = simulate_data(GLOBAL_MEAN, DEFAULT_SEED)
     sampling_dist = norm(loc, scale)
     param = UnitVaryingParameter(sampling_dist=sampling_dist)
     trend = Trend(degree=1, coefficient=0.0, intercept=param)
     transformed_data = trend(data)
-    assert not np.array_equal(transformed_data.Xtr[:, 0], transformed_data.Xtr[:, 1])
+    assert not np.array_equal(transformed_data.Y[:, 0], transformed_data.Y[:, 1])
 
     trend = Trend(degree=1, coefficient=param, intercept=0.0)
     transformed_data = trend(data)
-    assert not np.array_equal(transformed_data.Xtr[:, 0], transformed_data.Xtr[:, 1])
+    assert not np.array_equal(transformed_data.Y[:, 0], transformed_data.Y[:, 1])
 
 
 @given(
@@ -99,24 +96,23 @@ def test_varying_trend(loc: float, scale: float):
 )
 @settings(max_examples=5)
 def test_randomness(loc: float, scale: float):
-    constants = TestConstants(
-        N_CONTROL=2,
-    )
-    data = simulate_data(GLOBAL_MEAN, DEFAULT_SEED, constants=constants)
-    SLOTS = TestConstants().DATA_SLOTS
+    data = simulate_data(GLOBAL_MEAN, DEFAULT_SEED)
 
-    for slot in SLOTS:
-        transformed_datas = []
-        for random_state in STATES:
-            sampling_dist = norm(loc, scale)
-            param = UnitVaryingParameter(
-                sampling_dist=sampling_dist, random_state=random_state
-            )
-            trend = Trend(degree=1, coefficient=0.0, intercept=param)
-            transformed_datas.append(trend(data))
-        assert not np.array_equal(
-            getattr(transformed_datas[0], slot), getattr(transformed_datas[1], slot)
+    transformed_datas = []
+    for random_state in STATES:
+        sampling_dist = norm(loc, scale)
+        param = UnitVaryingParameter(
+            sampling_dist=sampling_dist, random_state=random_state
         )
-        assert not np.array_equal(
-            getattr(transformed_datas[0], slot), getattr(data, slot)
-        )
+        trend = Trend(degree=1, coefficient=0.0, intercept=param)
+        transformed_data = trend(data)
+        transformed_datas.append(transformed_data)
+
+        assert np.array_equal(data.X, transformed_data.X)
+        assert np.array_equal(data.D, transformed_data.D)
+        assert not np.array_equal(data.Y, transformed_data.Y)
+
+
+    assert np.array_equal(transformed_datas[0].X, transformed_datas[1].X)
+    assert np.array_equal(transformed_datas[0].D, transformed_datas[1].D)
+    assert not np.array_equal(transformed_datas[0].Y, transformed_datas[1].Y)
