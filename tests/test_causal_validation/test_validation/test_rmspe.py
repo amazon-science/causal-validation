@@ -13,7 +13,7 @@ import pytest
 from rich.table import Table
 
 from causal_validation.effects import StaticEffect
-from causal_validation.models import AZCausalWrapper
+from causal_validation.estimator.utils import AZCausalWrapper
 from causal_validation.testing import (
     TestConstants,
     simulate_data,
@@ -30,6 +30,8 @@ from causal_validation.validation.testing import (
     TestResultFrame,
 )
 
+N_TIME_POINTS = 1000
+N_PRE_TREATMENT = 500
 
 def test_schema_coerce():
     df = RMSPESchema.example()
@@ -58,25 +60,30 @@ def test_rmspe_test_stat(
     global_mean: float, seed: int, n_control: int, cf_inflate: float, s_inflate: float
 ):
     # Simulate data
-    constants = TestConstants(N_CONTROL=n_control, GLOBAL_SCALE=0.001)
+    D = np.zeros((1000, n_control+1))
+    D[N_PRE_TREATMENT:, -1] = 1
+    constants = TestConstants(TREATMENT_ASSIGNMENTS=D, 
+                              DIRICHLET_CONCENTRATION = 10000,
+                              N_COVARIATES=0,
+                              GLOBAL_SCALE=0.001)
     data = simulate_data(global_mean=global_mean, seed=seed, constants=constants)
     rmspe = RMSPETestStatistic()
-    counterfactual = np.concatenate((data.ytr, data.yte), axis=0) + cf_inflate
+    counterfactual = data.treated_unit_outputs + cf_inflate
     synthetic = counterfactual
     assert rmspe(
-        data, counterfactual, synthetic, constants.N_PRE_TREATMENT
+        data, counterfactual, synthetic, N_PRE_TREATMENT
     ) == pytest.approx(1.0)
 
-    synthetic = np.concatenate((data.ytr, data.yte), axis=0) + s_inflate
+    synthetic = data.treated_unit_outputs + s_inflate
     assert rmspe(
-        data, counterfactual, synthetic, constants.N_PRE_TREATMENT
+        data, counterfactual, synthetic, N_PRE_TREATMENT
     ) == pytest.approx(abs(cf_inflate) / abs(s_inflate))
 
-    synthetic = np.concatenate((data.ytr, data.yte), axis=0)
+    synthetic = data.treated_unit_outputs
     with pytest.raises(
         ZeroDivisionError, match="Error: pre intervention period MSPE is 0!"
     ):
-        rmspe(data, counterfactual, synthetic, constants.N_PRE_TREATMENT)
+        rmspe(data, counterfactual, synthetic, N_PRE_TREATMENT)
 
 
 @given(
@@ -98,7 +105,12 @@ def test_rmspe_test(
     model: tp.Union[DID, SDID],
 ):
     # Simulate data with a trend and effect
-    constants = TestConstants(N_CONTROL=n_control, GLOBAL_SCALE=0.001)
+    D = np.zeros((N_TIME_POINTS, n_control+1))
+    D[N_PRE_TREATMENT:, -1] = 1
+    constants = TestConstants(TREATMENT_ASSIGNMENTS=D, 
+                              DIRICHLET_CONCENTRATION = 10000,
+                              N_COVARIATES=0,
+                              GLOBAL_SCALE=0.001)
     data = simulate_data(global_mean=global_mean, seed=seed, constants=constants)
     trend_term = Trend(degree=1, coefficient=0.1)
     static_effect = StaticEffect(effect=effect)
@@ -131,7 +143,12 @@ def test_rmspe_test(
 
 @pytest.mark.parametrize("n_control", [9, 10])
 def test_multiple_models(n_control: int):
-    constants = TestConstants(N_CONTROL=n_control, GLOBAL_SCALE=0.001)
+    D = np.zeros((N_TIME_POINTS, n_control+1))
+    D[N_PRE_TREATMENT:, -1] = 1
+    constants = TestConstants(TREATMENT_ASSIGNMENTS=D, 
+                              DIRICHLET_CONCENTRATION = 10000,
+                              N_COVARIATES=0,
+                              GLOBAL_SCALE=0.001)
     data = simulate_data(global_mean=20.0, seed=123, constants=constants)
     trend_term = Trend(degree=1, coefficient=0.1)
     data = trend_term(data)
@@ -157,7 +174,10 @@ def test_multiple_models(n_control: int):
 )
 @settings(max_examples=5)
 def test_multiple_datasets(seeds: tp.List[int]):
-    data = [simulate_data(global_mean=20.0, seed=s) for s in seeds]
+    D = np.zeros((N_TIME_POINTS, 40))
+    D[N_PRE_TREATMENT:, -1] = 1
+    constants = TestConstants(TREATMENT_ASSIGNMENTS=D)
+    data = [simulate_data(global_mean=20.0, seed=s, constants=constants) for s in seeds]
     n_data = len(data)
 
     model = AZCausalWrapper(DID())

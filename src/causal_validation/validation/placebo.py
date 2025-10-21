@@ -1,3 +1,4 @@
+from copy import deepcopy
 from dataclasses import dataclass
 import typing as tp
 
@@ -17,10 +18,8 @@ from causal_validation.data import (
     Dataset,
     DatasetContainer,
 )
-from causal_validation.models import (
-    AZCausalWrapper,
-    Result,
-)
+from causal_validation.estimator import Result
+from causal_validation.estimator.utils import AZCausalWrapper
 from causal_validation.validation.testing import TestResultFrame
 
 PlaceboSchema = DataFrameSchema(
@@ -110,10 +109,32 @@ class PlaceboTest:
                 for model in self.models:
                     progress.update(model_task, advance=1)
                     model_result = []
-                    for i in range(dataset.n_units):
+                    for i in dataset.control_unit_indices:
                         progress.update(unit_task, advance=1)
-                        placebo_data = dataset.to_placebo_data(i)
+                        placebo_data = self.to_placebo_data(dataset, i)
                         result = model(placebo_data)
                         model_result.append(result)
                     results[(model._model_name, data_name)] = model_result
         return PlaceboTestResult(effects=results)
+    
+    @staticmethod
+    def to_placebo_data(dataset:Dataset, to_treat_idx: int) -> Dataset:
+        if not dataset.n_treated_units == 1:
+            raise ValueError('Placebo test is supported only with one treated unit.')
+        
+        Y = deepcopy(dataset.Y)
+        D = deepcopy(dataset.D)
+        X = deepcopy(dataset.X)
+
+        actual_treated_idx = dataset.treated_unit_indices[0]
+        d_treated = D[:, actual_treated_idx]
+        D[:, to_treat_idx] = d_treated
+
+        Y_ = np.delete(Y, [actual_treated_idx], axis=1)
+        D_ = np.delete(D, [actual_treated_idx], axis=1)
+        X_ = np.delete(X, [actual_treated_idx], axis=1) if X is not None else None
+
+        return Dataset(
+            Y_, D_, X_, dataset._start_date, dataset._name
+        )
+

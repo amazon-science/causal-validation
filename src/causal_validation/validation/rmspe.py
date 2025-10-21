@@ -73,7 +73,7 @@ class RMSPETest(PlaceboTest):
         treatment_results, pseudo_treatment_results = {}, {}
         datasets = self.dataset_dict
         n_datasets = len(datasets)
-        n_control = sum([d.n_units for d in datasets.values()])
+        n_units = sum([d.n_units for d in datasets.values()])
         rmspe = RMSPETestStatistic()
         with Progress(disable=not verbose) as progress:
             model_task = progress.add_task(
@@ -84,7 +84,7 @@ class RMSPETest(PlaceboTest):
             )
             unit_task = progress.add_task(
                 "[green]Treatment and Control Units",
-                total=n_control + 1,
+                total=n_units,
                 visible=verbose,
             )
             for data_name, dataset in datasets.items():
@@ -92,7 +92,8 @@ class RMSPETest(PlaceboTest):
                 for model in self.models:
                     progress.update(unit_task, advance=1)
                     treatment_result = model(dataset)
-                    treatment_idx = dataset.ytr.shape[0]
+                    treatment_unit_idx = dataset.treated_unit_indices[0]
+                    treatment_idx = dataset.n_pre_intervention[treatment_unit_idx]
                     treatment_test_stat = rmspe(
                         dataset,
                         treatment_result.counterfactual,
@@ -101,9 +102,9 @@ class RMSPETest(PlaceboTest):
                     )
                     progress.update(model_task, advance=1)
                     placebo_test_stats = []
-                    for i in range(dataset.n_units):
+                    for i in dataset.control_unit_indices:
                         progress.update(unit_task, advance=1)
-                        placebo_data = dataset.to_placebo_data(i)
+                        placebo_data = PlaceboTest.to_placebo_data(dataset, i)
                         result = model(placebo_data)
                         placebo_test_stats.append(
                             rmspe(
@@ -116,7 +117,7 @@ class RMSPETest(PlaceboTest):
                     pval_idx = 1
                     for p_stat in placebo_test_stats:
                         pval_idx += 1 if treatment_test_stat < p_stat else 0
-                    pval = pval_idx / (n_control + 1)
+                    pval = pval_idx / (n_units)
                     treatment_results[(model._model_name, data_name)] = TestResult(
                         p_value=pval, test_statistic=treatment_test_stat
                     )
