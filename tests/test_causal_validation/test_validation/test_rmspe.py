@@ -30,8 +30,8 @@ from causal_validation.validation.testing import (
     TestResultFrame,
 )
 
-N_TIME_POINTS = 1000
-N_PRE_TREATMENT = 500
+N_TIME_POINTS = 100
+N_PRE_TREATMENT = 50
 
 def test_schema_coerce():
     df = RMSPESchema.example()

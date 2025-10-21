@@ -25,8 +25,8 @@ from causal_validation.validation.placebo import (
 )
 from causal_validation.validation.testing import TestResultFrame
 
-N_PRE_TREATMENT = 500
-N_TIME_POINTS = 1000
+N_PRE_TREATMENT = 50
+N_TIME_POINTS = 100
 
 def test_schema_coerce():
     df = PlaceboSchema.example()

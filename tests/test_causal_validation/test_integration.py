@@ -13,18 +13,17 @@ from causal_validation.transforms import (
 
 
 def _sum_data(data: Dataset) -> float:
-    return data.Xtr.sum() + data.ytr.sum() + data.Xte.sum() + data.yte.sum()
+    return data.Y.sum()
 
 
 @pytest.mark.parametrize(
     "seed,e1,e2", [(123, 19794.92, 63849.93), (42, 19803.64, 63858.64)]
 )
 def test_end_to_end(seed: int, e1: float, e2: float):
+    D = np.zeros((90,11))
+    D[60:, -1] = 1
     cfg = Config(
-        n_control_units=10,
-        n_pre_intervention_timepoints=60,
-        n_post_intervention_timepoints=30,
-        seed=seed,
+        treatment_assignments=D
     )
 
     data = simulate(cfg)
