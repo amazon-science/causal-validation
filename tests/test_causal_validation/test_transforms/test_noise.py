@@ -39,16 +39,18 @@ def test_time_unit_points_randomness():
 
     treated_unit_indices = base_data.treated_unit_indices
     ix_treat1 = treated_unit_indices[0]
-    diff_treat1 = noisy_data.Y[:,ix_treat1] - base_data.Y[:,ix_treat1]
+    diff_treat1 = noisy_data.Y[:, ix_treat1] - base_data.Y[:, ix_treat1]
 
     ix_treat2 = treated_unit_indices[1]
-    diff_treat2 = noisy_data.Y[:,ix_treat2] - base_data.Y[:,ix_treat2]
+    diff_treat2 = noisy_data.Y[:, ix_treat2] - base_data.Y[:, ix_treat2]
 
     assert np.all(diff_treat1 != diff_treat2)
 
-    diff_treat1_1 = diff_treat1[:base_data.n_timepoints//2]
-    diff_treat1_2 = diff_treat1[base_data.n_timepoints//2:2*base_data.n_timepoints//2]
-    
+    diff_treat1_1 = diff_treat1[: base_data.n_timepoints // 2]
+    diff_treat1_2 = diff_treat1[
+        base_data.n_timepoints // 2 : 2 * base_data.n_timepoints // 2
+    ]
+
     assert np.all(diff_treat1_1 != diff_treat1_2)
 
 
@@ -68,8 +70,12 @@ def test_base_transform(loc: float, scale: float):
 
     assert np.all(noisy_data.X == base_data.X)
     assert np.all(noisy_data.D == base_data.D)
-    assert np.all(noisy_data.Y[:,treated_unit_indices] != base_data.Y[:,treated_unit_indices])
-    assert np.all(noisy_data.Y[:,control_unit_indices] == base_data.Y[:,control_unit_indices])
+    assert np.all(
+        noisy_data.Y[:, treated_unit_indices] != base_data.Y[:, treated_unit_indices]
+    )
+    assert np.all(
+        noisy_data.Y[:, control_unit_indices] == base_data.Y[:, control_unit_indices]
+    )
 
 
 @given(
@@ -90,7 +96,10 @@ def test_composite_transform(degree: int, coefficient: float, intercept: float):
 
     assert np.all(noisy_trendy_data.X == trendy_data.X)
     assert np.all(noisy_trendy_data.D == trendy_data.D)
-    assert np.all(noisy_trendy_data.Y[:,treated_unit_indices] != trendy_data.Y[:,treated_unit_indices])
+    assert np.all(
+        noisy_trendy_data.Y[:, treated_unit_indices]
+        != trendy_data.Y[:, treated_unit_indices]
+    )
 
 
 @given(
@@ -106,25 +115,31 @@ def test_perturbation_impact(
     base_data = simulate_data(GLOBAL_MEAN, DEFAULT_SEED)
 
     noise_transform1 = Noise(
-        noise_dist=TimeAndUnitVaryingParameter(sampling_dist=norm(loc_small, scale_small))
+        noise_dist=TimeAndUnitVaryingParameter(
+            sampling_dist=norm(loc_small, scale_small)
+        )
     )
     noise_transform2 = Noise(
-        noise_dist=TimeAndUnitVaryingParameter(sampling_dist=norm(loc_small, scale_large))
+        noise_dist=TimeAndUnitVaryingParameter(
+            sampling_dist=norm(loc_small, scale_large)
+        )
     )
     noise_transform3 = Noise(
-        noise_dist=TimeAndUnitVaryingParameter(sampling_dist=norm(loc_large, scale_small))
+        noise_dist=TimeAndUnitVaryingParameter(
+            sampling_dist=norm(loc_large, scale_small)
+        )
     )
 
     noise_transforms = [noise_transform1, noise_transform2, noise_transform3]
-    
+
     treated_unit_indices = base_data.treated_unit_indices
     ix_treat = treated_unit_indices[0]
-    
+
     diff_list = []
 
     for noise_transform in noise_transforms:
         noisy_data = noise_transform(base_data)
-        diff = noisy_data.Y[:,ix_treat] - base_data.Y[:,ix_treat]
+        diff = noisy_data.Y[:, ix_treat] - base_data.Y[:, ix_treat]
         diff_list.append(diff)
 
     assert np.max(diff_list[0]) < np.max(diff_list[1])
@@ -170,8 +185,14 @@ def test_cov_composite_transform(n_covariates: int):
 
     treated_unit_indices = base_data.treated_unit_indices
     control_unit_indices = base_data.control_unit_indices
-    assert np.all(noisy_data.Y[:,treated_unit_indices] != cov_noisy_data.Y[:,treated_unit_indices])
-    assert np.all(noisy_data.Y[:,control_unit_indices] == cov_noisy_data.Y[:,control_unit_indices])
+    assert np.all(
+        noisy_data.Y[:, treated_unit_indices]
+        != cov_noisy_data.Y[:, treated_unit_indices]
+    )
+    assert np.all(
+        noisy_data.Y[:, control_unit_indices]
+        == cov_noisy_data.Y[:, control_unit_indices]
+    )
 
 
 @given(

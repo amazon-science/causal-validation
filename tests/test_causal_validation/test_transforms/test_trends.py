@@ -112,7 +112,6 @@ def test_randomness(loc: float, scale: float):
         assert np.array_equal(data.D, transformed_data.D)
         assert not np.array_equal(data.Y, transformed_data.Y)
 
-
     assert np.array_equal(transformed_datas[0].X, transformed_datas[1].X)
     assert np.array_equal(transformed_datas[0].D, transformed_datas[1].D)
     assert not np.array_equal(transformed_datas[0].Y, transformed_datas[1].Y)

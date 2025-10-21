@@ -15,8 +15,8 @@ from causal_validation.simulate import simulate
 )
 def test_simulate_basic(n_units, n_timepoints, seed):
     treatment_assignments = np.zeros((n_timepoints, n_units))
-    treatment_assignments[n_timepoints//2:, -1] = 1
-    
+    treatment_assignments[n_timepoints // 2 :, -1] = 1
+
     cfg = Config(
         treatment_assignments=treatment_assignments,
         seed=seed,
@@ -38,8 +38,8 @@ def test_simulate_basic(n_units, n_timepoints, seed):
 )
 def test_simulate_with_covariates(n_units, n_timepoints, n_covariates, seed):
     treatment_assignments = np.zeros((n_timepoints, n_units))
-    treatment_assignments[n_timepoints//2:, -1] = 1
-    
+    treatment_assignments[n_timepoints // 2 :, -1] = 1
+
     cfg = Config(
         treatment_assignments=treatment_assignments,
         n_covariates=n_covariates,
@@ -60,8 +60,8 @@ def test_simulate_with_covariates(n_units, n_timepoints, n_covariates, seed):
 )
 def test_simulate_reproducible(n_units, n_timepoints, seed):
     treatment_assignments = np.zeros((n_timepoints, n_units))
-    treatment_assignments[n_timepoints//2:, -1] = 1
-    
+    treatment_assignments[n_timepoints // 2 :, -1] = 1
+
     cfg1 = Config(
         treatment_assignments=treatment_assignments,
         seed=seed,
@@ -85,8 +85,8 @@ def test_simulate_reproducible(n_units, n_timepoints, seed):
 )
 def test_simulate_covariate_effects(n_units, n_timepoints, seed):
     treatment_assignments = np.zeros((n_timepoints, n_units))
-    treatment_assignments[n_timepoints//2:, -1] = 1
-    
+    treatment_assignments[n_timepoints // 2 :, -1] = 1
+
     cfg = Config(
         treatment_assignments=treatment_assignments,
         n_covariates=1,
@@ -111,8 +111,8 @@ def test_simulate_covariate_effects(n_units, n_timepoints, seed):
 )
 def test_simulate_exact_covariate_effects(n_units, n_timepoints, seed):
     treatment_assignments = np.zeros((n_timepoints, n_units))
-    treatment_assignments[n_timepoints//2:, -1] = 1
-    
+    treatment_assignments[n_timepoints // 2 :, -1] = 1
+
     cfg = Config(
         treatment_assignments=treatment_assignments,
         n_covariates=2,
@@ -139,8 +139,8 @@ def test_simulate_exact_covariate_effects(n_units, n_timepoints, seed):
 )
 def test_simulate_control_weighted(n_units, n_timepoints, seed):
     treatment_assignments = np.zeros((n_timepoints, n_units))
-    treatment_assignments[n_timepoints//2:, -1] = 1
-    
+    treatment_assignments[n_timepoints // 2 :, -1] = 1
+
     cfg = Config(
         treatment_assignments=treatment_assignments,
         treated_simulation_type="control-weighted",
@@ -151,11 +151,11 @@ def test_simulate_control_weighted(n_units, n_timepoints, seed):
     assert data.Y.shape == (n_timepoints, n_units)
     assert data.n_control_units == n_units - 1
     assert data.n_treated_units == 1
-    assert np.all(data.Y[:,:-1]@cfg.weights[0] == data.Y[:,-1])
+    assert np.all(data.Y[:, :-1] @ cfg.weights[0] == data.Y[:, -1])
 
     treatment_assignments = np.zeros((n_timepoints, n_units))
-    treatment_assignments[n_timepoints//2:, -2:] = 1
-    
+    treatment_assignments[n_timepoints // 2 :, -2:] = 1
+
     cfg = Config(
         treatment_assignments=treatment_assignments,
         treated_simulation_type="control-weighted",
@@ -166,8 +166,9 @@ def test_simulate_control_weighted(n_units, n_timepoints, seed):
     assert data.Y.shape == (n_timepoints, n_units)
     assert data.n_control_units == n_units - 2
     assert data.n_treated_units == 2
-    assert np.all(data.Y[:,:-2]@cfg.weights[0] == data.Y[:,-2])
-    assert np.all(data.Y[:,:-2]@cfg.weights[1] == data.Y[:,-1])
+    assert np.all(data.Y[:, :-2] @ cfg.weights[0] == data.Y[:, -2])
+    assert np.all(data.Y[:, :-2] @ cfg.weights[1] == data.Y[:, -1])
+
 
 @given(
     n_units=st.integers(min_value=3, max_value=50),
@@ -175,10 +176,12 @@ def test_simulate_control_weighted(n_units, n_timepoints, seed):
     n_covariates=st.integers(min_value=1, max_value=3),
     seed=st.integers(min_value=1, max_value=1000),
 )
-def test_simulate_control_weighted_with_covariates(n_units, n_timepoints, n_covariates, seed):
+def test_simulate_control_weighted_with_covariates(
+    n_units, n_timepoints, n_covariates, seed
+):
     treatment_assignments = np.zeros((n_timepoints, n_units))
-    treatment_assignments[n_timepoints//2:, -1] = 1
-    
+    treatment_assignments[n_timepoints // 2 :, -1] = 1
+
     cfg = Config(
         treatment_assignments=treatment_assignments,
         treated_simulation_type="control-weighted",
@@ -190,13 +193,13 @@ def test_simulate_control_weighted_with_covariates(n_units, n_timepoints, n_cova
     assert data.Y.shape == (n_timepoints, n_units)
     assert data.n_control_units == n_units - 1
     assert data.n_treated_units == 1
-    assert np.all(data.Y[:,:-1]@cfg.weights[0] == data.Y[:,-1])
+    assert np.all(data.Y[:, :-1] @ cfg.weights[0] == data.Y[:, -1])
     X_treated = np.einsum("ijk,j->ik", data.X[:, :-1, :], cfg.weights[0])
-    assert np.all(X_treated == data.X[:,-1,:])
+    assert np.all(X_treated == data.X[:, -1, :])
 
     treatment_assignments = np.zeros((n_timepoints, n_units))
-    treatment_assignments[n_timepoints//2:, -2:] = 1
-    
+    treatment_assignments[n_timepoints // 2 :, -2:] = 1
+
     cfg = Config(
         treatment_assignments=treatment_assignments,
         treated_simulation_type="control-weighted",
@@ -208,12 +211,12 @@ def test_simulate_control_weighted_with_covariates(n_units, n_timepoints, n_cova
     assert data.Y.shape == (n_timepoints, n_units)
     assert data.n_control_units == n_units - 2
     assert data.n_treated_units == 2
-    assert np.all(data.Y[:,:-2]@cfg.weights[0] == data.Y[:,-2])
-    assert np.all(data.Y[:,:-2]@cfg.weights[1] == data.Y[:,-1])
+    assert np.all(data.Y[:, :-2] @ cfg.weights[0] == data.Y[:, -2])
+    assert np.all(data.Y[:, :-2] @ cfg.weights[1] == data.Y[:, -1])
     X_treated1 = np.einsum("ijk,j->ik", data.X[:, :-2, :], cfg.weights[0])
     X_treated2 = np.einsum("ijk,j->ik", data.X[:, :-2, :], cfg.weights[1])
-    assert np.all(X_treated1 == data.X[:,-2,:])
-    assert np.all(X_treated2 == data.X[:,-1,:])
+    assert np.all(X_treated1 == data.X[:, -2, :])
+    assert np.all(X_treated2 == data.X[:, -1, :])
 
 
 @given(
@@ -223,8 +226,8 @@ def test_simulate_control_weighted_with_covariates(n_units, n_timepoints, n_cova
 )
 def test_simulate_independent(n_units, n_timepoints, seed):
     treatment_assignments = np.zeros((n_timepoints, n_units))
-    treatment_assignments[n_timepoints//2:, -1] = 1
-    
+    treatment_assignments[n_timepoints // 2 :, -1] = 1
+
     cfg = Config(
         treatment_assignments=treatment_assignments,
         treated_simulation_type="independent",

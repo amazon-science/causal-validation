@@ -3,9 +3,9 @@ from hypothesis import (
     settings,
     strategies as st,
 )
-import numpy as np
 from matplotlib.axes._axes import Axes
 import matplotlib.pyplot as plt
+import numpy as np
 
 from causal_validation.plotters import plot
 from causal_validation.testing import (
@@ -40,7 +40,7 @@ title_strategy = st.text(
 def test_plot(
     n_control: int, n_pre_treatment: int, n_post_treatment: int, ax_bool: bool
 ):
-    D = np.zeros((n_pre_treatment + n_post_treatment, n_control+1))
+    D = np.zeros((n_pre_treatment + n_post_treatment, n_control + 1))
     D[n_pre_treatment:, -1] = 1
     constants = TestConstants(TREATMENT_ASSIGNMENTS=D)
     data = simulate_data(0.0, DEFAULT_SEED, constants=constants)

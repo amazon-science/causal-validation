@@ -20,11 +20,12 @@ def simulate(config: Config, key: tp.Optional[np.random.RandomState] = None) -> 
         )
     return base_data
 
+
 def _simulate_with_independent_treated_units(
     config: Config, key: np.random.RandomState
 ) -> Dataset:
     n_timepoints, n_units = config.treatment_assignments.shape
-    
+
     Y = key.normal(
         loc=config.global_mean, scale=config.global_scale, size=(n_timepoints, n_units)
     )
@@ -49,11 +50,12 @@ def _simulate_with_independent_treated_units(
 
     return data
 
+
 def _simulate_with_control_weighted_treated_units(
     config: Config, key: np.random.RandomState
 ) -> Dataset:
     n_timepoints, n_units = config.treatment_assignments.shape
-    
+
     Y = np.zeros((n_timepoints, n_units))
     if config.n_covariates is not None:
         X = np.zeros((n_timepoints, n_units, config.n_covariates))
@@ -71,9 +73,9 @@ def _simulate_with_control_weighted_treated_units(
     treated_unit_indices = data_void.treated_unit_indices
 
     Y_control = key.normal(
-        loc=config.global_mean, 
-        scale=config.global_scale, 
-        size=(n_timepoints, n_control_units)
+        loc=config.global_mean,
+        scale=config.global_scale,
+        size=(n_timepoints, n_control_units),
     )
 
     if config.n_covariates is not None:

@@ -13,8 +13,8 @@ from causal_validation.config import Config
 )
 def test_config_basic_initialization(n_units, n_timepoints):
     treatment_assignments = np.zeros((n_timepoints, n_units))
-    treatment_assignments[n_timepoints//2:, -1] = 1
-    
+    treatment_assignments[n_timepoints // 2 :, -1] = 1
+
     cfg = Config(treatment_assignments=treatment_assignments)
     assert cfg.treatment_assignments.shape == (n_timepoints, n_units)
     assert cfg.n_covariates is None
@@ -35,8 +35,8 @@ def test_config_with_covariates_auto_generation(
     n_units, n_timepoints, n_covariates, seed
 ):
     treatment_assignments = np.zeros((n_timepoints, n_units))
-    treatment_assignments[n_timepoints//2:, -1] = 1
-    
+    treatment_assignments[n_timepoints // 2 :, -1] = 1
+
     cfg = Config(
         treatment_assignments=treatment_assignments,
         n_covariates=n_covariates,
@@ -45,7 +45,7 @@ def test_config_with_covariates_auto_generation(
     assert cfg.n_covariates == n_covariates
     assert cfg.covariate_means.shape == (n_covariates,)
     assert cfg.covariate_stds.shape == (n_covariates,)
-    assert np.all(cfg.covariate_stds>0)
+    assert np.all(cfg.covariate_stds > 0)
     assert cfg.covariate_coeffs.shape == (n_covariates,)
     assert np.all(cfg.covariate_stds >= 0)
 
@@ -58,7 +58,7 @@ def test_config_with_explicit_covariate_means(n_units, n_covariates):
     treatment_assignments = np.zeros((10, n_units))
     treatment_assignments[5:, -1] = 1
     means = np.random.random(n_covariates)
-    
+
     cfg = Config(
         treatment_assignments=treatment_assignments,
         n_covariates=n_covariates,
@@ -75,7 +75,7 @@ def test_config_with_explicit_covariate_stds(n_units, n_covariates):
     treatment_assignments = np.zeros((10, n_units))
     treatment_assignments[5:, -1] = 1
     stds = np.random.random(n_covariates) + 0.1
-    
+
     cfg = Config(
         treatment_assignments=treatment_assignments,
         n_covariates=n_covariates,
@@ -91,13 +91,13 @@ def test_config_with_explicit_covariate_stds(n_units, n_covariates):
 )
 def test_config_control_weighted_weights_generation(n_units, n_timepoints, n_treated):
     treatment_assignments = np.zeros((n_timepoints, n_units))
-    treatment_assignments[n_timepoints//2:, -n_treated:] = 1
-    
+    treatment_assignments[n_timepoints // 2 :, -n_treated:] = 1
+
     cfg = Config(
         treatment_assignments=treatment_assignments,
         treated_simulation_type="control-weighted",
     )
-    assert len(cfg.weights) == n_treated 
+    assert len(cfg.weights) == n_treated
     assert all(len(w) == n_units - n_treated for w in cfg.weights)
     assert all(np.allclose(np.sum(w), 1.0) for w in cfg.weights)
 
@@ -108,8 +108,8 @@ def test_config_control_weighted_weights_generation(n_units, n_timepoints, n_tre
 )
 def test_config_independent_simulation_type(n_units, n_timepoints):
     treatment_assignments = np.zeros((n_timepoints, n_units))
-    treatment_assignments[n_timepoints//2:, n_units//2:] = 1
-    
+    treatment_assignments[n_timepoints // 2 :, n_units // 2 :] = 1
+
     cfg = Config(
         treatment_assignments=treatment_assignments,
         treated_simulation_type="independent",

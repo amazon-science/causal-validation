@@ -105,9 +105,7 @@ def test_amplitude_param(amplitude: float, seed: int, global_mean: float):
     base_data = simulate_data(global_mean, seed)
     data = periodic_transform(base_data)
 
-    assert np.isclose(
-        np.max(data.Y - base_data.Y), np.abs(amplitude), rtol=1
-    )
+    assert np.isclose(np.max(data.Y - base_data.Y), np.abs(amplitude), rtol=1)
 
 
 @given(
@@ -118,23 +116,23 @@ def test_amplitude_param(amplitude: float, seed: int, global_mean: float):
     ),
 )
 def test_num_frequencies(frequency: int, seed: int, global_mean: float):
-    constants = TestConstants(TREATMENT_ASSIGNMENTS = np.random.randn(100, 20))
+    constants = TestConstants(TREATMENT_ASSIGNMENTS=np.random.randn(100, 20))
     periodic_transform = Periodic(frequency=frequency, amplitude=1, shift=0, offset=0)
     base_data = simulate_data(global_mean, seed, constants=constants)
     data = periodic_transform(base_data)
 
     periodic_signal = data.Y - base_data.Y
-    
+
     for i in range(data.n_units):
         signal = periodic_signal[:, i]
         num_samples = len(signal)
-        
+
         fft_vals = np.fft.fft(signal)
         fft_magnitudes = np.abs(fft_vals)
 
-        positive_freqs = fft_magnitudes[1:num_samples//2]
+        positive_freqs = fft_magnitudes[1 : num_samples // 2]
         peak_frequency = np.argmax(positive_freqs) + 1
-            
+
         np.testing.assert_equal(peak_frequency, frequency)
 
 
@@ -151,7 +149,7 @@ def test_offset(offset: float, seed: int, global_mean: float):
     periodic_transform = Periodic(frequency=1, amplitude=5, shift=0, offset=offset)
     base_data = simulate_data(global_mean, seed)
     data = periodic_transform(base_data)
-    
+
     mean_diff = np.mean(data.Y - base_data.Y)
     assert np.isclose(mean_diff, offset, atol=0.1)
 

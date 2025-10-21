@@ -82,8 +82,8 @@ class RMSPETestStatistic(AbstractTestStatistic):
             raise ValueError(
                 "Error: only one treated unit is allowed for RMSPE test statistic!"
             )
-        pre_observed = dataset.treated_unit_outputs[:treatment_index,:]
-        post_observed = dataset.treated_unit_outputs[treatment_index:,:]
+        pre_observed = dataset.treated_unit_outputs[:treatment_index, :]
+        post_observed = dataset.treated_unit_outputs[treatment_index:, :]
         _, post_counterfactual = RMSPETestStatistic._split_array(
             counterfactual, treatment_index
         )

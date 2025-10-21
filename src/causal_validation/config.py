@@ -67,14 +67,10 @@ class Config:
     def __post_init__(self):
         self.rng = np.random.RandomState(self.seed)
         if self.covariate_means is not None:
-            assert self.covariate_means.shape == (
-                self.n_covariates,
-            )
+            assert self.covariate_means.shape == (self.n_covariates,)
 
         if self.covariate_stds is not None:
-            assert self.covariate_stds.shape == (
-                self.n_covariates,
-            )
+            assert self.covariate_stds.shape == (self.n_covariates,)
 
         if (self.n_covariates is not None) & (self.covariate_means is None):
             self.covariate_means = self.rng.normal(
@@ -94,7 +90,9 @@ class Config:
             )
 
         n_units = self.treatment_assignments.shape[1]
-        treated_units = [i for i in range(n_units) if any(self.treatment_assignments[:, i] != 0)]
+        treated_units = [
+            i for i in range(n_units) if any(self.treatment_assignments[:, i] != 0)
+        ]
         n_treated_units = len(treated_units)
         n_control_units = n_units - n_treated_units
 
@@ -108,9 +106,4 @@ class Config:
                 ]
             else:
                 assert len(self.weights) == n_treated_units
-                assert all(
-                    [
-                        len(w) == n_control_units
-                        for w in self.weights
-                    ]
-                )
+                assert all([len(w) == n_control_units for w in self.weights])

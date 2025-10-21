@@ -1,12 +1,12 @@
 from dataclasses import dataclass
-from jaxtyping import Float
 import typing as tp
+
+from jaxtyping import Float
 import numpy as np
 
 from causal_validation.config import Config
 from causal_validation.data import Dataset
 from causal_validation.simulate import simulate
-
 from causal_validation.types import (
     Number,
     TreatedSimulationTypes,
@@ -26,7 +26,7 @@ class TestConstants:
 
     def __post_init__(self):
         if self.TREATMENT_ASSIGNMENTS is None:
-            D = np.zeros((10,5))
+            D = np.zeros((10, 5))
             D[6:, 2] = 1
             D[8:, 3] = 1
             self.TREATMENT_ASSIGNMENTS = D

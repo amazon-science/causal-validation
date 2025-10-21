@@ -33,6 +33,7 @@ from causal_validation.validation.testing import (
 N_TIME_POINTS = 100
 N_PRE_TREATMENT = 50
 
+
 def test_schema_coerce():
     df = RMSPESchema.example()
     cols = df.columns
@@ -60,24 +61,24 @@ def test_rmspe_test_stat(
     global_mean: float, seed: int, n_control: int, cf_inflate: float, s_inflate: float
 ):
     # Simulate data
-    D = np.zeros((1000, n_control+1))
+    D = np.zeros((1000, n_control + 1))
     D[N_PRE_TREATMENT:, -1] = 1
-    constants = TestConstants(TREATMENT_ASSIGNMENTS=D, 
-                              DIRICHLET_CONCENTRATION = 10000,
-                              N_COVARIATES=0,
-                              GLOBAL_SCALE=0.001)
+    constants = TestConstants(
+        TREATMENT_ASSIGNMENTS=D,
+        DIRICHLET_CONCENTRATION=10000,
+        N_COVARIATES=0,
+        GLOBAL_SCALE=0.001,
+    )
     data = simulate_data(global_mean=global_mean, seed=seed, constants=constants)
     rmspe = RMSPETestStatistic()
     counterfactual = data.treated_unit_outputs + cf_inflate
     synthetic = counterfactual
-    assert rmspe(
-        data, counterfactual, synthetic, N_PRE_TREATMENT
-    ) == pytest.approx(1.0)
+    assert rmspe(data, counterfactual, synthetic, N_PRE_TREATMENT) == pytest.approx(1.0)
 
     synthetic = data.treated_unit_outputs + s_inflate
-    assert rmspe(
-        data, counterfactual, synthetic, N_PRE_TREATMENT
-    ) == pytest.approx(abs(cf_inflate) / abs(s_inflate))
+    assert rmspe(data, counterfactual, synthetic, N_PRE_TREATMENT) == pytest.approx(
+        abs(cf_inflate) / abs(s_inflate)
+    )
 
     synthetic = data.treated_unit_outputs
     with pytest.raises(
@@ -105,12 +106,14 @@ def test_rmspe_test(
     model: tp.Union[DID, SDID],
 ):
     # Simulate data with a trend and effect
-    D = np.zeros((N_TIME_POINTS, n_control+1))
+    D = np.zeros((N_TIME_POINTS, n_control + 1))
     D[N_PRE_TREATMENT:, -1] = 1
-    constants = TestConstants(TREATMENT_ASSIGNMENTS=D, 
-                              DIRICHLET_CONCENTRATION = 10000,
-                              N_COVARIATES=0,
-                              GLOBAL_SCALE=0.001)
+    constants = TestConstants(
+        TREATMENT_ASSIGNMENTS=D,
+        DIRICHLET_CONCENTRATION=10000,
+        N_COVARIATES=0,
+        GLOBAL_SCALE=0.001,
+    )
     data = simulate_data(global_mean=global_mean, seed=seed, constants=constants)
     trend_term = Trend(degree=1, coefficient=0.1)
     static_effect = StaticEffect(effect=effect)
@@ -143,12 +146,14 @@ def test_rmspe_test(
 
 @pytest.mark.parametrize("n_control", [9, 10])
 def test_multiple_models(n_control: int):
-    D = np.zeros((N_TIME_POINTS, n_control+1))
+    D = np.zeros((N_TIME_POINTS, n_control + 1))
     D[N_PRE_TREATMENT:, -1] = 1
-    constants = TestConstants(TREATMENT_ASSIGNMENTS=D, 
-                              DIRICHLET_CONCENTRATION = 10000,
-                              N_COVARIATES=0,
-                              GLOBAL_SCALE=0.001)
+    constants = TestConstants(
+        TREATMENT_ASSIGNMENTS=D,
+        DIRICHLET_CONCENTRATION=10000,
+        N_COVARIATES=0,
+        GLOBAL_SCALE=0.001,
+    )
     data = simulate_data(global_mean=20.0, seed=123, constants=constants)
     trend_term = Trend(degree=1, coefficient=0.1)
     data = trend_term(data)

@@ -32,23 +32,39 @@ def plot(
     Y_control = data.control_unit_outputs
     Y_treated = data.treated_unit_outputs
     idx = data.full_index
-    
+
     if ax is None:
         _, ax = plt.subplots(figsize=(6, 3), tight_layout=True)
-    
+
     ax.plot(idx, Y_control, color=cols[0], label="Control", alpha=0.5)
-    
+
     for i, unit_idx in enumerate(data.treated_unit_indices):
-        unit_color = cols[1] if len(data.treated_unit_indices) == 1 else cols[1 + i % (len(cols) - 2)]
-        unit_label = "Treated" if len(data.treated_unit_indices) == 1 else f"Treated {unit_idx}"
+        unit_color = (
+            cols[1]
+            if len(data.treated_unit_indices) == 1
+            else cols[1 + i % (len(cols) - 2)]
+        )
+        unit_label = (
+            "Treated" if len(data.treated_unit_indices) == 1 else f"Treated {unit_idx}"
+        )
         ax.plot(idx, Y_treated[:, i], color=unit_color, label=unit_label)
-        
+
         treatment_date = data.treatment_date(unit_idx)
         if treatment_date is not None:
             line_color = cols[2] if len(data.treated_unit_indices) == 1 else unit_color
-            line_label = "Intervention" if len(data.treated_unit_indices) == 1 else f"Intervention {unit_idx}"
-            ax.axvline(x=treatment_date, color=line_color, label=line_label, linestyle="--", alpha=0.7)
-    
+            line_label = (
+                "Intervention"
+                if len(data.treated_unit_indices) == 1
+                else f"Intervention {unit_idx}"
+            )
+            ax.axvline(
+                x=treatment_date,
+                color=line_color,
+                label=line_label,
+                linestyle="--",
+                alpha=0.7,
+            )
+
     ax.xaxis.set_major_formatter(
         mdates.ConciseDateFormatter(ax.xaxis.get_major_locator())
     )

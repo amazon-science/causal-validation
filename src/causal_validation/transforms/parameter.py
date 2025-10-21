@@ -49,7 +49,8 @@ class TimeVaryingParameter(RandomParameter):
             size=(n_timepoints, 1), random_state=self.random_state
         )
         return np.tile(time_param, reps=n_units)
-    
+
+
 @dataclass
 class TimeAndUnitVaryingParameter(RandomParameter):
     def get_value(

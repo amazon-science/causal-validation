@@ -116,12 +116,12 @@ class PlaceboTest:
                         model_result.append(result)
                     results[(model._model_name, data_name)] = model_result
         return PlaceboTestResult(effects=results)
-    
+
     @staticmethod
-    def to_placebo_data(dataset:Dataset, to_treat_idx: int) -> Dataset:
+    def to_placebo_data(dataset: Dataset, to_treat_idx: int) -> Dataset:
         if not dataset.n_treated_units == 1:
-            raise ValueError('Placebo test is supported only with one treated unit.')
-        
+            raise ValueError("Placebo test is supported only with one treated unit.")
+
         Y = deepcopy(dataset.Y)
         D = deepcopy(dataset.D)
         X = deepcopy(dataset.X)
@@ -134,7 +134,4 @@ class PlaceboTest:
         D_ = np.delete(D, [actual_treated_idx], axis=1)
         X_ = np.delete(X, [actual_treated_idx], axis=1) if X is not None else None
 
-        return Dataset(
-            Y_, D_, X_, dataset._start_date, dataset._name
-        )
-
+        return Dataset(Y_, D_, X_, dataset._start_date, dataset._name)

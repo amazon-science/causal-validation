@@ -21,7 +21,6 @@ import numpy as np
 
 from causal_validation.estimator import Result
 from causal_validation.estimator.utils import AZCausalWrapper
-
 from causal_validation.testing import (
     TestConstants,
     simulate_data,
@@ -53,9 +52,7 @@ def test_call(
 ):
     D = np.zeros((n_pre_treatment + n_post_treatment, n_control + 1))
     D[n_pre_treatment:, -1] = 1
-    constants = TestConstants(
-        TREATMENT_ASSIGNMENTS=D
-    )
+    constants = TestConstants(TREATMENT_ASSIGNMENTS=D)
     data = simulate_data(global_mean=10.0, seed=seed, constants=constants)
     model = AZCausalWrapper(*model_error)
     result = model(data)

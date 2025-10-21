@@ -64,13 +64,7 @@ class AdditiveOutputTransform(AbstractTransform):
     ) -> Dataset:
         Y = deepcopy(data.Y)
         Y = Y + transform_vals
-        return Dataset(
-            Y,
-            data.D,
-            data.X,
-            data._start_date,
-            data._name
-        )
+        return Dataset(Y, data.D, data.X, data._start_date, data._name)
 
 
 @dataclass(kw_only=True)
@@ -82,13 +76,7 @@ class MultiplicativeOutputTransform(AbstractTransform):
     ) -> Dataset:
         Y = deepcopy(data.Y)
         Y = Y * transform_vals
-        return Dataset(
-            Y,
-            data.D,
-            data.X,
-            data._start_date,
-            data._name
-        )
+        return Dataset(Y, data.D, data.X, data._start_date, data._name)
 
 
 @dataclass(kw_only=True)
@@ -100,10 +88,4 @@ class AdditiveCovariateTransform(AbstractTransform):
     ) -> Dataset:
         X = deepcopy(data.X)
         X = X + transform_vals
-        return Dataset(
-            data.Y,
-            data.D,
-            X,
-            data._start_date,
-            data._name
-        )
+        return Dataset(data.Y, data.D, X, data._start_date, data._name)

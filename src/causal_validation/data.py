@@ -266,7 +266,7 @@ class Dataset:
 
     def _get_index(self, start_date: dt.date) -> DatetimeIndex:
         return pd.date_range(start=start_date, freq="D", periods=self.n_timepoints)
-    
+
     def inflate(self, inflation_vals: Float[np.ndarray, "T N"]) -> Dataset:
         """
         Inflate the outputs Y by inflation_vals that are multiplicative factors

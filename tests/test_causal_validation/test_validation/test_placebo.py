@@ -28,6 +28,7 @@ from causal_validation.validation.testing import TestResultFrame
 N_PRE_TREATMENT = 50
 N_TIME_POINTS = 100
 
+
 def test_schema_coerce():
     df = PlaceboSchema.example()
     cols = df.columns
@@ -48,12 +49,14 @@ def test_placebo_test(
     global_mean: float, seed: int, n_control: int, model: tp.Union[DID, SDID]
 ):
     # Simulate data with a trend
-    D = np.zeros((N_TIME_POINTS, n_control+1))
+    D = np.zeros((N_TIME_POINTS, n_control + 1))
     D[N_PRE_TREATMENT:, -1] = 1
-    constants = TestConstants(TREATMENT_ASSIGNMENTS=D, 
-                              DIRICHLET_CONCENTRATION = 10000,
-                              N_COVARIATES=0,
-                              GLOBAL_SCALE=0.001)
+    constants = TestConstants(
+        TREATMENT_ASSIGNMENTS=D,
+        DIRICHLET_CONCENTRATION=10000,
+        N_COVARIATES=0,
+        GLOBAL_SCALE=0.001,
+    )
     data = simulate_data(global_mean=global_mean, seed=seed, constants=constants)
     trend_term = Trend(degree=1, coefficient=0.1)
     data = trend_term(data)
@@ -83,12 +86,14 @@ def test_placebo_test(
 
 @pytest.mark.parametrize("n_control", [9, 10])
 def test_multiple_models(n_control: int):
-    D = np.zeros((N_TIME_POINTS, n_control+1))
+    D = np.zeros((N_TIME_POINTS, n_control + 1))
     D[N_PRE_TREATMENT:, -1] = 1
-    constants = TestConstants(TREATMENT_ASSIGNMENTS=D, 
-                              DIRICHLET_CONCENTRATION = 10000,
-                              N_COVARIATES=0,
-                              GLOBAL_SCALE=0.001)
+    constants = TestConstants(
+        TREATMENT_ASSIGNMENTS=D,
+        DIRICHLET_CONCENTRATION=10000,
+        N_COVARIATES=0,
+        GLOBAL_SCALE=0.001,
+    )
     data = simulate_data(global_mean=20.0, seed=123, constants=constants)
     trend_term = Trend(degree=1, coefficient=0.1)
     data = trend_term(data)

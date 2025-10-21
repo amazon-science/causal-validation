@@ -45,11 +45,12 @@ class StaticEffect(AbstractEffect, _StaticEffect):
         effect (float): Rate effect to be applied, i.e., 0.3 = 30% lift.
         name (str): Name for the effect. 'Static Effect' by default.
     """
+
     effect: float
     name: str = "Static Effect"
 
     def get_effect(self, data: Dataset, **kwargs) -> Float[np.ndarray, "T N"]:
-        return np.ones(data.D.shape) + data.D*self.effect
+        return np.ones(data.D.shape) + data.D * self.effect
 
 
 @dataclass
@@ -64,6 +65,7 @@ class RandomEffect(AbstractEffect, _RandomEffect):
         stddev_effect (float): Rate effect std. dev. to be applied.
         name (str): Name for the effect. 'Random Effect' by default.
     """
+
     mean_effect: float
     stddev_effect: float
     name: str = "Random Effect"
@@ -72,11 +74,9 @@ class RandomEffect(AbstractEffect, _RandomEffect):
         self, data: Dataset, key: np.random.RandomState
     ) -> Float[np.ndarray, "T N"]:
         effect_sample = key.normal(
-            loc=self.mean_effect,
-            scale=self.stddev_effect,
-            size=data.D.shape
+            loc=self.mean_effect, scale=self.stddev_effect, size=data.D.shape
         )
-        return np.ones(data.D.shape) + data.D*effect_sample
+        return np.ones(data.D.shape) + data.D * effect_sample
 
 
 # Placeholder for now.
