@@ -4,72 +4,102 @@ import numpy as np
 
 from causal_validation.config import Config
 from causal_validation.data import Dataset
-from causal_validation.weights import (
-    AbstractWeights,
-    UniformWeights,
-)
 
 
 def simulate(config: Config, key: tp.Optional[np.random.RandomState] = None) -> Dataset:
     if key is None:
         key = config.rng
-    weights = UniformWeights()
 
-    base_data = _simulate_base_obs(config, weights, key)
+    if config.treated_simulation_type == "independent":
+        base_data = _simulate_with_independent_treated_units(config, key)
+    elif config.treated_simulation_type == "control-weighted":
+        base_data = _simulate_with_control_weighted_treated_units(config, key)
+    else:
+        raise ValueError(
+            f"Unknown treated simulation type: {config.treated_simulation_type}"
+        )
     return base_data
 
 
-def _simulate_base_obs(
-    config: Config, weights: AbstractWeights, key: np.random.RandomState
+def _simulate_with_independent_treated_units(
+    config: Config, key: np.random.RandomState
 ) -> Dataset:
-    n_timepoints = (
-        config.n_pre_intervention_timepoints + config.n_post_intervention_timepoints
-    )
-    n_units = config.n_control_units
-    obs = key.normal(
+    n_timepoints, n_units = config.treatment_assignments.shape
+
+    Y = key.normal(
         loc=config.global_mean, scale=config.global_scale, size=(n_timepoints, n_units)
     )
 
     if config.n_covariates is not None:
-        Xtr_ = obs[: config.n_pre_intervention_timepoints, :]
-        Xte_ = obs[config.n_pre_intervention_timepoints :, :]
-
-        covariates = key.normal(
+        X = key.normal(
             loc=config.covariate_means,
             scale=config.covariate_stds,
             size=(n_timepoints, n_units, config.n_covariates),
         )
 
-        Ptr = covariates[: config.n_pre_intervention_timepoints, :, :]
-        Pte = covariates[config.n_pre_intervention_timepoints :, :, :]
-
-        Xtr = Xtr_ + Ptr @ config.covariate_coeffs
-        Xte = Xte_ + Pte @ config.covariate_coeffs
-
-        ytr = weights.weight_contr(Xtr)
-        yte = weights.weight_contr(Xte)
-
-        Rtr = weights.weight_contr(Ptr)
-        Rte = weights.weight_contr(Pte)
-
-        data = Dataset(
-            Xtr,
-            Xte,
-            ytr,
-            yte,
-            _start_date=config.start_date,
-            Ptr=Ptr,
-            Pte=Pte,
-            Rtr=Rtr,
-            Rte=Rte,
-        )
+        Y = Y + X @ config.covariate_coeffs
     else:
-        Xtr = obs[: config.n_pre_intervention_timepoints, :]
-        Xte = obs[config.n_pre_intervention_timepoints :, :]
+        X = None
 
-        ytr = weights.weight_contr(Xtr)
-        yte = weights.weight_contr(Xte)
+    data = Dataset(
+        Y,
+        config.treatment_assignments,
+        X,
+        _start_date=config.start_date,
+    )
 
-        data = Dataset(Xtr, Xte, ytr, yte, _start_date=config.start_date)
+    return data
+
+
+def _simulate_with_control_weighted_treated_units(
+    config: Config, key: np.random.RandomState
+) -> Dataset:
+    n_timepoints, n_units = config.treatment_assignments.shape
+
+    Y = np.zeros((n_timepoints, n_units))
+    if config.n_covariates is not None:
+        X = np.zeros((n_timepoints, n_units, config.n_covariates))
+    else:
+        X = None
+    data_void = Dataset(
+        Y,
+        config.treatment_assignments,
+        X,
+        _start_date=config.start_date,
+    )
+
+    n_control_units = data_void.n_control_units
+    control_unit_indices = data_void.control_unit_indices
+    treated_unit_indices = data_void.treated_unit_indices
+
+    Y_control = key.normal(
+        loc=config.global_mean,
+        scale=config.global_scale,
+        size=(n_timepoints, n_control_units),
+    )
+
+    if config.n_covariates is not None:
+        X_control = key.normal(
+            loc=config.covariate_means,
+            scale=config.covariate_stds,
+            size=(n_timepoints, n_control_units, config.n_covariates),
+        )
+        Y_control = Y_control + X_control @ config.covariate_coeffs
+        X[:, control_unit_indices, :] = X_control
+        for i, weights in enumerate(config.weights):
+            X_treated_i = np.einsum("ijk,j->ik", X_control, weights)
+            X[:, treated_unit_indices[i], :] = X_treated_i
+
+    Y[:, control_unit_indices] = Y_control
+    for i, weights in enumerate(config.weights):
+        Y_treated_i = Y_control @ weights
+        Y[:, treated_unit_indices[i]] = Y_treated_i
+
+    data = Dataset(
+        Y,
+        config.treatment_assignments,
+        X,
+        _start_date=config.start_date,
+    )
 
     return data

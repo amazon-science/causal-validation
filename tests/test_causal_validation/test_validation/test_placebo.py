@@ -12,7 +12,7 @@ import pandas as pd
 import pytest
 from rich.table import Table
 
-from causal_validation.models import AZCausalWrapper
+from causal_validation.estimator.utils import AZCausalWrapper
 from causal_validation.testing import (
     TestConstants,
     simulate_data,
@@ -24,6 +24,9 @@ from causal_validation.validation.placebo import (
     PlaceboTestResult,
 )
 from causal_validation.validation.testing import TestResultFrame
+
+N_PRE_TREATMENT = 50
+N_TIME_POINTS = 100
 
 
 def test_schema_coerce():
@@ -46,7 +49,14 @@ def test_placebo_test(
     global_mean: float, seed: int, n_control: int, model: tp.Union[DID, SDID]
 ):
     # Simulate data with a trend
-    constants = TestConstants(N_CONTROL=n_control, GLOBAL_SCALE=0.001)
+    D = np.zeros((N_TIME_POINTS, n_control + 1))
+    D[N_PRE_TREATMENT:, -1] = 1
+    constants = TestConstants(
+        TREATMENT_ASSIGNMENTS=D,
+        DIRICHLET_CONCENTRATION=10000,
+        N_COVARIATES=0,
+        GLOBAL_SCALE=0.001,
+    )
     data = simulate_data(global_mean=global_mean, seed=seed, constants=constants)
     trend_term = Trend(degree=1, coefficient=0.1)
     data = trend_term(data)
@@ -76,7 +86,14 @@ def test_placebo_test(
 
 @pytest.mark.parametrize("n_control", [9, 10])
 def test_multiple_models(n_control: int):
-    constants = TestConstants(N_CONTROL=n_control, GLOBAL_SCALE=0.001)
+    D = np.zeros((N_TIME_POINTS, n_control + 1))
+    D[N_PRE_TREATMENT:, -1] = 1
+    constants = TestConstants(
+        TREATMENT_ASSIGNMENTS=D,
+        DIRICHLET_CONCENTRATION=10000,
+        N_COVARIATES=0,
+        GLOBAL_SCALE=0.001,
+    )
     data = simulate_data(global_mean=20.0, seed=123, constants=constants)
     trend_term = Trend(degree=1, coefficient=0.1)
     data = trend_term(data)
@@ -101,7 +118,10 @@ def test_multiple_models(n_control: int):
 )
 @settings(max_examples=5)
 def test_multiple_datasets(seeds: tp.List[int]):
-    data = [simulate_data(global_mean=20.0, seed=s) for s in seeds]
+    D = np.zeros((N_TIME_POINTS, 40))
+    D[N_PRE_TREATMENT:, -1] = 1
+    constants = TestConstants(TREATMENT_ASSIGNMENTS=D)
+    data = [simulate_data(global_mean=20.0, seed=s, constants=constants) for s in seeds]
     n_data = len(data)
 
     model = AZCausalWrapper(DID())

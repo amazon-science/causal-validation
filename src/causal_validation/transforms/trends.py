@@ -20,7 +20,7 @@ class Trend(AdditiveOutputTransform):
         coefficient = self._resolve_parameter(data, self.coefficient)
         intercept = self._resolve_parameter(data, self.intercept)
         trend = np.tile(
-            np.arange(data.n_timepoints)[:, None] ** self.degree, data.n_units + 1
+            np.arange(data.n_timepoints)[:, None] ** self.degree, data.n_units
         )
         scaled_trend = intercept + coefficient * trend
         return scaled_trend

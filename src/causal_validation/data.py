@@ -5,8 +5,6 @@ from dataclasses import dataclass
 import datetime as dt
 import typing as tp
 
-from azcausal.core.panel import CausalPanel
-from azcausal.util import to_panels
 from jaxtyping import (
     Float,
     Integer,
@@ -21,279 +19,309 @@ from causal_validation.types import InterventionTypes
 
 @dataclass
 class Dataset:
-    """A causal inference dataset containing pre/post intervention observations
-    and optional associated covariates.
+    """A causal inference dataset containing outputs that are the
+    metric of interest, covariates, and treatment status.
 
     Attributes:
-        Xtr: Pre-intervention control unit observations (N x D)
-        Xte: Post-intervention control unit observations (M x D)
-        ytr: Pre-intervention treated unit observations (N x 1)
-        yte: Post-intervention treated unit observations (M x 1)
+        Y (Float[np.ndarray, "T N"]): Matrix of outputs that are
+            the metric of interest for T time points and total
+            N units.
+        D (Float[np.ndarray, "T N"]): Matrix of treatment status
+            for all N units at every T time points. D can be a
+            matrix of binary or continuous values depending on
+            treatment type.
+        X (Optional[Float[np.ndarray, "T N D"]]): A tensor of
+            D-dimensional covariates for T time periods and
+            N units.
         _start_date: Start date for time indexing
-        Ptr: Pre-intervention control unit covariates (N x D x F)
-        Pte: Post-intervention control unit covariates (M x D x F)
-        Rtr: Pre-intervention treated unit covariates (N x 1 x F)
-        Rte: Post-intervention treated unit covariates (M x 1 x F)
-        counterfactual: Optional counterfactual outcomes (M x 1)
-        synthetic: Optional synthetic control outcomes (M x 1).
-            This is weighted combination of control units
-            minimizing a distance-based error w.r.t. the
-            treated in pre-intervention period.
         _name: Optional name identifier for the dataset
     """
 
-    Xtr: Float[np.ndarray, "N D"]
-    Xte: Float[np.ndarray, "M D"]
-    ytr: Float[np.ndarray, "N 1"]
-    yte: Float[np.ndarray, "M 1"]
-    _start_date: dt.date
-    Ptr: tp.Optional[Float[np.ndarray, "N D F"]] = None
-    Pte: tp.Optional[Float[np.ndarray, "M D F"]] = None
-    Rtr: tp.Optional[Float[np.ndarray, "N 1 F"]] = None
-    Rte: tp.Optional[Float[np.ndarray, "M 1 F"]] = None
-    counterfactual: tp.Optional[Float[np.ndarray, "M 1"]] = None
-    synthetic: tp.Optional[Float[np.ndarray, "M 1"]] = None
-    _name: str = None
-
-    def __post_init__(self):
-        covariates = [self.Ptr, self.Pte, self.Rtr, self.Rte]
-        self.has_covariates = all(cov is not None for cov in covariates)
-        if not self.has_covariates:
-            assert all(cov is None for cov in covariates)
+    Y: Float[np.ndarray, "T N"]
+    D: tp.Union[Float[np.ndarray, "T N"], Integer[np.ndarray, "T N"]]
+    X: tp.Optional[Float[np.ndarray, "T N D"]] = None
+    _start_date: dt.date = dt.date(year=2023, month=1, day=1)
+    # counterfactual: tp.Optional[Float[np.ndarray, "M 1"]] = None
+    # synthetic: tp.Optional[Float[np.ndarray, "M 1"]] = None
+    _name: tp.Optional[str] = None
 
     def to_df(
-        self, index_start: str = dt.date(year=2023, month=1, day=1)
-    ) -> tp.Tuple[pd.DataFrame, tp.Optional[pd.DataFrame]]:
-        control_outputs = np.vstack([self.Xtr, self.Xte])
-        treated_outputs = np.vstack([self.ytr, self.yte])
-        data = np.hstack([treated_outputs, control_outputs])
+        self, index_start: dt.date = dt.date(year=2023, month=1, day=1)
+    ) -> pd.DataFrame:
+        """Convert the dataset to a pandas DataFrame with multi-level columns.
+
+        Args:
+            index_start (date): Start date for the DataFrame index.
+
+        Returns:
+            DataFrame: A pandas DataFrame with time index and multi-level
+                columns for units and variables.
+        """
         index = self._get_index(index_start)
-        colnames = self._get_columns()
-        indicator = self._get_indicator()
-        df_outputs = pd.DataFrame(data, index=index, columns=colnames)
-        df_outputs = df_outputs.assign(treated=indicator)
+        unit_cols = self._get_columns()
 
-        if not self.has_covariates:
-            cov_df = None
-        else:
-            control_covs = np.concatenate([self.Ptr, self.Pte], axis=0)
-            treated_covs = np.concatenate([self.Rtr, self.Rte], axis=0)
+        var_cols = ["Y", "D"]
+        if self.X is not None:
+            var_cols.extend([f"X{i}" for i in range(self.n_covariates)])
 
-            all_covs = np.concatenate([treated_covs, control_covs], axis=1)
+        col_tuples = [(unit, var) for unit in unit_cols for var in var_cols]
+        multi_cols = pd.MultiIndex.from_tuples(col_tuples)
 
-            unit_cols = self._get_columns()
-            covariate_cols = [f"F{i}" for i in range(self.n_covariates)]
+        unit_data = []
+        for i in range(self.n_units):
+            unit_data.append(self.Y[:, i : i + 1])
+            unit_data.append(self.D[:, i : i + 1])
+            if self.X is not None:
+                unit_data.append(self.X[:, i, :])
 
-            cov_data = all_covs.reshape(self.n_timepoints, -1)
-
-            col_tuples = [(unit, cov) for unit in unit_cols for cov in covariate_cols]
-            multi_cols = pd.MultiIndex.from_tuples(col_tuples)
-
-            cov_df = pd.DataFrame(cov_data, index=index, columns=multi_cols)
-            cov_df = cov_df.assign(treated=indicator)
-
-        return df_outputs, cov_df
+        combined_data = np.concatenate(unit_data, axis=1)
+        return pd.DataFrame(combined_data, index=index, columns=multi_cols)
 
     @property
-    def n_post_intervention(self) -> int:
-        return self.Xte.shape[0]
+    def n_post_intervention(self) -> list[int]:
+        """Number of post-intervention time points for each unit.
+
+        Returns:
+            list[int]: List of post-intervention counts for each unit.
+        """
+        binary_assignments = -1 * ((self.D == 0).astype(int) - 1)
+        binary_assignment_counts = (binary_assignments.sum(axis=0)).tolist()
+        return binary_assignment_counts
 
     @property
-    def n_pre_intervention(self) -> int:
-        return self.Xtr.shape[0]
+    def n_pre_intervention(self) -> list[int]:
+        """Number of pre-intervention time points for each unit.
+
+        Returns:
+            list[int]: List of pre-intervention counts for each unit.
+        """
+        is_zero = (self.D == 0).astype(int)
+        pre_intervention_counts = (is_zero.sum(axis=0)).tolist()
+        return pre_intervention_counts
 
     @property
     def n_units(self) -> int:
-        return self.Xtr.shape[1]
+        """Total number of units in the dataset.
+
+        Returns:
+            int: Number of units.
+        """
+        return self.Y.shape[1]
+
+    @property
+    def n_control_units(self) -> int:
+        """Number of control units in the dataset.
+
+        Returns:
+            int: Number of control units (units with treatment
+                assignment 0 in all time points).
+        """
+        return len(self.control_unit_indices)
+
+    @property
+    def n_treated_units(self) -> int:
+        """Number of treated units in the dataset.
+
+        Returns:
+            int: Number of treated units (units with non-zero
+                treatment assignment at least once.
+        """
+        return len(self.treated_unit_indices)
 
     @property
     def n_timepoints(self) -> int:
-        return self.n_post_intervention + self.n_pre_intervention
+        """Total number of time points in the dataset.
+
+        Returns:
+            int: Number of time points.
+        """
+        return self.Y.shape[0]
 
     @property
     def n_covariates(self) -> int:
-        if self.has_covariates:
-            return self.Ptr.shape[2]
+        """Covariate dimensionality.
+
+        Returns:
+            int: Number of covariates, or 0 if no covariates exist.
+        """
+        if self.X is not None:
+            return self.X.shape[2]
         else:
             return 0
 
     @property
-    def control_units(self) -> Float[np.ndarray, "{self.n_timepoints} {self.n_units}"]:
-        return np.vstack([self.Xtr, self.Xte])
+    def control_unit_indices(self) -> list[int]:
+        """Indices of control units (units that never receive treatment).
+
+        Returns:
+            list[int]: List of control unit indices.
+        """
+        return [i for i in range(self.n_units) if all(self.D[:, i] == 0)]
 
     @property
-    def treated_units(self) -> Float[np.ndarray, "{self.n_timepoints} 1"]:
-        return np.vstack([self.ytr, self.yte])
+    def treated_unit_indices(self) -> list[int]:
+        """Indices of treated units (units that receive treatment at some point).
+
+        Returns:
+            list[int]: List of treated unit indices.
+        """
+        return [i for i in range(self.n_units) if any(self.D[:, i] != 0)]
 
     @property
-    def control_covariates(
+    def control_unit_outputs(
+        self,
+    ) -> Float[np.ndarray, "{self.n_timepoints} {self.n_control_units}"]:
+        """Output values for control units (units that never receive treatment)
+            only.
+
+        Returns:
+            Float[np.ndarray, "n_timepoints n_control_units"]:
+                Array of outputs for control units across all time points.
+        """
+        return self.Y[:, self.control_unit_indices]
+
+    @property
+    def treated_unit_outputs(
+        self,
+    ) -> Float[np.ndarray, "{self.n_timepoints} {self.n_treated_units}"]:
+        """Output values for treated (units that receive treatment at some point)
+            units only.
+
+        Returns:
+            Float[np.ndarray, "n_timepoints n_control_units"]:
+                Array of outputs for treated units across all time points.
+        """
+        return self.Y[:, self.treated_unit_indices]
+
+    @property
+    def control_unit_covariates(
         self,
     ) -> tp.Optional[
-        Float[np.ndarray, "{self.n_timepoints} {self.n_units} {self.n_covariates}"]
-    ]:
-        if self.has_covariates:
-            return np.vstack([self.Ptr, self.Pte])
-        else:
-            return None
-
-    @property
-    def treated_covariates(
-        self,
-    ) -> tp.Optional[Float[np.ndarray, "{self.n_timepoints} 1 {self.n_covariates}"]]:
-        if self.has_covariates:
-            return np.vstack([self.Rtr, self.Rte])
-        else:
-            return None
-
-    @property
-    def pre_intervention_obs(
-        self,
-    ) -> tp.Tuple[Float[np.ndarray, "N D"], Float[np.ndarray, "N 1"]]:
-        return self.Xtr, self.ytr
-
-    @property
-    def post_intervention_obs(
-        self,
-    ) -> tp.Tuple[Float[np.ndarray, "M D"], Float[np.ndarray, "M 1"]]:
-        return self.Xte, self.yte
-
-    @property
-    def pre_intervention_covariates(
-        self,
-    ) -> tp.Optional[
-        tp.Tuple[
-            Float[np.ndarray, "N D F"],
-            Float[np.ndarray, "N 1 F"],
+        Float[
+            np.ndarray, "{self.n_timepoints} {self.n_control_units} {self.n_covariates}"
         ]
     ]:
-        if self.has_covariates:
-            return self.Ptr, self.Rtr
-        else:
-            return None
+        """Covariate values for control units (units that never receive treatment)
+            only.
+
+        Returns:
+            Float[np.ndarray, "n_timepoints n_control_units n_covariates"]:
+                Array of covariates for control units, or None if no covariates
+                exist.
+        """
+        if self.X is not None:
+            return self.X[:, self.control_unit_indices, :]
 
     @property
-    def post_intervention_covariates(
+    def treated_unit_covariates(
         self,
     ) -> tp.Optional[
-        tp.Tuple[
-            Float[np.ndarray, "M D F"],
-            Float[np.ndarray, "M 1 F"],
+        Float[
+            np.ndarray, "{self.n_timepoints} {self.n_treated_units} {self.n_covariates}"
         ]
     ]:
-        if self.has_covariates:
-            return self.Pte, self.Rte
-        else:
-            return None
+        """Covariate values for treated units (units that receive treatment at some
+            point) only.
+
+        Returns:
+            Float[np.ndarray, "n_timepoints n_control_units n_covariates"]:
+                Array of covariates for treated units, or None if no covariates
+                exist.
+        """
+        if self.X is not None:
+            return self.X[:, self.treated_unit_indices, :]
 
     @property
     def full_index(self) -> DatetimeIndex:
         return self._get_index(self._start_date)
 
-    @property
-    def treatment_date(self) -> Timestamp:
-        idxs = self.full_index
-        return idxs[self.n_pre_intervention]
+    def treatment_date(self, unit_idx: int) -> tp.Optional[Timestamp]:
+        """Treatment start date for a specific unit.
 
-    def get_index(self, period: InterventionTypes) -> DatetimeIndex:
+        Args:
+            unit_idx: Index of the unit.
+
+        Returns:
+            Optional[Timestamp]: When treatment begins for the
+                specified unit.
+        """
+        idxs = self.full_index
+        treatment_idx = self.n_pre_intervention[unit_idx]
+        if treatment_idx >= len(idxs):
+            return None
+        else:
+            return idxs[self.n_pre_intervention[unit_idx]]
+
+    def get_index(self, period: InterventionTypes, unit_idx: int) -> DatetimeIndex:
         if period == "pre-intervention":
-            return self.full_index[: self.n_pre_intervention]
+            return self.full_index[: self.n_pre_intervention[unit_idx]]
         elif period == "post-intervention":
-            return self.full_index[self.n_pre_intervention :]
+            return self.full_index[self.n_pre_intervention[unit_idx] :]
         else:
             return self.full_index
 
     def _get_columns(self) -> tp.List[str]:
-        colnames = ["T"] + [f"C{i}" for i in range(self.n_units)]
+        colnames = [f"U{i}" for i in range(self.n_units)]
         return colnames
 
     def _get_index(self, start_date: dt.date) -> DatetimeIndex:
         return pd.date_range(start=start_date, freq="D", periods=self.n_timepoints)
 
-    def _get_indicator(self) -> Integer[np.ndarray, "N 1"]:
-        indicator = np.vstack(
-            [
-                np.zeros(shape=(self.n_pre_intervention, 1)).astype(np.int64),
-                np.ones(shape=(self.n_post_intervention, 1)).astype(np.int64),
-            ]
-        )
-        return indicator
+    def inflate(self, inflation_vals: Float[np.ndarray, "T N"]) -> Dataset:
+        """
+        Inflate the outputs Y by inflation_vals that are multiplicative factors
+        to be applied, i.e. Y*inflation_vals.
 
-    def inflate(self, inflation_vals: Float[np.ndarray, "M 1"]) -> Dataset:
-        Xtr, ytr = [deepcopy(i) for i in self.pre_intervention_obs]
-        Xte, yte = [deepcopy(i) for i in self.post_intervention_obs]
-        inflated_yte = yte * inflation_vals
+        Args:
+            inflation_vals (Float[np.ndarray, "T N"]): Multiplicative inflation
+                coefficients.
+
+        Returns:
+            Dataset: Inflated dataset.
+        """
+        Y_ = deepcopy(self.Y)
+        D_ = deepcopy(self.D)
+        X_ = deepcopy(self.X)
+        inflated_Y_ = Y_ * inflation_vals
         return Dataset(
-            Xtr,
-            Xte,
-            ytr,
-            inflated_yte,
+            inflated_Y_,
+            D_,
+            X_,
             self._start_date,
-            self.Ptr,
-            self.Pte,
-            self.Rtr,
-            self.Rte,
-            yte,
-            self.synthetic,
             self._name,
         )
 
     def __eq__(self, other: Dataset) -> bool:
-        ytr = np.allclose(self.ytr, other.ytr)
-        yte = np.allclose(self.yte, other.yte)
-        if self.Xtr.shape == other.Xtr.shape:
-            xtr = np.allclose(self.Xtr, other.Xtr)
+        if self.Y.shape == other.Y.shape:
+            Y_check = np.allclose(self.Y, other.Y)
         else:
-            xtr = False
-        if self.Xte.shape == other.Xte.shape:
-            xte = np.allclose(self.Xte, other.Xte)
+            Y_check = False
+        if self.D.shape == other.D.shape:
+            D_check = np.allclose(self.D, other.D)
         else:
-            xte = False
-        return all([xtr, ytr, xte, yte])
+            D_check = False
+        if self.X is not None:
+            if other.X is not None:
+                if self.X.shape == other.X.shape:
+                    X_check = np.allclose(self.X, other.X)
+                else:
+                    X_check = False
+            else:
+                X_check = False
+        elif other.X is None:
+            X_check = True
+        else:
+            X_check = False
 
-    def to_azcausal(self):
-        time_index = np.arange(self.n_timepoints)
-        data_df, _ = self.to_df()
-        data = data_df.assign(time=time_index).melt(id_vars=["time", "treated"])
-        data.loc[:, "treated"] = np.where(
-            (data["variable"] == "T") & (data["treated"] == 1.0), 1, 0
-        )
-        panels = to_panels(data, "time", "variable", ["value", "treated"])
-        ctypes = dict(
-            outcome="value", time="time", unit="variable", intervention="treated"
-        )
-        panel = CausalPanel(panels).setup(**ctypes)
-        return panel
+        return all([Y_check, D_check, X_check])
 
     @property
     def _slots(self) -> tp.Dict[str, int]:
-        return {"n_units": self.n_units + 1, "n_timepoints": self.n_timepoints}
-
-    def drop_unit(self, idx: int) -> Dataset:
-        Xtr = np.delete(self.Xtr, [idx], axis=1)
-        Xte = np.delete(self.Xte, [idx], axis=1)
-        Ptr = np.delete(self.Ptr, [idx], axis=1) if self.Ptr is not None else None
-        Pte = np.delete(self.Pte, [idx], axis=1) if self.Pte is not None else None
-        return Dataset(
-            Xtr,
-            Xte,
-            self.ytr,
-            self.yte,
-            self._start_date,
-            Ptr,
-            Pte,
-            self.Rtr,
-            self.Rte,
-            self.counterfactual,
-            self.synthetic,
-            self._name,
-        )
-
-    def to_placebo_data(self, to_treat_idx: int) -> Dataset:
-        ytr = self.Xtr[:, to_treat_idx].reshape(-1, 1)
-        yte = self.Xte[:, to_treat_idx].reshape(-1, 1)
-        dropped_data = self.drop_unit(to_treat_idx)
-        placebo_data = reassign_treatment(dropped_data, ytr, yte)
-        return placebo_data
+        return {
+            "n_units": self.n_units,
+            "n_timepoints": self.n_timepoints,
+            "n_covariates": self.n_covariates,
+        }
 
     @property
     def name(self) -> tp.Optional[str]:
@@ -306,6 +334,13 @@ class Dataset:
 
 @dataclass
 class DatasetContainer:
+    """Container for multiple Dataset instances.
+
+    Attributes:
+        datasets (List[Dataset]): List of Dataset instances.
+        names (Optional[tp.List[str]]): List of names for the datasets.
+    """
+
     datasets: tp.List[Dataset]
     names: tp.Optional[tp.List[str]] = None
 
@@ -331,24 +366,3 @@ class DatasetContainer:
 
     def __len__(self) -> int:
         return len(self.datasets)
-
-
-def reassign_treatment(
-    data: Dataset, ytr: Float[np.ndarray, "N 1"], yte: Float[np.ndarray, "M 1"]
-) -> Dataset:
-    Xtr = data.Xtr
-    Xte = data.Xte
-    return Dataset(
-        Xtr,
-        Xte,
-        ytr,
-        yte,
-        data._start_date,
-        data.Ptr,
-        data.Pte,
-        data.Rtr,
-        data.Rte,
-        data.counterfactual,
-        data.synthetic,
-        data._name,
-    )
