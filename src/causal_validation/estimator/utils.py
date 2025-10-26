@@ -1,22 +1,45 @@
 from dataclasses import dataclass
 import typing as tp
 
-from azcausal.core.effect import Effect
 from azcausal.core.error import Error
 from azcausal.core.estimator import Estimator
+from azcausal.core.panel import (
+    CausalPanel,
+    Panel,
+)
 from azcausal.core.result import Result as _Result
+from azcausal.util import to_panels
 from jaxtyping import Float
+import pandas as pd
 
 from causal_validation.data import Dataset
+from causal_validation.estimator import Result
 from causal_validation.types import NPArray
 
 
-@dataclass
-class Result:
-    effect: Effect
-    counterfactual: Float[NPArray, "N 1"]
-    synthetic: Float[NPArray, "N 1"]
-    observed: Float[NPArray, "N 1"]
+def to_azcausal(dataset: Dataset) -> Panel:
+    if dataset.n_treated_units != 1:
+        raise ValueError("Only one treated unit is supported.")
+    time_index = dataset.full_index
+    unit_cols = dataset._get_columns()
+
+    data = []
+    for time_idx in range(dataset.n_timepoints):
+        for unit_idx, unit in enumerate(unit_cols):
+            data.append(
+                {
+                    "variable": unit,
+                    "time": time_index[time_idx],
+                    "value": dataset.Y[time_idx, unit_idx],
+                    "treated": int(dataset.D[time_idx, unit_idx]),
+                }
+            )
+
+    df_data = pd.DataFrame(data)
+    panels = to_panels(df_data, "time", "variable", ["value", "treated"])
+    ctypes = dict(outcome="value", time="time", unit="variable", intervention="treated")
+    panel = CausalPanel(panels).setup(**ctypes)
+    return panel
 
 
 @dataclass
@@ -29,7 +52,7 @@ class AZCausalWrapper:
         self._model_name = self.model.__class__.__name__
 
     def __call__(self, data: Dataset, **kwargs) -> Result:
-        panel = data.to_azcausal()
+        panel = to_azcausal(data)
         result = self.model.fit(panel, **kwargs)
         if self.error_estimator:
             self.model.error(result, self.error_estimator)

@@ -7,8 +7,8 @@ from scipy.stats._distn_infrastructure import (
 )
 
 EffectTypes = tp.Literal["fixed", "random"]
-WeightTypes = tp.Literal["uniform", "non-uniform"]
 InterventionTypes = tp.Literal["pre-intervention", "post-intervention", "both"]
+TreatedSimulationTypes = tp.Literal["independent", "control-weighted"]
 RandomVariable = tp.Union[rv_continuous, rv_discrete]
 Number = tp.Union[float, int]
 NPArray = np.ndarray

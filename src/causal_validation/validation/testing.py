@@ -78,8 +78,12 @@ class RMSPETestStatistic(AbstractTestStatistic):
         synthetic: Float[np.ndarray, "N 1"],
         treatment_index: int,
     ) -> Float:
-        _, pre_observed = dataset.pre_intervention_obs
-        _, post_observed = dataset.post_intervention_obs
+        if dataset.n_treated_units != 1:
+            raise ValueError(
+                "Error: only one treated unit is allowed for RMSPE test statistic!"
+            )
+        pre_observed = dataset.treated_unit_outputs[:treatment_index, :]
+        post_observed = dataset.treated_unit_outputs[treatment_index:, :]
         _, post_counterfactual = RMSPETestStatistic._split_array(
             counterfactual, treatment_index
         )

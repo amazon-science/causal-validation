@@ -19,10 +19,8 @@ from hypothesis import (
 )
 import numpy as np
 
-from causal_validation.models import (
-    AZCausalWrapper,
-    Result,
-)
+from causal_validation.estimator import Result
+from causal_validation.estimator.utils import AZCausalWrapper
 from causal_validation.testing import (
     TestConstants,
     simulate_data,
@@ -52,11 +50,9 @@ def test_call(
     n_post_treatment: int,
     seed: int,
 ):
-    constants = TestConstants(
-        N_CONTROL=n_control,
-        N_PRE_TREATMENT=n_pre_treatment,
-        N_POST_TREATMENT=n_post_treatment,
-    )
+    D = np.zeros((n_pre_treatment + n_post_treatment, n_control + 1))
+    D[n_pre_treatment:, -1] = 1
+    constants = TestConstants(TREATMENT_ASSIGNMENTS=D)
     data = simulate_data(global_mean=10.0, seed=seed, constants=constants)
     model = AZCausalWrapper(*model_error)
     result = model(data)
@@ -65,7 +61,7 @@ def test_call(
     assert isinstance(result.effect, Effect)
     assert not np.isnan(result.effect.value)
     assert isinstance(model._az_result, _Result)
-    assert np.all(np.concatenate((data.ytr, data.yte), axis=0) == result.observed)
+    assert np.all(data.treated_unit_outputs == result.observed)
     assert (
         result.observed.shape == result.counterfactual.shape == result.synthetic.shape
     )

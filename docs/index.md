@@ -17,15 +17,16 @@ trend varies across each of the 10 control units.
 from causal_validation import Config, simulate
 from causal_validation.effects import StaticEffect
 from causal_validation.plotters import plot
-from causal_validation.transforms import Trend, Periodic
+from causal_validation.transforms import Trend
 from causal_validation.transforms.parameter import UnitVaryingParameter
+import numpy as np
 from scipy.stats import norm
 
-cfg = Config(
-    n_control_units=10,
-    n_pre_intervention_timepoints=60,
-    n_post_intervention_timepoints=30,
-)
+# Treatment assignment matrix
+D = np.zeros((90, 11))  # 90 time points, 11 units
+D[60:, -1] = 1  # Last unit treated after 60 time points
+
+cfg = Config(treatment_assignments=D)
 
 # Simulate the base observation
 base_data = simulate(cfg)
@@ -38,6 +39,8 @@ trended_data = trend_component(base_data)
 # Simulate a 5% lift in the treated unit's post-intervention data
 effect = StaticEffect(0.05)
 inflated_data = effect(trended_data)
+
+plot(inflated_data)
 ```
 
 ![Gaussian process posterior.](static/imgs/readme_fig.png)
@@ -50,6 +53,7 @@ combination with AZCausal by the following.
 
 ```python
 from azcausal.estimators.panel.sdid import SDID
+from causal_validation.estimator.utils import AZCausalWrapper
 from causal_validation.validation.placebo import PlaceboTest
 
 model = AZCausalWrapper(model=SDID())
