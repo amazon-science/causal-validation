@@ -23,8 +23,8 @@ from causal_validation.transforms.parameter import (
 class Noise(AdditiveOutputTransform):
     """
     Transform the treated units by adding TimeAndUnitVaryingParameter noise terms
-    sampled from a specified sampling distribution. By default, the sampling distribution
-    is Normal with 0 loc and 0.1 scale.
+    sampled from a specified sampling distribution. By default, the sampling
+    distribution is Normal with 0 loc and 0.1 scale.
     """
 
     noise_dist: TimeAndUnitVaryingParameter = field(

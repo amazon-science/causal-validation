@@ -1,9 +1,6 @@
-from copy import deepcopy
-import datetime as dt
 import string
 import typing as tp
 
-from azcausal.estimators.panel.did import DID
 from hypothesis import (
     given,
     settings,
@@ -11,14 +8,11 @@ from hypothesis import (
 )
 import numpy as np
 import pandas as pd
-from pandas.core.indexes.datetimes import DatetimeIndex
-import pytest
 
 from causal_validation.data import (
     Dataset,
     DatasetContainer,
 )
-from causal_validation.types import InterventionTypes
 
 
 @given(
@@ -58,8 +52,9 @@ def test_dataset(T: int, N: int, K: int, seed: int):
         == (T * np.ones(N) - data1.n_post_intervention).tolist()
     )
 
-    assert data1.n_treated_units == 2
-    assert data1.n_control_units == N - 2
+    N_TREATED = 2
+    assert data1.n_treated_units == N_TREATED
+    assert data1.n_control_units == N - N_TREATED
     assert data1.treated_unit_indices == [2, 3]
     assert data1.control_unit_indices == [0, 1] + list(range(4, N))
 
@@ -92,7 +87,8 @@ def test_dataset_to_df(T: int, N: int, K: int, seed: int):
     df1 = data1.to_df()
     assert isinstance(df1, pd.DataFrame)
     assert df1.shape == (T, N * (K + 2))
-    assert df1.columns.nlevels == 2
+    EXPECTED_COLUMN_LEVELS = 2
+    assert df1.columns.nlevels == EXPECTED_COLUMN_LEVELS
     assert df1.columns[0] == ("U0", "Y")
     assert df1.columns[1] == ("U0", "D")
     assert df1.columns[2] == ("U0", "X0")
@@ -114,7 +110,7 @@ def test_dataset_to_df(T: int, N: int, K: int, seed: int):
     df2 = data2.to_df()
     assert isinstance(df2, pd.DataFrame)
     assert df2.shape == (T, N * 2)
-    assert df2.columns.nlevels == 2
+    assert df2.columns.nlevels == EXPECTED_COLUMN_LEVELS
     assert df2.columns[0] == ("U0", "Y")
     assert df2.columns[1] == ("U0", "D")
     assert df2.columns[2] == ("U1", "Y")
@@ -198,13 +194,11 @@ def test_dataset_container(seeds: tp.List[int], to_name: bool, T: int, N: int):
     K=st.integers(min_value=1, max_value=10),
     seed=st.integers(min_value=1, max_value=100),
     use_bernoulli=st.booleans(),
-    include_X=st.booleans(),
 )
 @settings(max_examples=10)
-def test_inflate(
-    T: int, N: int, K: int, seed: int, use_bernoulli: bool, include_X: bool
-):
+def test_inflate(T: int, N: int, K: int, seed: int, use_bernoulli: bool):
     rng = np.random.RandomState(seed)
+    include_X = bool(rng.binomial(1, 0.5))
     Y = rng.randn(T, N)
     D = rng.binomial(1, 0.3, (T, N)) if use_bernoulli else np.abs(rng.randn(T, N))
     X = rng.randn(T, N, K) if include_X else None

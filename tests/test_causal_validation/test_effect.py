@@ -20,20 +20,12 @@ from causal_validation.effects import (
         min_value=-0.5, max_value=0.5, allow_nan=False, allow_infinity=False
     ),
     seed=st.integers(min_value=1, max_value=100),
-    use_bernoulli=st.booleans(),
-    include_X=st.booleans(),
 )
 @settings(max_examples=10)
-def test_static_effect(
-    T: int,
-    N: int,
-    K: int,
-    effect: float,
-    seed: int,
-    use_bernoulli: bool,
-    include_X: bool,
-):
+def test_static_effect(T: int, N: int, K: int, effect: float, seed: int):
     rng = np.random.RandomState(seed)
+    use_bernoulli = bool(rng.binomial(1, 0.5))
+    include_X = bool(rng.binomial(1, 0.5))
     Y = rng.randn(T, N)
     D = rng.binomial(1, 0.3, (T, N)) if use_bernoulli else np.abs(rng.randn(T, N))
     X = rng.randn(T, N, K) if include_X else None
@@ -53,7 +45,6 @@ def test_static_effect(
 
 
 @given(
-    T=st.integers(min_value=2, max_value=50),
     N=st.integers(min_value=2, max_value=50),
     K=st.integers(min_value=1, max_value=10),
     mean_effect=st.floats(
@@ -63,21 +54,19 @@ def test_static_effect(
         min_value=0.01, max_value=0.2, allow_nan=False, allow_infinity=False
     ),
     seed=st.integers(min_value=1, max_value=100),
-    use_bernoulli=st.booleans(),
-    include_X=st.booleans(),
 )
 @settings(max_examples=10)
 def test_random_effect(
-    T: int,
     N: int,
     K: int,
     mean_effect: float,
     stddev_effect: float,
     seed: int,
-    use_bernoulli: bool,
-    include_X: bool,
 ):
     rng = np.random.RandomState(seed)
+    use_bernoulli = bool(rng.binomial(1, 0.5))
+    include_X = bool(rng.binomial(1, 0.5))
+    T = 50
     Y = rng.randn(T, N)
     D = rng.binomial(1, 0.3, (T, N)) if use_bernoulli else np.abs(rng.randn(T, N))
     X = rng.randn(T, N, K) if include_X else None

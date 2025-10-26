@@ -163,9 +163,10 @@ def test_simulate_control_weighted(n_units, n_timepoints, seed):
     )
     data = simulate(cfg)
 
+    N_TREATED = 2
     assert data.Y.shape == (n_timepoints, n_units)
-    assert data.n_control_units == n_units - 2
-    assert data.n_treated_units == 2
+    assert data.n_control_units == n_units - N_TREATED
+    assert data.n_treated_units == N_TREATED
     assert np.all(data.Y[:, :-2] @ cfg.weights[0] == data.Y[:, -2])
     assert np.all(data.Y[:, :-2] @ cfg.weights[1] == data.Y[:, -1])
 
@@ -208,9 +209,10 @@ def test_simulate_control_weighted_with_covariates(
     )
     data = simulate(cfg)
 
+    N_TREATED = 2
     assert data.Y.shape == (n_timepoints, n_units)
-    assert data.n_control_units == n_units - 2
-    assert data.n_treated_units == 2
+    assert data.n_control_units == n_units - N_TREATED
+    assert data.n_treated_units == N_TREATED
     assert np.all(data.Y[:, :-2] @ cfg.weights[0] == data.Y[:, -2])
     assert np.all(data.Y[:, :-2] @ cfg.weights[1] == data.Y[:, -1])
     X_treated1 = np.einsum("ijk,j->ik", data.X[:, :-2, :], cfg.weights[0])

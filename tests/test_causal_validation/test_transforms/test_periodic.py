@@ -161,7 +161,7 @@ def test_varying_parameters():
     data_slots = constants.DATA_SLOTS
     base_data = simulate_data(GLOBAL_MEAN, DEFAULT_SEED, constants=constants)
     base_data_transform = periodic_transform(base_data)
-    for i, slot in enumerate(param_slots):
+    for slot in param_slots:
         setattr(
             periodic_transform,
             slot,
