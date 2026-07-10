@@ -38,6 +38,12 @@ markdown_extensions:
       pygments_style: vs
       noclasses: true
 
+hooks:
+  # Upgrades the vulnerable jQuery (<3.5.0) that mknotebooks injects into
+  # rendered notebook pages. Kept outside docs/ so it is not published as a
+  # static asset. See hooks/fix_vulnerable_jquery.py.
+  - hooks/fix_vulnerable_jquery.py
+
 plugins:
   - search
   - mkdocstrings
