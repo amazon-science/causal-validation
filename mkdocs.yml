@@ -38,6 +38,12 @@ markdown_extensions:
       pygments_style: vs
       noclasses: true
 
+hooks:
+  # Pins the jQuery version referenced by rendered notebook pages to a single
+  # current release. Kept outside docs/ so it is not published as a static
+  # asset. See hooks/pin_jquery_version.py.
+  - hooks/pin_jquery_version.py
+
 plugins:
   - search
   - mkdocstrings
